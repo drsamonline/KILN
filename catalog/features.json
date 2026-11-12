@@ -1,0 +1,238 @@
+{
+  "version": 1,
+  "note": "The bounded catalog. A feature not listed here cannot appear in a spec. A feature listed here must have an emitter and an assertion.",
+  "features": {
+    "crud": {
+      "label": "Create, read, update, delete",
+      "aliases": [
+        "crud",
+        "add",
+        "edit",
+        "delete",
+        "manage",
+        "track",
+        "log",
+        "records",
+        "entries",
+        "list of"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "kit": "web-kit",
+      "emitter": "runtime",
+      "assertion": "creating a record and reloading the page shows the record in the list"
+    },
+    "search": {
+      "label": "Search across declared fields",
+      "aliases": [
+        "search",
+        "find",
+        "look up",
+        "lookup",
+        "filter by text",
+        "query"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "search-kit",
+      "emitter": "runtime",
+      "assertion": "typing a query that no record contains hides every record"
+    },
+    "export": {
+      "label": "Export as JSON and CSV",
+      "aliases": [
+        "export",
+        "download",
+        "save to file",
+        "csv",
+        "json out",
+        "backup file"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "export-kit",
+      "emitter": "runtime",
+      "assertion": "the export handler produces text that parses as JSON with one row per record"
+    },
+    "import": {
+      "label": "Restore from a JSON file",
+      "aliases": [
+        "import",
+        "restore",
+        "load from file",
+        "bring back"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "export-kit",
+      "emitter": "runtime",
+      "assertion": "importing a previously exported file restores the same record count"
+    },
+    "theme": {
+      "label": "Dark and light theme, remembered",
+      "aliases": [
+        "theme",
+        "dark mode",
+        "light mode",
+        "appearance"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "kit": "tokens-kit",
+      "emitter": "runtime",
+      "assertion": "toggling the theme and reloading keeps the chosen theme"
+    },
+    "pwa": {
+      "label": "Installable, offline manifest",
+      "aliases": [
+        "installable",
+        "pwa",
+        "add to home screen",
+        "offline install"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "kit": "web-kit",
+      "emitter": "runtime",
+      "assertion": "the document carries an inline manifest and no external URL"
+    },
+    "tags": {
+      "label": "Tag chips on each record",
+      "aliases": [
+        "tags",
+        "labels",
+        "categories on a record",
+        "chips"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "a record saved with two tags shows two chips"
+    },
+    "filters": {
+      "label": "Facet filters per select or tag field",
+      "aliases": [
+        "filters",
+        "facets",
+        "narrow down",
+        "by category"
+      ],
+      "requires": [
+        "crud",
+        "search"
+      ],
+      "conflicts": [],
+      "kit": "search-kit",
+      "emitter": "runtime",
+      "assertion": "selecting a filter value shows only records carrying that value"
+    },
+    "sort": {
+      "label": "Sort by any column",
+      "aliases": [
+        "sort",
+        "order by",
+        "newest first",
+        "alphabetical"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "sorting by a field reorders the rendered list"
+    },
+    "stats": {
+      "label": "Count and summary strip",
+      "aliases": [
+        "stats",
+        "summary",
+        "count",
+        "how many",
+        "dashboard strip"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "the summary count equals the number of records rendered"
+    },
+    "reminder": {
+      "label": "Due dates with an overdue flag",
+      "aliases": [
+        "reminder",
+        "due date",
+        "deadline",
+        "overdue",
+        "schedule"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "a record with a past due date renders an overdue marker"
+    },
+    "print": {
+      "label": "Print stylesheet",
+      "aliases": [
+        "print",
+        "printable",
+        "paper",
+        "pdf out"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "web-kit",
+      "emitter": "runtime",
+      "assertion": "the print stylesheet hides controls and keeps the list"
+    },
+    "i18n": {
+      "label": "Second language toggle",
+      "aliases": [
+        "language",
+        "hindi",
+        "gujarati",
+        "translate",
+        "bilingual"
+      ],
+      "requires": [
+        "theme"
+      ],
+      "conflicts": [],
+      "kit": "web-kit",
+      "emitter": "runtime",
+      "assertion": "switching language changes at least one rendered label"
+    },
+    "backup": {
+      "label": "One-click full backup and restore",
+      "aliases": [
+        "backup",
+        "snapshot",
+        "archive everything"
+      ],
+      "requires": [
+        "export",
+        "import"
+      ],
+      "conflicts": [],
+      "kit": "export-kit",
+      "emitter": "runtime",
+      "assertion": "a backup file restored into an empty store reproduces every record"
+    }
+  }
+}

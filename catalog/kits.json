@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "note": "Kit resolution. A feature names a kit; the kit names a repo. An unknown kit is a hard error, never a silent skip.",
+  "kits": {
+    "web-kit": {
+      "repo": "drsamonline/web-kit",
+      "provides": [
+        "shell",
+        "manifest",
+        "print stylesheet",
+        "i18n strings"
+      ],
+      "kind": "runtime"
+    },
+    "tokens-kit": {
+      "repo": "drsamonline/tokens-kit",
+      "provides": [
+        "colour tokens",
+        "spacing scale",
+        "theme switch"
+      ],
+      "kind": "runtime"
+    },
+    "widgets-kit": {
+      "repo": "drsamonline/widgets-kit",
+      "provides": [
+        "list rows",
+        "chips",
+        "summary strip",
+        "sort control"
+      ],
+      "kind": "runtime"
+    },
+    "search-kit": {
+      "repo": "drsamonline/search-kit",
+      "provides": [
+        "inverted index",
+        "prefix match",
+        "facet filters"
+      ],
+      "kind": "runtime"
+    },
+    "export-kit": {
+      "repo": "drsamonline/export-kit",
+      "provides": [
+        "JSON download",
+        "CSV download",
+        "restore"
+      ],
+      "kind": "runtime"
+    }
+  }
+}

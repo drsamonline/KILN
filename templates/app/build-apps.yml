@@ -1,0 +1,52 @@
+name: build-apps
+
+# Emitted by KILN. Runs the app's own smoke assertions, then packages it.
+# Windows EXE and Android APK are produced by the estate's app-builder; the
+# call below is commented until its input names are confirmed against that
+# repository's workflow, so this file never references an interface by guess.
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run behaviour assertions
+        run: python3 tests/smoke.py
+
+  package:
+    needs: smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Zip the app
+        run: |
+          mkdir -p dist
+          cp index.html app.json README.md LICENSE dist/
+          cd dist && zip -r "../{{ID}}-web.zip" . && cd ..
+      # - name: Build EXE and APK
+      #   uses: drsamonline/app-builder/.github/workflows/build.yml@main
+      #   with:
+      #     app-dir: .
+      #     app-name: {{TITLE}}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: {{ID}}-web
+          path: dist/**
+      - name: Release asset
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "{{ID}}-web.zip"

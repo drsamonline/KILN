@@ -1,0 +1,76 @@
+name: kiln
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: tests (py ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Unit tests
+        run: python3 -m unittest discover -s tests -v
+
+  verify-all:
+    name: build and verify every spec
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Verify
+        run: python3 -m kiln verify --all
+      - name: Build the demo apps
+        run: |
+          for s in specs/app-*.md; do python3 -m kiln build "$s" -o dist; done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kiln-apps
+          path: dist/**
+
+  audit:
+    name: forge-defect guards
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Heartbeat
+        run: python3 -m kiln heartbeat
+      - name: Audit
+        run: python3 -m kiln audit --write && git diff --exit-code INDEX.md
+
+  lint:
+    name: shellcheck and syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell scripts
+        run: |
+          if compgen -G "**/*.sh" > /dev/null; then shellcheck $(find . -name '*.sh'); fi
+      - name: Python compiles
+        run: python3 -m compileall -q kiln tests

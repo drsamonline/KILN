@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "categories": [
+    "productivity",
+    "utility",
+    "health",
+    "education",
+    "finance",
+    "reference",
+    "creative",
+    "clinical",
+    "community"
+  ],
+  "licence": {
+    "id": "PolyForm-Noncommercial-1.0.0",
+    "file": "LICENSE",
+    "badge": "PolyForm Noncommercial 1.0.0",
+    "note": "Estate default. Change here and the README badge and LICENSE follow; never edit either by hand."
+  }
+}
