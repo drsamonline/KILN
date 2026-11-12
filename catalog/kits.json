@@ -1,53 +1,58 @@
 {
-  "version": 1,
-  "note": "Kit resolution. A feature names a kit; the kit names a repo. An unknown kit is a hard error, never a silent skip.",
+  "version": 2,
+  "note": "Kits are internal. Nothing here points at another repository. A kit is a region of templates/app/index.html plus a runtime capability, and it ships inside this repo. There is no clone step, no submodule, no vendored copy to drift.",
   "kits": {
     "web-kit": {
-      "repo": "drsamonline/web-kit",
+      "bundled": true,
+      "kind": "runtime",
       "provides": [
         "shell",
-        "manifest",
+        "inline manifest",
         "print stylesheet",
-        "i18n strings"
+        "string table"
       ],
-      "kind": "runtime"
+      "source": "templates/app/index.html"
     },
     "tokens-kit": {
-      "repo": "drsamonline/tokens-kit",
+      "bundled": true,
+      "kind": "runtime",
       "provides": [
         "colour tokens",
         "spacing scale",
         "theme switch"
       ],
-      "kind": "runtime"
+      "source": "templates/app/index.html"
     },
     "widgets-kit": {
-      "repo": "drsamonline/widgets-kit",
+      "bundled": true,
+      "kind": "runtime",
       "provides": [
         "list rows",
         "chips",
         "summary strip",
         "sort control"
       ],
-      "kind": "runtime"
+      "source": "templates/app/index.html"
     },
     "search-kit": {
-      "repo": "drsamonline/search-kit",
+      "bundled": true,
+      "kind": "runtime",
       "provides": [
-        "inverted index",
-        "prefix match",
-        "facet filters"
+        "field scan",
+        "facet filters",
+        "keyboard focus"
       ],
-      "kind": "runtime"
+      "source": "templates/app/index.html"
     },
     "export-kit": {
-      "repo": "drsamonline/export-kit",
+      "bundled": true,
+      "kind": "runtime",
       "provides": [
         "JSON download",
         "CSV download",
         "restore"
       ],
-      "kind": "runtime"
+      "source": "templates/app/index.html"
     }
   }
 }

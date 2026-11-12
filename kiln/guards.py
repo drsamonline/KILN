@@ -147,6 +147,48 @@ def check_kit_coverage(catalog) -> list[Row]:
     return rows
 
 
+# ------------------------------------------------- B6 prompt catalogue cannot drift
+def check_prompt_catalog(catalog) -> list[Row]:
+    """The catalogue table in PROMPT.md must match catalog/features.json.
+
+    A prompt that offers a feature KILN does not have produces a spec that cannot
+    build, and the user finds out at the end. This catches it at the start.
+    """
+    doc = ROOT / "PROMPT.md"
+    if not doc.exists():
+        return [Row("B6 PROMPT.md exists", False)]
+    text = doc.read_text(encoding="utf-8")
+    missing, wrong = [], []
+    for fid, d in catalog["features"].items():
+        row = re.search(rf"^\|\s*{re.escape(fid)}\s*\|", text, re.M)
+        if not row:
+            missing.append(fid)
+            continue
+        line = text[row.start():text.find("\n", row.start())]
+        needs = ", ".join(d.get("requires") or []) or "-"
+        if needs not in line:
+            wrong.append(fid)
+    rows = [Row("B6 PROMPT.md lists every feature", not missing, ", ".join(missing)),
+            Row("B6 PROMPT.md states the requires of each feature", not wrong, ", ".join(wrong))]
+    return rows
+
+
+# --------------------------------------------------- C7 studio.html is current
+def check_studio(catalog) -> list[Row]:
+    """studio.html is committed for phone and desktop use; it must match its sources."""
+    from . import studio as studiomod
+    p = ROOT / "studio.html"
+    if not p.exists():
+        return [Row("C7 studio.html exists", False, "run kiln studio")]
+    have = p.read_text(encoding="utf-8")
+    want = studiomod.build(catalog)
+    rows = [Row("C7 studio.html matches its sources", have == want,
+                "stale, run kiln studio" if have != want else "")]
+    for bad in ("http://", "https://", "fetch("):
+        rows.append(Row(f"C7 studio.html has no {bad}", bad not in have))
+    return rows
+
+
 # ------------------------------------------------------------------ C2 preflight
 def preflight() -> list[Row]:
     import shutil
@@ -224,6 +266,8 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_licence(catalog)
     rows += check_audit_map()
     rows += check_kit_coverage(catalog)
+    rows += check_prompt_catalog(catalog)
+    rows += check_studio(catalog)
     rows += check_runs()
     rows += check_heartbeat()
     rows += check_shellcheck()

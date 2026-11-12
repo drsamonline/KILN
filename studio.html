@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KILN Studio</title>
+<meta name="description" content="Build an offline app in one file. No server, no network, no model.">
+<style>
+  :root{
+    --bg:#0f1116; --panel:#171a21; --line:#262b36; --ink:#e7ebf3; --muted:#98a2b3;
+    --accent:#7c9cff; --ok:#4ade80; --bad:#ff6b6b; --r:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);
+    padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  h1{font-size:16px;margin:0;flex:1 1 auto}
+  h1 small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+  main{max-width:820px;margin:0 auto;padding:14px 14px 60px}
+  button,select,input,textarea{font:inherit;color:inherit;background:var(--panel);
+    border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-height:40px}
+  button{cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent);color:#0b0d12;border-color:transparent;font-weight:700}
+  button.tab{border-radius:999px;padding:6px 14px;min-height:34px;font-size:13px}
+  button.tab[aria-selected="true"]{background:var(--accent);color:#0b0d12;border-color:transparent}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .spacer{flex:1 1 auto}
+  label.f{display:block;margin:12px 0 4px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  label.f input,label.f textarea,label.f select{width:100%;margin-top:5px;text-transform:none;letter-spacing:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:6px}
+  .feat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--panel);
+    display:flex;gap:8px;align-items:center;font-size:13px}
+  .feat input{min-height:auto;width:18px;height:18px}
+  .feat.on{border-color:var(--accent)}
+  .hint{color:var(--muted);font-size:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin:10px 0}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;padding:4px 6px}
+  td{padding:3px 4px;vertical-align:middle}
+  td input,td select{width:100%;padding:6px;min-height:34px;font-size:13px}
+  td.narrow{width:38px;text-align:center}
+  textarea{width:100%;min-height:220px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+  .out{font-family:ui-monospace,monospace;font-size:12px;white-space:pre-wrap;word-break:break-word;
+    max-height:300px;overflow:auto;background:#0b0d12;border:1px solid var(--line);border-radius:8px;padding:10px}
+  .bad{color:var(--bad)} .ok{color:var(--ok)}
+  [hidden]{display:none !important}
+  @media (max-width:520px){ main{padding:10px} h1{font-size:15px} }
+</style>
+</head>
+<body>
+<header>
+  <h1>KILN Studio<small>one file in, one app out — offline</small></h1>
+  <div class="row" role="tablist">
+    <button class="tab" role="tab" id="tab-build" aria-selected="true">Build</button>
+    <button class="tab" role="tab" id="tab-prompt" aria-selected="false">Prompt</button>
+    <button class="tab" role="tab" id="tab-paste" aria-selected="false">Paste</button>
+  </div>
+</header>
+
+<main>
+  <!-- ============================ BUILD ============================ -->
+  <section id="pane-build">
+    <div class="card">
+      <label class="f">What is it for? <span class="hint">(one sentence, becomes the pitch)</span>
+        <input id="idea" placeholder="a tea log with tags and search" autocomplete="off">
+      </label>
+      <div class="row">
+        <label class="f" style="flex:1 1 220px">App name
+          <input id="name" placeholder="Tea Log">
+        </label>
+        <label class="f" style="flex:0 0 120px">Accent
+          <input id="accent" type="color" value="#7c9cff" style="height:40px;padding:2px">
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row"><strong>Features</strong><span class="spacer"></span>
+        <span class="hint" id="featcount">0 selected</span></div>
+      <div class="grid" id="features"></div>
+      <p class="hint">Dependencies are added for you. A feature that is not here does not exist.</p>
+    </div>
+
+    <div class="card">
+      <div class="row"><strong>What is recorded</strong><span class="spacer"></span>
+        <button id="addfield" class="tab">+ field</button></div>
+      <div class="row" style="margin-top:8px">
+        <label class="f" style="flex:1 1 200px">Record name (singular)
+          <input id="entname" placeholder="tea">
+        </label>
+        <label class="f" style="flex:1 1 200px">Label
+          <input id="entlabel" placeholder="Tea">
+        </label>
+      </div>
+      <table id="fields"><thead><tr>
+        <th>Label</th><th>Key</th><th>Type</th><th class="narrow">Req</th><th class="narrow"></th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <button id="build" class="primary">Build app</button>
+        <button id="specbtn">Download spec</button>
+        <span class="spacer"></span>
+        <span id="status" class="hint"></span>
+      </div>
+      <div id="report" class="out" hidden></div>
+    </div>
+  </section>
+
+  <!-- ============================ PROMPT ============================ -->
+  <section id="pane-prompt" hidden>
+    <p class="hint">Copy this into any chat window. Paste the reply into the Paste tab.
+      The placeholders are filled from the Build tab where you have typed something.</p>
+    <div class="row"><button id="copyprompt" class="primary">Copy prompt</button>
+      <span id="promptstatus" class="hint"></span></div>
+    <textarea id="prompt" readonly></textarea>
+  </section>
+
+  <!-- ============================ PASTE ============================ -->
+  <section id="pane-paste" hidden>
+    <p class="hint">Paste the whole reply, including any chatter around it. The spec is
+      found, repaired and loaded into the Build tab.</p>
+    <textarea id="pasted" placeholder="paste the model's reply here"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button id="adopt" class="primary">Adopt</button>
+      <span id="adoptstatus" class="hint"></span>
+    </div>
+    <div id="adoptlog" class="out" hidden></div>
+  </section>
+</main>
+
+<script>
+"use strict";
+/* KILN Studio 1.0 — one file, no network, no model.
+   Everything below runs in the browser, including on a phone. */
+const CATALOG = {"features":{"crud":{"label":"Create, read, update, delete","aliases":["crud","add","edit","delete","manage","track","log","records","entries","list of"],"requires":[],"assertion":"creating a record and reloading the page shows the record in the list","kit":"web-kit"},"search":{"label":"Search across declared fields","aliases":["search","find","look up","lookup","filter by text","query"],"requires":["crud"],"assertion":"typing a query that no record contains hides every record","kit":"search-kit"},"export":{"label":"Export as JSON and CSV","aliases":["export","download","save to file","csv","json out","backup file"],"requires":["crud"],"assertion":"the export handler produces text that parses as JSON with one row per record","kit":"export-kit"},"import":{"label":"Restore from a JSON file","aliases":["import","restore","load from file","bring back"],"requires":["crud"],"assertion":"importing a previously exported file restores the same record count","kit":"export-kit"},"theme":{"label":"Dark and light theme, remembered","aliases":["theme","dark mode","light mode","appearance"],"requires":[],"assertion":"toggling the theme and reloading keeps the chosen theme","kit":"tokens-kit"},"pwa":{"label":"Installable, offline manifest","aliases":["installable","pwa","add to home screen","offline install"],"requires":[],"assertion":"the document carries an inline manifest and no external URL","kit":"web-kit"},"tags":{"label":"Tag chips on each record","aliases":["tags","labels","categories on a record","chips"],"requires":["crud"],"assertion":"a record saved with two tags shows two chips","kit":"widgets-kit"},"filters":{"label":"Facet filters per select or tag field","aliases":["filters","facets","narrow down","by category"],"requires":["crud","search"],"assertion":"selecting a filter value shows only records carrying that value","kit":"search-kit"},"sort":{"label":"Sort by any column","aliases":["sort","order by","newest first","alphabetical"],"requires":["crud"],"assertion":"sorting by a field reorders the rendered list","kit":"widgets-kit"},"stats":{"label":"Count and summary strip","aliases":["stats","summary","count","how many","dashboard strip"],"requires":["crud"],"assertion":"the summary count equals the number of records rendered","kit":"widgets-kit"},"reminder":{"label":"Due dates with an overdue flag","aliases":["reminder","due date","deadline","overdue","schedule"],"requires":["crud"],"assertion":"a record with a past due date renders an overdue marker","kit":"widgets-kit"},"print":{"label":"Print stylesheet","aliases":["print","printable","paper","pdf out"],"requires":["crud"],"assertion":"the print stylesheet hides controls and keeps the list","kit":"web-kit"},"i18n":{"label":"Second language toggle","aliases":["language","hindi","gujarati","translate","bilingual"],"requires":["theme"],"assertion":"switching language changes at least one rendered label","kit":"web-kit"},"backup":{"label":"One-click full backup and restore","aliases":["backup","snapshot","archive everything"],"requires":["export","import"],"assertion":"a backup file restored into an empty store reproduces every record","kit":"export-kit"}},"licence":"PolyForm Noncommercial 1.0.0"};
+const TPL = "<!doctype html>\n<html lang=\"en\" data-theme=\"dark\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>{{TITLE}}<\/title>\n<meta name=\"description\" content=\"{{PITCH}}\">\n<meta name=\"color-scheme\" content=\"dark light\">\n<meta name=\"theme-color\" content=\"{{ACCENT}}\">\n<style>\n  :root{\n    --accent: {{ACCENT}};\n    --bg:#0f1116; --panel:#171a21; --line:#262b36; --ink:#e7ebf3;\n    --muted:#98a2b3; --danger:#ff6b6b; --ok:#4ade80;\n    --r:10px; --pad:16px;\n  }\n  html[data-theme=\"light\"]{\n    --bg:#f6f7f9; --panel:#ffffff; --line:#e2e5ea; --ink:#141821; --muted:#5b6472;\n  }\n  *{box-sizing:border-box}\n  html,body{margin:0;padding:0}\n  body{\n    background:var(--bg); color:var(--ink); min-height:100vh;\n    font:15px/1.5 ui-sans-serif,system-ui,-apple-system,\"Segoe UI\",Roboto,Arial,sans-serif;\n  }\n  header{\n    position:sticky; top:0; z-index:5; background:var(--bg);\n    border-bottom:1px solid var(--line); padding:12px var(--pad);\n    display:flex; gap:10px; align-items:center; flex-wrap:wrap;\n  }\n  h1{font-size:17px; margin:0; letter-spacing:.2px; flex:1 1 auto; min-width:120px}\n  h1 small{display:block; font-weight:400; color:var(--muted); font-size:12px}\n  main{max-width:860px; margin:0 auto; padding:var(--pad)}\n  button,select,input,textarea{\n    font:inherit; color:inherit; background:var(--panel);\n    border:1px solid var(--line); border-radius:8px; padding:8px 10px;\n  }\n  button{cursor:pointer}\n  button:hover{border-color:var(--accent)}\n  button.primary{background:var(--accent); color:#0b0d12; border-color:transparent; font-weight:600}\n  button.ghost{background:transparent}\n  .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}\n  .spacer{flex:1 1 auto}\n  #search{flex:1 1 220px; min-width:160px}\n  .strip{display:flex; gap:14px; margin:0 0 12px; color:var(--muted); font-size:13px}\n  .strip b{color:var(--ink)}\n  ul.list{list-style:none; margin:0; padding:0; display:grid; gap:8px}\n  li.item{\n    background:var(--panel); border:1px solid var(--line); border-radius:var(--r);\n    padding:12px 14px; display:flex; gap:12px; align-items:flex-start;\n  }\n  li.item .body{flex:1 1 auto; min-width:0}\n  li.item .t{font-weight:600; overflow-wrap:anywhere}\n  li.item .d{color:var(--muted); font-size:13px; overflow-wrap:anywhere; white-space:pre-wrap}\n  .chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:6px}\n  .chip{font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted)}\n  .overdue{color:var(--danger); font-size:12px; font-weight:600}\n  .empty{color:var(--muted); text-align:center; padding:40px 10px}\n  .banner{\n    margin:0 0 12px; padding:10px 12px; border-radius:8px; font-size:13px;\n    border:1px solid var(--line); background:var(--panel);\n  }\n  .banner.warn{border-color:#7a5a1a}\n  .banner.bad{border-color:var(--danger)}\n  dialog{\n    border:1px solid var(--line); border-radius:var(--r); background:var(--panel);\n    color:var(--ink); padding:18px; width:min(520px,92vw);\n  }\n  dialog::backdrop{background:rgba(0,0,0,.55)}\n  label{display:block; margin:10px 0 4px; font-size:13px; color:var(--muted)}\n  label input,label textarea,label select{width:100%; margin-top:4px}\n  .err{color:var(--danger); font-size:12px; min-height:16px}\n  .hint{color:var(--muted); font-size:11px}\n  @media print{\n    header button, #search, .strip, .chips, .hint{display:none !important}\n    body{background:#fff; color:#000}\n    li.item{border-color:#ccc; break-inside:avoid}\n  }\n<\/style>\n<\/head>\n<body>\n<header>\n  <h1>{{TITLE}}<small>{{PITCH}}<\/small><\/h1>\n  <div class=\"row\">\n    <button id=\"add\" class=\"primary\">New {{ENTITY}}<\/button>\n    <button id=\"export\" class=\"ghost\" title=\"Export\">Export<\/button>\n    <button id=\"theme\" class=\"ghost\" title=\"Theme\">Theme<\/button>\n  <\/div>\n<\/header>\n<main>\n  <div id=\"banners\"><\/div>\n  <div class=\"row\" style=\"margin-bottom:10px\">\n    <input id=\"search\" type=\"search\" placeholder=\"Search {{ENTITY_PLURAL}}  (Ctrl-K)\" autocomplete=\"off\">\n    <select id=\"sort\" aria-label=\"Sort\"><\/select>\n    <select id=\"filter\" aria-label=\"Filter\" hidden><\/select>\n    <button id=\"print\" class=\"ghost\" title=\"Print\">Print<\/button>\n  <\/div>\n  <div class=\"strip\" id=\"strip\" hidden><\/div>\n  <ul class=\"list\" id=\"list\"><\/ul>\n<\/main>\n\n<dialog id=\"editor\">\n  <form id=\"form\" method=\"dialog\" novalidate>\n    <strong id=\"editorTitle\">New {{ENTITY}}<\/strong>\n    <div id=\"fields\"><\/div>\n    <div class=\"err\" id=\"formErr\"><\/div>\n    <div class=\"row\" style=\"margin-top:14px\">\n      <button type=\"button\" class=\"ghost\" id=\"cancel\">Cancel<\/button>\n      <div class=\"spacer\"><\/div>\n      <button type=\"submit\" class=\"primary\">Save<\/button>\n    <\/div>\n    <p class=\"hint\" style=\"margin:10px 0 0\">Stored on this device only. Nothing leaves it.<\/p>\n  <\/form>\n<\/dialog>\n\n<script>\n\"use strict\";\n/* Generated by KILN from {{SPEC_PATH}}. The spec is the source of truth;\n   this file is a build artifact. Edit the spec and rebuild. */\nconst MODEL = {{MODEL_JSON}};\nconst F = new Set(MODEL.features);\nconst ENTITY = MODEL.entities[0];\nconst FIELDS = ENTITY.fields;\nconst KEY = \"kiln:\" + MODEL.namespace;\nconst THEME_KEY = \"kiln:\" + MODEL.namespace + \":theme\";\nconst LANG_KEY = \"kiln:\" + MODEL.namespace + \":lang\";\n\nconst LANGS = {\n  en: {add: \"New\", search: \"Search\", empty: \"Nothing here yet.\", save: \"Save\", cancel: \"Cancel\", del: \"Delete\"},\n  hi: {add: \"नया\", search: \"खोजें\", empty: \"अभी कुछ नहीं है।\", save: \"सहेजें\", cancel: \"रद्द\", del: \"हटाएँ\"}\n};\nlet lang = \"en\";\n\nlet rows = [];\nlet query = \"\";\nlet sortBy = \"created\";\nlet sortDir = -1;\nlet filterVal = \"\";\nlet editingId = null;\nlet banner = null;\n\nconst $ = (s, r) => (r || document).querySelector(s);\nconst el = (tag, cls, text) => {\n  const n = document.createElement(tag);\n  if (cls) n.className = cls;\n  if (text !== undefined) n.textContent = text;\n  return n;\n};\nconst esc = (s) => String(s === null || s === undefined ? \"\" : s)\n  .replace(/&/g, \"&amp;\").replace(/<\/g, \"&lt;\").replace(/>/g, \"&gt;\")\n  .replace(/\"/g, \"&quot;\").replace(/'/g, \"&#39;\");\nconst uid = () => (crypto && crypto.randomUUID)\n  ? crypto.randomUUID()\n  : \"r\" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);\nconst today = () => new Date().toISOString().slice(0, 10);\n\n/* ---------- storage: quota, corruption, versioning ---------- */\nfunction load() {\n  let raw = null;\n  try { raw = localStorage.getItem(KEY); }\n  catch (e) { banner = {kind: \"bad\", text: \"Storage is unavailable in this browser. Changes will not survive a reload.\"}; return []; }\n  if (!raw) return [];\n  try {\n    const parsed = JSON.parse(raw);\n    if (!parsed || !Array.isArray(parsed.rows)) throw new Error(\"shape\");\n    return parsed.rows;\n  } catch (e) {\n    try { localStorage.setItem(KEY + \":corrupt:\" + Date.now(), raw); } catch (e2) {}\n    banner = {kind: \"bad\", text: \"The saved state was corrupt and has been reset. The previous data was kept under \" + KEY + \":corrupt.\"};\n    return [];\n  }\n}\nfunction save() {\n  try {\n    localStorage.setItem(KEY, JSON.stringify({v: MODEL.version, rows: rows}));\n    return true;\n  } catch (e) {\n    banner = {kind: \"bad\", text: \"Storage is full. This change is in memory only and will be lost on reload. Export now to keep it.\"};\n    paintBanners();\n    return false;\n  }\n}\n\n/* ---------- rendering ---------- */\nfunction paintBanners() {\n  const box = $(\"#banners\");\n  box.innerHTML = \"\";\n  const list = [];\n  if (banner) list.push(banner);\n  if (F.has(\"crud\") && navigator.onLine === false) {\n    list.push({kind: \"warn\", text: \"You are offline. Everything here still works; nothing needs the network.\"});\n  }\n  for (const b of list) {\n    const d = el(\"div\", \"banner \" + (b.kind || \"\"), b.text);\n    box.appendChild(d);\n  }\n}\nfunction visible() {\n  let out = rows.slice();\n  if (F.has(\"search\") && query) {\n    const q = query.toLowerCase();\n    out = out.filter((r) => FIELDS.some((f) => {\n      const v = r[f.name];\n      if (v === undefined || v === null) return false;\n      return Array.isArray(v) ? v.join(\" \").toLowerCase().includes(q) : String(v).toLowerCase().includes(q);\n    }));\n  }\n  if (F.has(\"filters\") && filterVal) {\n    out = out.filter((r) => FIELDS.some((f) =>\n      (f.type === \"select\" && String(r[f.name]) === filterVal) ||\n      (f.type === \"tags\" && Array.isArray(r[f.name]) && r[f.name].includes(filterVal))));\n  }\n  if (F.has(\"sort\") || true) {\n    out.sort((a, b) => {\n      const x = a[sortBy], y = b[sortBy];\n      if (x === y) return 0;\n      if (x === undefined || x === null) return 1;\n      if (y === undefined || y === null) return -1;\n      return (x > y ? 1 : -1) * sortDir;\n    });\n  }\n  return out;\n}\nfunction isOverdue(r) {\n  if (!F.has(\"reminder\")) return false;\n  const due = r.due;\n  if (!due) return false;\n  if (r.done === true) return false;\n  return String(due) < today();\n}\nfunction render() {\n  paintBanners();\n  const list = $(\"#list\");\n  const items = visible();\n  list.innerHTML = \"\";\n  if (!items.length) {\n    list.appendChild(el(\"li\", \"empty\", rows.length ? \"No match.\" : LANGS[lang].empty));\n  }\n  for (const r of items) {\n    const li = el(\"li\", \"item\");\n    const body = el(\"div\", \"body\");\n    const title = el(\"div\", \"t\");\n    title.innerHTML = esc(r[FIELDS[0].name] || \"(untitled)\");\n    body.appendChild(title);\n    for (const f of FIELDS.slice(1)) {\n      if (f.type === \"bool\") continue;\n      const v = r[f.name];\n      if (v === undefined || v === null || v === \"\" || (Array.isArray(v) && !v.length)) continue;\n      if (f.type === \"tags\" && Array.isArray(v)) {\n        const chips = el(\"div\", \"chips\");\n        v.forEach((t) => chips.appendChild(el(\"span\", \"chip\", t)));\n        body.appendChild(chips);\n      } else {\n        body.appendChild(el(\"div\", \"d\", (f.label + \": \" + v)));\n      }\n    }\n    if (isOverdue(r)) body.appendChild(el(\"div\", \"overdue\", \"Overdue since \" + r.due));\n    li.appendChild(body);\n    const acts = el(\"div\", \"row\");\n    const edit = el(\"button\", \"ghost\", \"Edit\");\n    edit.onclick = () => openEditor(r.id);\n    const del = el(\"button\", \"ghost\", LANGS[lang].del);\n    del.onclick = () => {\n      if (!confirm(\"Delete this \" + ENTITY.label.toLowerCase() + \"?\")) return;\n      rows = rows.filter((x) => x.id !== r.id);\n      save(); render();\n    };\n    acts.appendChild(edit); acts.appendChild(del);\n    li.appendChild(acts);\n    list.appendChild(li);\n  }\n  const strip = $(\"#strip\");\n  if (F.has(\"stats\")) {\n    strip.hidden = false;\n    const over = rows.filter(isOverdue).length;\n    strip.innerHTML = \"<span><b>\" + rows.length + \"<\/b> total<\/span>\" +\n      \"<span><b>\" + items.length + \"<\/b> shown<\/span>\" +\n      (F.has(\"reminder\") ? \"<span><b>\" + over + \"<\/b> overdue<\/span>\" : \"\");\n  } else {\n    strip.hidden = true;\n  }\n}\n\n/* ---------- form ---------- */\nfunction fieldInput(f, value) {\n  let input;\n  if (f.type === \"longtext\") {\n    input = document.createElement(\"textarea\");\n    input.rows = 4;\n  } else if (f.type === \"select\") {\n    input = document.createElement(\"select\");\n    const blank = document.createElement(\"option\");\n    blank.value = \"\"; blank.textContent = \"-\";\n    input.appendChild(blank);\n    for (const o of (f.options || [])) {\n      const op = document.createElement(\"option\");\n      op.value = o; op.textContent = o;\n      input.appendChild(op);\n    }\n  } else if (f.type === \"bool\") {\n    input = document.createElement(\"input\");\n    input.type = \"checkbox\";\n  } else if (f.type === \"number\") {\n    input = document.createElement(\"input\");\n    input.type = \"number\";\n    input.step = \"any\";\n  } else if (f.type === \"date\") {\n    input = document.createElement(\"input\");\n    input.type = \"date\";\n  } else if (f.type === \"tags\") {\n    input = document.createElement(\"input\");\n    input.type = \"text\";\n    input.placeholder = \"comma, separated\";\n  } else {\n    input = document.createElement(\"input\");\n    input.type = \"text\";\n  }\n  input.id = \"f_\" + f.name;\n  input.name = f.name;\n  if (f.type === \"bool\") input.checked = value === true || value === \"true\";\n  else if (f.type === \"tags\") input.value = Array.isArray(value) ? value.join(\", \") : (value || \"\");\n  else input.value = value === undefined || value === null ? (f.default !== undefined ? f.default : \"\") : value;\n  return input;\n}\nfunction openEditor(id) {\n  editingId = id || null;\n  const r = id ? rows.find((x) => x.id === id) : null;\n  $(\"#editorTitle\").textContent = (r ? \"Edit \" : \"New \") + ENTITY.label;\n  const box = $(\"#fields\");\n  box.innerHTML = \"\";\n  $(\"#formErr\").textContent = \"\";\n  for (const f of FIELDS) {\n    const lab = document.createElement(\"label\");\n    lab.textContent = f.label + (f.required ? \" *\" : \"\");\n    lab.appendChild(fieldInput(f, r ? r[f.name] : undefined));\n    box.appendChild(lab);\n  }\n  $(\"#editor\").showModal();\n  const first = box.querySelector(\"input,textarea,select\");\n  if (first) first.focus();\n}\nfunction readForm() {\n  const out = {}, errs = [];\n  for (const f of FIELDS) {\n    const input = $(\"#f_\" + f.name);\n    let v;\n    if (f.type === \"bool\") v = input.checked;\n    else if (f.type === \"tags\") v = input.value.split(\",\").map((s) => s.trim()).filter(Boolean);\n    else if (f.type === \"number\") {\n      if (input.value === \"\") v = null;\n      else if (isNaN(Number(input.value))) errs.push(f.label + \" must be a number\");\n      else v = Number(input.value);\n    } else v = input.value.trim();\n    if (f.required && (v === \"\" || v === null || v === undefined)) errs.push(f.label + \" is required\");\n    if (f.type === \"date\" && v && !/^\\d{4}-\\d{2}-\\d{2}$/.test(v)) errs.push(f.label + \" must be a date\");\n    if (f.type === \"select\" && v && !(f.options || []).includes(v)) errs.push(f.label + \" must be one of the listed values\");\n    out[f.name] = v;\n  }\n  return {out, errs};\n}\n\n/* ---------- export / import ---------- */\nfunction download(name, text, mime) {\n  const blob = new Blob([text], {type: mime});\n  const url = URL.createObjectURL(blob);\n  const a = document.createElement(\"a\");\n  a.href = url; a.download = name;\n  document.body.appendChild(a); a.click(); a.remove();\n  setTimeout(() => URL.revokeObjectURL(url), 1000);\n}\nfunction toCSV() {\n  const cols = FIELDS.map((f) => f.name);\n  const cell = (v) => {\n    const s = Array.isArray(v) ? v.join(\"; \") : (v === undefined || v === null ? \"\" : String(v));\n    return /[\",\\n]/.test(s) ? '\"' + s.replace(/\"/g, '\"\"') + '\"' : s;\n  };\n  return [cols.join(\",\")].concat(rows.map((r) => cols.map((c) => cell(r[c])).join(\",\"))).join(\"\\n\");\n}\nfunction doExport() {\n  const stamp = today();\n  if (F.has(\"export\")) {\n    download(MODEL.id + \"-\" + stamp + \".json\", JSON.stringify({v: MODEL.version, rows: rows}, null, 2), \"application/json\");\n    download(MODEL.id + \"-\" + stamp + \".csv\", toCSV(), \"text/csv\");\n  } else {\n    download(MODEL.id + \"-\" + stamp + \".json\", JSON.stringify({v: MODEL.version, rows: rows}, null, 2), \"application/json\");\n  }\n}\nfunction doImport(file) {\n  const fr = new FileReader();\n  fr.onload = () => {\n    try {\n      const parsed = JSON.parse(String(fr.result));\n      const incoming = Array.isArray(parsed) ? parsed : parsed.rows;\n      if (!Array.isArray(incoming)) throw new Error(\"no rows\");\n      const clean = incoming.filter((r) => r && typeof r === \"object\").map((r) => {\n        const copy = Object.assign({}, r);\n        if (!copy.id) copy.id = uid();\n        return copy;\n      });\n      rows = clean;\n      save(); render();\n    } catch (e) {\n      banner = {kind: \"bad\", text: \"That file is not a valid backup: \" + e.message};\n      paintBanners();\n    }\n  };\n  fr.readAsText(file);\n}\n\n/* ---------- boot ---------- */\nfunction bootTheme() {\n  let t = null;\n  try { t = localStorage.getItem(THEME_KEY); } catch (e) {}\n  document.documentElement.setAttribute(\"data-theme\", t === \"light\" ? \"light\" : \"dark\");\n}\nfunction bootPWA() {\n  if (!F.has(\"pwa\")) return;\n  const manifest = {\n    name: MODEL.name, short_name: MODEL.name.slice(0, 12),\n    start_url: \".\", display: \"standalone\",\n    background_color: \"#0f1116\", theme_color: MODEL.accent,\n    icons: []\n  };\n  const link = document.createElement(\"link\");\n  link.rel = \"manifest\";\n  link.href = \"data:application/manifest+json,\" + encodeURIComponent(JSON.stringify(manifest));\n  document.head.appendChild(link);\n}\nfunction bootSort() {\n  const sel = $(\"#sort\");\n  sel.innerHTML = \"\";\n  for (const f of FIELDS) {\n    const o = document.createElement(\"option\");\n    o.value = f.name; o.textContent = \"Sort: \" + f.label;\n    sel.appendChild(o);\n  }\n  sel.value = FIELDS[0].name;\n  sortBy = FIELDS[0].name;\n  sel.onchange = () => { sortBy = sel.value; sortDir = -1; render(); };\n\n  const filterFields = FIELDS.filter((f) => f.type === \"select\" || f.type === \"tags\");\n  const fsel = $(\"#filter\");\n  fsel.innerHTML = \"\";\n  if (F.has(\"filters\") && filterFields.length) {\n    fsel.hidden = false;\n    const all = document.createElement(\"option\");\n    all.value = \"\"; all.textContent = \"All\";\n    fsel.appendChild(all);\n    const seen = new Set();\n    for (const f of filterFields) {\n      const vals = f.type === \"select\"\n        ? (f.options || [])\n        : rows.flatMap((r) => Array.isArray(r[f.name]) ? r[f.name] : []);\n      for (const v of vals) {\n        if (seen.has(v)) continue;\n        seen.add(v);\n        const o = document.createElement(\"option\");\n        o.value = v; o.textContent = v;\n        fsel.appendChild(o);\n      }\n    }\n    fsel.onchange = () => { filterVal = fsel.value; render(); };\n  }\n}\nfunction boot() {\n  bootTheme();\n  bootPWA();\n  rows = load();\n  if (!rows.length && F.has(\"crud\")) {\n    /* no seeding: an empty app is a correct app */\n  }\n  $(\"#add\").onclick = () => openEditor(null);\n  $(\"#export\").onclick = doExport;\n  $(\"#theme\").onclick = () => {\n    const cur = document.documentElement.getAttribute(\"data-theme\");\n    const next = cur === \"light\" ? \"dark\" : \"light\";\n    document.documentElement.setAttribute(\"data-theme\", next);\n    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}\n  };\n  $(\"#print\").onclick = () => window.print();\n  const s = $(\"#search\");\n  if (!F.has(\"search\")) s.hidden = true;\n  s.oninput = () => { query = s.value; render(); };\n  document.addEventListener(\"keydown\", (e) => {\n    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === \"k\") { e.preventDefault(); s.focus(); }\n    if (e.key === \"Escape\" && $(\"#editor\").open) $(\"#editor\").close();\n  });\n  $(\"#cancel\").onclick = () => $(\"#editor\").close();\n  $(\"#form\").onsubmit = (e) => {\n    e.preventDefault();\n    const {out, errs} = readForm();\n    if (errs.length) { $(\"#formErr\").textContent = errs.join(\" · \"); return; }\n    if (editingId) {\n      const i = rows.findIndex((x) => x.id === editingId);\n      if (i >= 0) rows[i] = Object.assign({}, rows[i], out, {updated: today()});\n    } else {\n      rows.unshift(Object.assign({id: uid(), created: today(), updated: today()}, out));\n    }\n    save();\n    $(\"#editor\").close();\n    bootSort();\n    render();\n  };\n  if (F.has(\"i18n\")) {\n    const sw = document.createElement(\"button\");\n    sw.className = \"ghost\";\n    sw.textContent = \"EN/हिं\";\n    sw.onclick = () => {\n      lang = lang === \"en\" ? \"hi\" : \"en\";\n      try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}\n      $(\"#add\").textContent = LANGS[lang].add + \" \" + ENTITY.label;\n      s.placeholder = LANGS[lang].search + \" (\" + \"Ctrl-K\" + \")\";\n      render();\n    };\n    document.querySelector(\"header .row\").appendChild(sw);\n  }\n  const imp = document.createElement(\"input\");\n  imp.type = \"file\"; imp.accept = \".json,application/json\"; imp.hidden = true;\n  imp.onchange = () => { if (imp.files && imp.files[0]) doImport(imp.files[0]); };\n  document.body.appendChild(imp);\n  if (F.has(\"import\")) {\n    const b = document.createElement(\"button\");\n    b.className = \"ghost\"; b.textContent = \"Import\";\n    b.onclick = () => imp.click();\n    document.querySelector(\"header .row\").appendChild(b);\n  }\n  window.addEventListener(\"online\", render);\n  window.addEventListener(\"offline\", render);\n  bootSort();\n  render();\n}\ndocument.addEventListener(\"DOMContentLoaded\", boot);\n<\/script>\n<\/body>\n<\/html>\n";
+const LICENCE = "PolyForm Noncommercial 1.0.0";
+
+/* ------------------------------ state ------------------------------ */
+const S = {
+  idea: "", name: "", accent: "#7c9cff",
+  features: ["crud", "export", "theme"],
+  entity: {name: "item", label: "Item", fields: [
+    {name: "title", label: "Title", type: "text", required: true},
+    {name: "body", label: "Body", type: "longtext"},
+    {name: "created", label: "Created", type: "date"}
+  ]}
+};
+const TYPES = ["text", "longtext", "number", "date", "bool", "select", "tags"];
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s === null || s === undefined ? "" : s)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+const ident = (s, fb) => {
+  const v = String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return (!v || /^[0-9]/.test(v)) ? (fb || "item") : v;
+};
+const slug = (s, fb) => {
+  const v = String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return v || (fb || "item");
+};
+const plural = (l) => /[^aeiou]y$/i.test(l) ? l.slice(0, -1) + "ies"
+  : /(s|sh|ch|x)$/i.test(l) ? l + "es" : l + "s";
+const today = () => new Date().toISOString().slice(0, 10);
+
+function requiresOf(f) { return (CATALOG.features[f] && CATALOG.features[f].requires) || []; }
+function closeOver(list) {
+  const out = new Set(), stack = list.slice();
+  while (stack.length) {
+    const f = stack.pop();
+    if (!CATALOG.features[f] || out.has(f)) continue;
+    out.add(f);
+    requiresOf(f).forEach((r) => stack.push(r));
+  }
+  return Object.keys(CATALOG.features).filter((f) => out.has(f));
+}
+
+/* ------------------------------ features --------------------------- */
+function drawFeatures() {
+  const box = $("#features");
+  box.innerHTML = "";
+  Object.keys(CATALOG.features).forEach((fid) => {
+    const d = CATALOG.features[fid];
+    const on = S.features.indexOf(fid) >= 0;
+    const lab = document.createElement("label");
+    lab.className = "feat" + (on ? " on" : "");
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.checked = on; cb.value = fid;
+    cb.onchange = () => {
+      let next = S.features.slice();
+      if (cb.checked) { if (next.indexOf(fid) < 0) next.push(fid); }
+      else { next = next.filter((x) => x !== fid); }
+      S.features = closeOver(next);
+      drawFeatures();
+    };
+    const span = document.createElement("span");
+    span.textContent = d.label;
+    lab.appendChild(cb); lab.appendChild(span);
+    box.appendChild(lab);
+  });
+  $("#featcount").textContent = S.features.length + " selected";
+}
+
+/* ------------------------------ fields ----------------------------- */
+function drawFields() {
+  const tb = $("#fields tbody");
+  tb.innerHTML = "";
+  S.entity.fields.forEach((f, i) => {
+    const tr = document.createElement("tr");
+
+    const td1 = document.createElement("td");
+    const l = document.createElement("input");
+    l.value = f.label; l.setAttribute("aria-label", "label");
+    l.oninput = () => { f.label = l.value; if (!f.touched) f.name = ident(l.value, "field"); drawFields(); };
+    td1.appendChild(l);
+
+    const td2 = document.createElement("td");
+    const k = document.createElement("input");
+    k.value = f.name; k.setAttribute("aria-label", "key");
+    k.oninput = () => { f.name = ident(k.value, "field"); f.touched = true; };
+    td2.appendChild(k);
+
+    const td3 = document.createElement("td");
+    const t = document.createElement("select");
+    TYPES.forEach((ty) => {
+      const o = document.createElement("option");
+      o.value = ty; o.textContent = ty; if (ty === f.type) o.selected = true;
+      t.appendChild(o);
+    });
+    t.onchange = () => { f.type = t.value; drawFields(); };
+    td3.appendChild(t);
+
+    const td4 = document.createElement("td");
+    td4.className = "narrow";
+    const r = document.createElement("input");
+    r.type = "checkbox"; r.checked = !!f.required; r.setAttribute("aria-label", "required");
+    r.onchange = () => { f.required = r.checked; };
+    td4.appendChild(r);
+
+    const td5 = document.createElement("td");
+    td5.className = "narrow";
+    const del = document.createElement("button");
+    del.textContent = "×"; del.className = "tab"; del.title = "remove";
+    del.onclick = () => { if (S.entity.fields.length > 1) { S.entity.fields.splice(i, 1); drawFields(); } };
+    td5.appendChild(del);
+
+    [td1, td2, td3, td4, td5].forEach((td) => tr.appendChild(td));
+    tb.appendChild(tr);
+  });
+  const opts = S.entity.fields.filter((f) => f.type === "select" && !(f.options && f.options.length));
+  opts.forEach((f) => { f.options = ["general", "work", "personal"]; });
+}
+
+/* ------------------------------ spec ------------------------------- */
+function assertionsFor(feats) {
+  return feats.map((f) => (CATALOG.features[f] || {}).assertion).filter(Boolean);
+}
+function buildSpec() {
+  const name = ($("#name").value || S.entity.label + "s").trim().slice(0, 40) || "Untitled";
+  const idea = ($("#idea").value || "").trim();
+  const id = "app-" + slug(name, "app");
+  const fields = S.entity.fields
+    .filter((f) => f.name)
+    .map((f) => {
+      const o = {name: ident(f.name, "field"), label: (f.label || f.name).slice(0, 40), type: f.type};
+      if (f.required) o.required = true;
+      if (f.type === "select") o.options = (f.options && f.options.length) ? f.options : ["general", "work", "personal"];
+      return o;
+    });
+  const feats = closeOver(S.features);
+  const asserts = assertionsFor(feats);
+  return {
+    id: id,
+    name: name,
+    tier: 1,
+    category: "utility",
+    pitch: (idea || (name + " — an offline app that keeps its data on the device.")).slice(0, 140),
+    features: feats,
+    entities: [{
+      name: ident($("#entname").value || S.entity.name, "item"),
+      label: ($("#entlabel").value || S.entity.label || "Item").slice(0, 40),
+      fields: fields.length ? fields : [{name: "title", label: "Title", type: "text", required: true}]
+    }],
+    storage: {kind: "localstorage", namespace: slug(id.replace(/^app-/, ""), "app")},
+    accent: ($("#accent").value || "#7c9cff"),
+    done_means: asserts.slice(0, 4).length ? asserts.slice(0, 4) : ["the app opens and shows its empty state"],
+    not: ["network calls", "accounts", "sync"]
+  };
+}
+function specDoc(spec) {
+  const ent = spec.entities[0];
+  const fail = [
+    "bad input", "no network", "storage full", "corrupt state"
+  ];
+  const failText = {
+    "bad input": "the form refuses to save and names the field that is wrong",
+    "no network": "everything keeps working; a note says the network is not needed",
+    "storage full": "the change stays in memory, a banner says it will not survive a reload, export is offered",
+    "corrupt state": "the bad state is copied aside under a :corrupt: key, the app resets"
+  };
+  const body = [
+    "# " + spec.name, "",
+    "```json kiln", JSON.stringify(spec, null, 2), "```", "",
+    "## Pitch", "", spec.pitch, "",
+    "## The job", "",
+    ("- record a " + ent.name + "\n- find it again\n" +
+      spec.features.filter((f) => f !== "crud").map((f) => "- " + CATALOG.features[f].label.toLowerCase()).join("\n")), "",
+    "## The mechanic", "",
+    "One " + ent.name + ", one list, one file. The entity is declared once and the list, the form, the search and the export all read that declaration.", "",
+    "## What it must NOT do", "", spec.not.map((n) => "- " + n).join("\n"), "",
+    "## What it does when things go wrong", "",
+    fail.map((k) => "- **" + k + "** — " + failText[k]).join("\n"), "",
+    "## Done means", "", spec.done_means.map((d) => "- " + d).join("\n"), "",
+    "## The data", "",
+    "Stored in `localStorage` under `kiln:" + spec.storage.namespace + "`. Nothing leaves the device unless the user exports it.", ""
+  ];
+  return body.join("\n");
+}
+
+/* ------------------------------ build ------------------------------ */
+function buildApp(spec) {
+  const feats = spec.features;
+  const model = {
+    id: spec.id, name: spec.name, namespace: spec.storage.namespace, version: 1,
+    accent: spec.accent, features: feats, entities: spec.entities,
+    assertions: assertionsFor(feats), not: spec.not
+  };
+  const ent = spec.entities[0];
+  const map = {
+    TITLE: spec.name, ID: spec.id, PITCH: spec.pitch, DATE: today(),
+    ACCENT: spec.accent, MODEL_JSON: JSON.stringify(model, null, 2),
+    FEATURES: feats.join(", "), KITS: "web-kit, tokens-kit, widgets-kit, search-kit, export-kit",
+    ENTITY: ent.label, ENTITY_PLURAL: plural(ent.label), NAMESPACE: spec.storage.namespace,
+    ASSERTIONS: assertionsFor(feats).map((a) => "- " + a).join("\n"),
+    NOT: spec.not.map((n) => "- " + n).join("\n"),
+    LICENCE: LICENCE, LICENCE_ID: "PolyForm-Noncommercial-1.0.0",
+    SPEC_PATH: spec.id + ".md"
+  };
+  let out = TPL;
+  Object.keys(map).forEach((k) => { out = out.split("{{" + k + "}}").join(String(map[k])); });
+  const left = out.match(/\{\{[A-Z_]+\}\}/);
+  if (left) throw new Error("unsubstituted " + left[0]);
+  return out;
+}
+function download(name, text, mime) {
+  const blob = new Blob([text], {type: mime || "text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+function report(lines) {
+  const box = $("#report");
+  box.hidden = false;
+  box.innerHTML = lines.map((l) => esc(l)).join("\n");
+}
+
+/* ------------------------------ prompt ----------------------------- */
+function promptText() {
+  const idea = ($("#idea").value || "").trim();
+  const name = ($("#name").value || "").trim();
+  const ent = ident($("#entname").value || "item", "item");
+  return [
+    "You are writing a KILN specification for a small offline application.",
+    "",
+    "CONSTRAINTS",
+    "- The app runs from one HTML file, opened from disk. No server, no account, no network.",
+    "- It stores data in the browser's localStorage on the user's own device.",
+    "- It must work with the network unplugged.",
+    "",
+    "MY IDEA",
+    "  App idea:          " + (idea || "[[APP_IDEA]]"),
+    "  App name:          " + (name || "[[APP_NAME]]"),
+    "  What they record:  " + (ent === "item" ? "[[WHAT_THEY_RECORD]]" : ent),
+    "  Who uses it:       [[WHO_USES_IT]]",
+    "  It must never:     [[MUST_NOT]]",
+    "",
+    "OUTPUT FORMAT — nothing before it and nothing after it",
+    "1. A level-one heading with the app name.",
+    "2. One fenced block tagged `json kiln` with keys: id, name, tier, category, pitch,",
+    "   features, entities, storage, accent, done_means, not.",
+    "3. Level-two sections in this order: ## Pitch, ## The job, ## The mechanic,",
+    "   ## What it must NOT do, ## What it does when things go wrong, ## Done means,",
+    "   ## The data.",
+    "",
+    "RULES",
+    "- id: \"app-\" plus lowercase letters and hyphens.",
+    "- features: ONLY these ids, and only what the app needs.",
+    "  " + Object.keys(CATALOG.features).join(", "),
+    "- field types: text, longtext, number, date, bool, select, tags.",
+    "  A select field needs options with at least two values.",
+    "- done_means: each must name something a person can watch happen.",
+    "  Use one of: shows, hides, saves, reloads, exports, imports, returns, refuses,",
+    "  blocks, counts, sorts, filters, deletes, restores, opens, prints, renders.",
+    "  Never write \"works as expected\".",
+    "- not: at least one thing the app refuses to do.",
+    "- The failure section must have one bullet each for bad input, no network,",
+    "  storage full and corrupt state.",
+    "",
+    "Write the document now."
+  ].join("\n");
+}
+function copyPrompt() {
+  const t = promptText();
+  $("#prompt").value = t;
+  const done = () => { $("#promptstatus").textContent = "copied"; setTimeout(() => { $("#promptstatus").textContent = ""; }, 1800); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(t).then(done, () => { $("#prompt").select(); document.execCommand && document.execCommand("copy"); done(); });
+  } else {
+    $("#prompt").select();
+    try { document.execCommand("copy"); done(); } catch (e) { $("#promptstatus").textContent = "select and copy manually"; }
+  }
+}
+
+/* ------------------------------ paste / adopt ---------------------- */
+function balanced(text, start) {
+  let depth = 0, i = start, instr = false, escp = false;
+  while (i < text.length) {
+    const c = text[i];
+    if (instr) {
+      if (escp) escp = false;
+      else if (c === "\\") escp = true;
+      else if (c === '"') instr = false;
+    } else if (c === '"') instr = true;
+    else if (c === "{") depth++;
+    else if (c === "}") { depth--; if (!depth) return i + 1; }
+    i++;
+  }
+  return -1;
+}
+function findSpec(text) {
+  const fences = [];
+  const re = /```[ \t]*([a-zA-Z0-9]*)[ \t]*([a-zA-Z0-9]*)[ \t]*\r?\n([\s\S]*?)\r?\n```/g;
+  let m;
+  while ((m = re.exec(text))) fences.push({kiln: (m[1] + m[2]).toLowerCase().indexOf("kiln") >= 0, body: m[3], at: m.index});
+  fences.sort((a, b) => (b.kiln ? 1 : 0) - (a.kiln ? 1 : 0));
+  for (const f of fences) {
+    const cleaned = f.body.replace(/[\u201c\u201d]/g, '"').replace(/[\u2018\u2019]/g, "'")
+      .replace(/\/\/[^\n]*/g, "").replace(/,(\s*[}\]])/g, "$1");
+    try {
+      const o = JSON.parse(cleaned);
+      if (o && typeof o === "object" && (o.features || o.entities)) return {spec: o, repairs: ["read a fenced block"]};
+    } catch (e) { /* keep looking */ }
+  }
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] !== "{") continue;
+    const end = balanced(text, i);
+    if (end < 0) continue;
+    const cleaned = text.slice(i, end).replace(/[\u201c\u201d]/g, '"').replace(/,(\s*[}\]])/g, "$1");
+    try {
+      const o = JSON.parse(cleaned);
+      if (o && typeof o === "object" && (o.features || o.entities)) return {spec: o, repairs: ["found the spec with no fence"]};
+    } catch (e) { /* next */ }
+  }
+  return null;
+}
+const TYPE_MAP = {string: "text", textarea: "longtext", "text area": "longtext", integer: "number",
+  int: "number", float: "number", decimal: "number", money: "number", datetime: "date",
+  timestamp: "date", boolean: "bool", checkbox: "bool", dropdown: "select", enum: "select",
+  choice: "select", array: "tags", list: "tags", multiselect: "tags"};
+function matchFeature(word) {
+  const w = String(word || "").toLowerCase().trim();
+  if (CATALOG.features[w]) return w;
+  let best = null, len = 0;
+  Object.keys(CATALOG.features).forEach((fid) => {
+    const d = CATALOG.features[fid];
+    (d.aliases || []).concat([fid, d.label.toLowerCase()]).forEach((a) => {
+      if (a && (w.indexOf(a) >= 0 || a.indexOf(w) >= 0) && a.length > len) { best = fid; len = a.length; }
+    });
+  });
+  return best;
+}
+function adoptPasted() {
+  const text = $("#pasted").value || "";
+  const log = [];
+  const found = findSpec(text);
+  if (!found) {
+    $("#adoptstatus").innerHTML = '<span class="bad">no spec found in that text</span>';
+    return;
+  }
+  const o = found.spec;
+  log.push.apply(log, found.repairs);
+
+  const name = String(o.name || "Untitled").slice(0, 40);
+  $("#name").value = name;
+  $("#idea").value = String(o.pitch || "").slice(0, 140);
+  if (/^#[0-9a-f]{6}$/i.test(o.accent || "")) $("#accent").value = o.accent;
+
+  const feats = [];
+  (Array.isArray(o.features) ? o.features : []).forEach((f) => {
+    const hit = matchFeature(f);
+    if (hit && feats.indexOf(hit) < 0) { feats.push(hit); if (hit !== String(f).toLowerCase()) log.push("feature " + f + " -> " + hit); }
+    else if (!hit) log.push("dropped unknown feature: " + f);
+  });
+  S.features = closeOver(feats.length ? feats : ["crud", "export", "theme"]);
+
+  let ents = o.entities;
+  if (ents && !Array.isArray(ents)) ents = [ents];
+  const e = (ents && ents[0]) || {};
+  $("#entname").value = ident(e.name || "item", "item");
+  $("#entlabel").value = String(e.label || "Item").slice(0, 40);
+  let fields = e.fields;
+  if (fields && !Array.isArray(fields)) fields = Object.keys(fields).map((k) => ({name: k, type: fields[k]}));
+  const out = [];
+  (fields || []).forEach((f) => {
+    if (typeof f === "string") f = {name: f, type: "text"};
+    let ty = String(f.type || "text").toLowerCase();
+    if (TYPES.indexOf(ty) < 0) { const m = TYPE_MAP[ty]; log.push("field " + (f.name || "?") + " type " + ty + " -> " + (m || "text")); ty = m || "text"; }
+    const fo = {name: ident(f.name || f.label || "field", "field"), label: String(f.label || f.name || "Field").slice(0, 40), type: ty};
+    if (f.required === true) fo.required = true;
+    if (ty === "select") {
+      let op = f.options || f.choices;
+      if (typeof op === "string") op = op.split(",");
+      fo.options = (Array.isArray(op) && op.length > 1) ? op.map(String) : ["general", "work", "personal"];
+    }
+    out.push(fo);
+  });
+  S.entity.fields = out.length ? out : [{name: "title", label: "Title", type: "text", required: true}];
+  S.entity.name = ident(e.name || "item", "item");
+  S.entity.label = String(e.label || "Item").slice(0, 40);
+
+  drawFeatures(); drawFields();
+  $("#adoptlog").hidden = false;
+  $("#adoptlog").textContent = (log.length ? log.join("\n") : "no repairs needed") +
+    "\n\nloaded into the Build tab.";
+  $("#adoptstatus").innerHTML = '<span class="ok">loaded</span>';
+  showTab("build");
+}
+
+/* ------------------------------ tabs ------------------------------- */
+function showTab(which) {
+  ["build", "prompt", "paste"].forEach((t) => {
+    $("#pane-" + t).hidden = (t !== which);
+    $("#tab-" + t).setAttribute("aria-selected", t === which ? "true" : "false");
+  });
+  if (which === "prompt") $("#prompt").value = promptText();
+}
+
+/* ------------------------------ boot ------------------------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  $("#tab-build").onclick = () => showTab("build");
+  $("#tab-prompt").onclick = () => showTab("prompt");
+  $("#tab-paste").onclick = () => showTab("paste");
+  $("#addfield").onclick = () => { S.entity.fields.push({name: "field" + (S.entity.fields.length + 1), label: "Field", type: "text"}); drawFields(); };
+  $("#copyprompt").onclick = copyPrompt;
+  $("#adopt").onclick = adoptPasted;
+  $("#idea").oninput = () => {
+    const v = $("#idea").value.trim();
+    if (v && !$("#name").value) {
+      const m = v.match(/\b(?:a|an|my)\s+([a-z]+)\s+(?:app|tool|log|tracker|list)\b/i);
+      if (m) { $("#name").value = m[1].charAt(0).toUpperCase() + m[1].slice(1) + " Log"; $("#entname").value = m[1].toLowerCase(); $("#entlabel").value = m[1].charAt(0).toUpperCase() + m[1].slice(1); }
+    }
+  };
+  $("#specbtn").onclick = () => {
+    try {
+      const spec = buildSpec();
+      download(spec.id + ".md", specDoc(spec), "text/markdown");
+      $("#status").innerHTML = '<span class="ok">spec downloaded</span>';
+    } catch (e) { $("#status").innerHTML = '<span class="bad">' + esc(e.message) + "</span>"; }
+  };
+  $("#build").onclick = () => {
+    try {
+      const spec = buildSpec();
+      const html = buildApp(spec);
+      download(spec.id + ".html", html, "text/html");
+      $("#status").innerHTML = '<span class="ok">built</span>';
+      report([
+        "app       " + spec.id,
+        "name      " + spec.name,
+        "features  " + spec.features.join(", "),
+        "entity    " + spec.entities[0].name + " (" + spec.entities[0].fields.length + " fields)",
+        "size      " + (html.length / 1024).toFixed(1) + " KB",
+        "",
+        "Open the downloaded file in any browser. It works offline.",
+        "Nothing was uploaded. No model was called."
+      ]);
+    } catch (e) {
+      $("#status").innerHTML = '<span class="bad">failed</span>';
+      report(["build failed: " + e.message]);
+    }
+  };
+  drawFeatures();
+  drawFields();
+});
+</script>
+</body>
+</html>

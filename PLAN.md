@@ -33,7 +33,10 @@ Status date: 2026-11-13. Owner: Dr Sohil Momin. Builder: Kiln build session.
 | P4 | Intent parser | `kiln intake "a notes app with tags and search"` returns `features=[crud,search,tags,export]`, confidence ≥ 0.6 |
 | P5 | Three real specs from the estate | All three build and verify in CI |
 | P6 | Packaging hand-off | `build-apps.yml` calls `app-builder`; artifact produced on a tag |
-| P7 | BYOK, optional, spec-only | With a key, `kiln llm draft` writes a spec. With the key removed, every other command still works |
+| P7 | Prompt bridge | `kiln prompt` prints a filled prompt; `kiln adopt` turns a sloppy reply into a spec that builds |
+| P8 | Repair engine | A reply with chatter, smart quotes, wrong types, an invented feature and a vague done-means still builds — asserted in `tests/fixtures/reply-sloppy.md` |
+| P9 | Zero-dependency package | No kit points at another repo; `kiln doctor` shows nothing to install |
+| P10 | Any device | `studio.html` builds an app in a phone browser, offline, byte-identical to `kiln studio` |
 
 ---
 
@@ -69,7 +72,9 @@ Status date: 2026-11-13. Owner: Dr Sohil Momin. Builder: Kiln build session.
 |---|---|
 | Compiles an app from a spec | `kiln build` output tree in CI artifact |
 | App works offline | No `http://`, `https://`, `cdn` or `fetch(` in emitted `index.html` — asserted by `verify` |
-| No model needed | `verify` runs with `KILN_NO_NETWORK=1` and no key present |
+| No model needed | every command except copying the prompt by hand runs with no key and no network |
+| Nothing else installed | `kiln doctor` lists no required package; `catalog/kits.json` names no repository |
+| Works on a phone | `studio.html` opens from local storage and downloads a working app |
 | Every Forge defect has a guard | `AUDIT-FORGE.md` row ↔ code symbol, checked by `kiln audit` |
 | Tests exist and pass | `tests/` green on 3.9–3.12 |
 | A human can use it in five minutes | README quick start, copy-pasteable |

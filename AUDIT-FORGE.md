@@ -77,3 +77,22 @@ Every row below is a defect with a named source. Every guard is code in this rep
 | F2 | Licence: PolyForm Noncommercial or MIT? | PolyForm, matching the estate default |
 | F3 | Does KILN replace `new-app.py` or feed it? | Feeds it: KILN emits, `app-builder` packages |
 | F4 | Keep `NEO`/NOVA as an output target? | Not now. TypeScript/HTML is the boring correct substrate |
+
+---
+
+## G. Defects in KILN v0.1, found and fixed in v0.2
+
+The first version of this repo repeated two of the mistakes it criticises. Both are now closed.
+
+| # | Defect in v0.1 | Why it was wrong | Fix in v0.2 | Enforced by |
+|---|---|---|---|---|
+| G1 | `catalog/kits.json` named five other repositories | A "self-contained" compiler that needs five clones is not self-contained. It also reintroduced A6 (duplicate copies) and A7 (kits drifting) | Kits are regions of `templates/app/index.html`, declared `"bundled": true`, with no repo field | `catalog.load()` requires the kit to exist; `docs/SELF-CONTAINED.md` |
+| G2 | The prompt existed only as prose in a doc | Nothing checked that it offered features the compiler has, so a model could be asked for something that cannot build | `PROMPT.md` carries the catalogue table, and a guard compares it to `catalog/features.json` row by row | `guards.check_prompt_catalog` |
+| G3 | A model's reply had to be hand-massaged into a spec | The whole point of a bridge is that the other side can be sloppy | `kiln adopt` extracts, repairs and refuses; 24 repairs on the fixture, 0 on its own output | `tests/test_bridge.py` |
+| G4 | No way to build without Python | "Any OS" was true; "any device" was not | `studio.html`, generated from the same template and catalogue, runs in a phone browser | `guards.check_studio`, `tests/test_bridge.py` |
+| G5 | The studio could silently drift from the CLI | Two copies of one truth is the F-100 pattern again | The studio is generated and byte-compared in `kiln audit` and in CI | `guards.check_studio` |
+| G6 | `PROMPT.md` claimed five placeholders but the CLI filled none | A documented interface that does not work | `kiln prompt --idea …` fills them; `unfilled()` reports what is left | `tests/test_bridge.py::test_fill_substitutes_named_placeholders` |
+
+### The rule this section establishes
+
+A tool that audits other systems has to audit itself first, and the self-audit has to be in the same table as the rest.

@@ -1,58 +1,87 @@
 # KILN
 
-> **Spec in. Finished app out. No model required.**
+> **Spec in. Finished app out. No model required. Nothing else installed.**
 
-KILN is a deterministic app compiler for offline, single-file applications. You write a spec, KILN emits a complete working app: CRUD, storage, search, export, import, theme, docs, CI. No skeleton to finish by hand, no LLM in the loop.
+KILN is a deterministic app compiler for offline, single-file applications. It is one folder with no dependencies: Python 3.9+ and the standard library. No other repository, no submodule, no package, no key, no network.
 
 Forge makes the shape. Kiln fires it into an app that runs.
 
 ---
 
-## Why this exists
+## The three ways in
 
-| Forge today | KILN |
-|---|---|
-| Emits a shell; real coding still needs an LLM | Emits a working app; the runtime does the work once, for every app |
-| 153 apps, 7 buildable | Every generated app is built and smoke-tested before the spec counts as done |
-| Spec is prose, checked by hand | Spec is a JSON block in Markdown, checked by schema in CI |
-| Template = one app shape | Catalog of 14 features, each with a real emitter and a test |
-| "Done" is a sentence | "Done" must be a falsifiable assertion, or the build fails |
-| Agent writes code, agent reports success | `kiln verify` reads the artifact and prints evidence |
+| Way | You have | You run | You get |
+|---|---|---|---|
+| Phrase | one sentence | `kiln new "a tea log with tags"` | a spec |
+| Prompt | any chat model, or none | `kiln prompt` → paste → `kiln adopt reply.md` | a spec |
+| Form | a phone or a browser | open `studio.html`, tap Build | an app, straight away |
 
-Full defect list and the guard against each: [`AUDIT-FORGE.md`](AUDIT-FORGE.md).
+All three end at the same place: a spec that compiles to a working app.
 
 ---
 
 ## Quick start
 
 ```bash
-# 1. describe the app in plain words (no model, no network)
-python3 -m kiln intake "a notes app with tags, search and export"
+git clone <this repo> kiln && cd kiln
 
-# 2. compile it
-python3 -m kiln build specs/app-notes.md -o out/
+# one command, whole pipeline
+python3 -m kiln pipeline "a reading log with tags and a rating" --zip
 
-# 3. prove it works
+# or step by step
+python3 -m kiln new "a notes app with tags, search and export"
+python3 -m kiln build specs/app-notes.md -o out
 python3 -m kiln verify out/app-notes
 ```
 
-Result: one `index.html` that runs offline, on any browser, on any OS, from a USB stick.
+No `pip install`. No `npm install`. No `.env`. No API key. No network.
+
+---
+
+## The prompt bridge
+
+`PROMPT.md` holds one prompt with five placeholders. Copy it, fill it, paste it into any chat window — a phone, a local model, a terminal. Paste the reply back:
+
+```bash
+python3 -m kiln prompt --idea "a tea log" --record "teas" --out my-prompt.txt
+python3 -m kiln adopt reply.md --build
+```
+
+`kiln adopt` is the part that matters. It finds the spec object anywhere in the reply, repairs it, and refuses to write a spec that cannot build:
+
+| The model does this | KILN does this |
+|---|---|
+| Adds chatter around the spec | finds the block, ignores the words, says so |
+| Uses ```json or no fence at all | finds the object anyway |
+| Writes `"type": "string"`, `"integer"`, `"textarea"`, `"datetime"` | maps to `text`, `number`, `longtext`, `date` |
+| Invents a feature | drops it, names it, explains |
+| Forgets `search` that `filters` needs | adds it |
+| Writes `"works as expected"` as done-means | replaces it with a real assertion from the catalogue |
+| Returns entities as an object, fields as an object | converts both to lists |
+| Leaves out half the sections | generates them |
+| Uses smart quotes, trailing commas, Python literals | repairs the JSON |
+| Returns nothing usable | refuses, and says what to re-send |
+
+A sloppy model cannot produce a broken app. Verified: `tests/fixtures/reply-sloppy.md` becomes a passing app in `tests/test_bridge.py`.
 
 ---
 
 ## Commands
 
-| Command | What it does | Needs network |
+| Command | What it does | Network |
 |---|---|---|
-| `kiln intake "<phrase>"` | Deterministic phrase → spec patch (alias match + tf-idf + slot fill) | no |
-| `kiln new <id> "<phrase>"` | intake + write a spec file | no |
-| `kiln compose <spec>` | Print the file plan (no writes) | no |
-| `kiln build <spec> -o <dir>` | Emit the app | no |
-| `kiln verify <dir>` | Schema, wiring, JS parse, smoke assertions | no |
-| `kiln verify --all` | Every spec in `specs/` | no |
-| `kiln catalog` | Feature catalog and kit map | no |
-| `kiln audit` | Run the Forge-mistake guards over this repo | no |
-| `kiln llm on` | Optional: enable BYOK drafting of specs only | yes |
+| `kiln pipeline "<idea>" --zip` | idea → spec → app → verify → zip | no |
+| `kiln new "<phrase>"` | phrase → spec file | no |
+| `kiln prompt` | print the prompt for any model | no |
+| `kiln adopt <file> [--build]` | model reply → spec → app | no |
+| `kiln compose <spec>` | show the file plan, write nothing | no |
+| `kiln build <spec> [-o dir]` | emit the app, then verify it | no |
+| `kiln build --all` | every spec in `specs/` | no |
+| `kiln verify <dir>` / `--all` | read the artifact, print evidence | no |
+| `kiln studio` | rebuild `studio.html` | no |
+| `kiln catalog` | features, kits, assertions | no |
+| `kiln audit` | 43 guards over this repo | no |
+| `kiln doctor` | what this machine can do | no |
 
 ---
 
@@ -60,17 +89,44 @@ Result: one `index.html` that runs offline, on any browser, on any OS, from a US
 
 | Part | Detail |
 |---|---|
-| `index.html` | The whole app. Embedded model, runtime, styles. No CDN, no fonts, no network. |
-| Storage | Namespaced `localStorage`, versioned, with corrupt-state recovery and quota handling |
+| `index.html` | The whole app, ~21 KB. Embedded model, runtime, styles. No CDN, no fonts, no network |
+| Storage | Namespaced `localStorage`, versioned, corrupt-state recovery, quota handling |
 | CRUD | List, create, edit, delete, generated from the entity schema |
-| Search | Token index over declared fields, `Ctrl-K` to focus |
+| Search | Field scan, `Ctrl-K` to focus |
 | Export / import | JSON and CSV download, JSON restore |
 | Theme | Dark and light, remembered |
-| Failure path | Bad input, no network, storage full, corrupt state — all four handled and surfaced |
-| `README.md` | What the app does, how to run it, what it stores |
-| `kiln.spec.md` | The spec it was built from |
-| `.github/workflows/build-apps.yml` | Build to EXE + APK via `app-builder` |
-| `tests/smoke.py` | Behaviour assertions for this specific app |
+| Failure path | Bad input, no network, storage full, corrupt state — handled and surfaced |
+| `README.md`, `app.json`, `CHANGELOG.md`, `LICENSE` | The app documents itself |
+| `.github/workflows/build-apps.yml` | Packaging, if you want it |
+| `tests/smoke.py` | Behaviour assertions for this app |
+
+---
+
+## Self-contained, on purpose
+
+| Dependency | Status |
+|---|---|
+| Other drsamonline repos | none. The five "kits" are regions of `templates/app/index.html`, in this repo |
+| Python packages | none, stdlib only |
+| Node | optional, only to syntax-check emitted JavaScript |
+| Git | optional, only for `verify --at <sha>` and `preflight` |
+| GitHub | optional: CI, releases, Pages |
+| Internet | not needed, for any command except copying the prompt by hand |
+
+Detail and the check: [`docs/SELF-CONTAINED.md`](docs/SELF-CONTAINED.md).
+
+---
+
+## Portability
+
+| Where | How |
+|---|---|
+| Linux, macOS, Windows | `python3 -m kiln …` |
+| Android, iOS, any phone | open `studio.html` in the browser, tap Build |
+| Any browser, any OS | open a generated `index.html` |
+| Windows EXE / Android APK | your `app-builder`, if you wire it |
+
+Detail: [`docs/PORTABILITY.md`](docs/PORTABILITY.md).
 
 ---
 
@@ -78,20 +134,7 @@ Result: one `index.html` that runs offline, on any browser, on any OS, from a US
 
 `crud`, `search`, `export`, `import`, `theme`, `pwa`, `tags`, `filters`, `sort`, `stats`, `reminder`, `print`, `i18n`, `backup`.
 
-Each feature declares: emitters, required features, conflicts, and a smoke assertion. See `catalog/features.json`.
-
----
-
-## Portability
-
-| Thing | Runs on |
-|---|---|
-| KILN itself | Windows, macOS, Linux — Python 3.9+ stdlib only |
-| Generated app | Any browser, any OS, offline, no install |
-| GitHub | Optional: CI, releases, Pages |
-| EXE / APK | Via `app-builder` (Windows, Android) |
-
-Detail: [`docs/PORTABILITY.md`](docs/PORTABILITY.md).
+Each declares emitters, required features, a kit, and an assertion. A feature not in `catalog/features.json` cannot appear in a spec. `catalog/` — [`catalog/features.json`](catalog/features.json).
 
 ---
 
@@ -99,16 +142,19 @@ Detail: [`docs/PORTABILITY.md`](docs/PORTABILITY.md).
 
 | Path | Contents |
 |---|---|
-| `PLAN.md` | The plan, phases, and acceptance criteria |
-| `AUDIT-FORGE.md` | Every Forge defect found, and the guard |
+| `PROMPT.md` | The prompt bridge, with the catalogue in it |
+| `studio.html` | The browser version, built from the same sources |
+| `PLAN.md` | Phases and falsifiable acceptance criteria |
+| `AUDIT-FORGE.md` | Every Forge defect, and the guard against it |
 | `SPEC-SHAPE.md` | What a spec must say |
 | `schema/spec.schema.json` | Machine schema for the spec block |
-| `catalog/` | Feature and kit catalog |
-| `kiln/` | The compiler |
-| `templates/` | Emitters |
+| `catalog/` | Features, kits, categories, licence |
+| `kiln/` | The compiler: spec, catalog, intent, prompt, adopt, prose, compose, emit, verify, studio, guards, cli |
+| `templates/app/` | The runtime and the files it emits |
+| `templates/studio/` | The studio source |
 | `specs/` | Specs, one file per app |
-| `tests/` | Tests for the compiler |
-| `docs/` | Architecture, portability, workflow |
+| `tests/` | 43 tests, including a deliberately sloppy model reply |
+| `docs/` | Architecture, portability, workflow, self-containment |
 | `INDEX.md` | Generated list of every spec |
 
 ---

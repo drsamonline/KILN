@@ -29,6 +29,10 @@ jobs:
           node-version: "20"
       - name: Unit tests
         run: python3 -m unittest discover -s tests -v
+      - name: One-command pipeline
+        run: python3 -m kiln pipeline "a tea log with tags and search" -o /tmp/pipe --zip
+      - name: Adopt a sloppy model reply
+        run: python3 -m kiln adopt tests/fixtures/reply-sloppy.md --out /tmp/adopted --build
 
   verify-all:
     name: build and verify every spec
@@ -45,8 +49,11 @@ jobs:
       - name: Verify
         run: python3 -m kiln verify --all
       - name: Build the demo apps
+        run: python3 -m kiln build --all -o dist
+      - name: Studio must match its sources
         run: |
-          for s in specs/app-*.md; do python3 -m kiln build "$s" -o dist; done
+          python3 -m kiln studio
+          git diff --exit-code studio.html
       - uses: actions/upload-artifact@v4
         with:
           name: kiln-apps
