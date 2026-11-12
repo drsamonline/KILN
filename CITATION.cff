@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+title: "KILN: a deterministic compiler for offline single-file apps"
+message: "If you use KILN in academic work, cite it as below."
+type: software
+authors:
+  - family-names: Momin
+    given-names: Sohil
+    email: sohilmomin2000@gmail.com
+    affiliation: "drsamonline"
+license: LicenseRef-PolyForm-Noncommercial-1.0.0
+repository-code: "https://github.com/drsamonline/KILN"
+url: "https://drsamonline.github.io/KILN/"
+abstract: >-
+  KILN compiles a small specification into a complete, working, offline application
+  in one HTML file. It requires no model, no network and no third-party packages.
+keywords:
+  - offline-first
+  - code generation
+  - single-file application
+  - specification
+  - local-first
+version: 0.4.0
+date-released: "2026-11-13"

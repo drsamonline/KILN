@@ -4,6 +4,21 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.4 — 2026-11-13
+
+The support block, and the last of the repository furniture.
+
+| Area | Change |
+|---|---|
+| Support | UPI, GitHub Sponsors, Ko-fi, PayPal, books and email, in the README and on the landing page |
+| QR | `docs/assets/upi-qr.svg`, the estate's UPI QR |
+| Funding | `.github/FUNDING.yml` — the estate standard |
+| Pages | `.nojekyll`, so the tree is served verbatim |
+| Citation | `CITATION.cff` |
+| Docs | `docs/README.md`, an index with a reading order |
+| Guards | `C11` the support block is present in three places and the copies agree |
+| Counts | 85 guards |
+
 ## v0.3 — 2026-11-13
 
 The house is finished: a landing page, a live demo, real screenshots, the legal set,

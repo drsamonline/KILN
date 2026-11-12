@@ -83,6 +83,16 @@ class TestGuardResults(unittest.TestCase):
         bad = [r.name + " " + r.detail for r in guards.check_links() if not r.ok]
         self.assertEqual([], bad)
 
+    def test_support_block_is_present_and_consistent(self):
+        bad = [r.name + " " + r.detail for r in guards.check_support() if not r.ok]
+        self.assertEqual([], bad)
+
+    def test_support_reaches_the_landing_page(self):
+        html = (ROOT / "index.html").read_text(encoding="utf-8")
+        for need in ("drsohilboi@ybl", "ko-fi.com/matneo", "sponsors/drsamonline",
+                     "paypal.me/drsohilmomin", "amazon.com/stores/author"):
+            self.assertIn(need, html)
+
     def test_readme_states_the_licence_in_words(self):
         text = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn(self.c["licence"]["badge"], text)

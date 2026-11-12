@@ -274,6 +274,55 @@ def check_links() -> list[Row]:
     return rows
 
 
+# ------------------------------------------------------- C11 the support block
+SUPPORT_FILES = ["README.md", "SUPPORT.md", "index.html"]
+
+
+def check_support() -> list[Row]:
+    """The support block is money in three places; the three copies must agree."""
+    rows = []
+    found = {}
+    for f in SUPPORT_FILES:
+        p = ROOT / f
+        if not p.exists():
+            rows.append(Row(f"C11 {f} exists", False))
+            continue
+        text = p.read_text(encoding="utf-8")
+        m = re.search(r"([a-z0-9.\-_]+@[a-z]{2,})", text)
+        upi = m.group(1) if m else None
+        found[f] = upi
+        rows.append(Row(f"C11 {f} carries the UPI id", bool(upi), upi or "missing"))
+
+    distinct = {v for v in found.values() if v}
+    rows.append(Row("C11 the UPI id agrees across all three", len(distinct) == 1,
+                    " vs ".join(sorted(distinct)) if len(distinct) > 1 else ""))
+
+    fund = ROOT / ".github" / "FUNDING.yml"
+    if not fund.exists():
+        rows.append(Row("C11 FUNDING.yml exists", False))
+    else:
+        body = fund.read_text(encoding="utf-8")
+        rows.append(Row("C11 FUNDING.yml names github and ko_fi",
+                        "github:" in body and "ko_fi:" in body))
+        try:
+            import yaml
+            parsed = yaml.safe_load(body)
+            rows.append(Row("C11 FUNDING.yml parses", isinstance(parsed, dict)))
+        except ImportError:
+            rows.append(Row("C11 FUNDING.yml parses", False, "pyyaml absent", skip=True))
+        except Exception as e:
+            rows.append(Row("C11 FUNDING.yml parses", False, str(e).splitlines()[0]))
+
+    qr = ROOT / "docs" / "assets" / "upi-qr.svg"
+    rows.append(Row("C11 UPI QR asset exists", qr.exists() and qr.stat().st_size > 500,
+                    "" if qr.exists() else "docs/assets/upi-qr.svg"))
+
+    for link in ("https://ko-fi.com/matneo", "https://github.com/sponsors/drsamonline"):
+        rows.append(Row(f"C11 README links {link}",
+                        link in (ROOT / "README.md").read_text(encoding="utf-8")))
+    return rows
+
+
 # ------------------------------------------------------------------ C2 preflight
 def preflight() -> list[Row]:
     import shutil
@@ -356,6 +405,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_site(catalog)
     rows += check_legal_set()
     rows += check_links()
+    rows += check_support()
     rows += check_runs()
     rows += check_heartbeat()
     rows += check_shellcheck()

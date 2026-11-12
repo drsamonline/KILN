@@ -48,7 +48,17 @@ input — there is nothing else to guess at.
 | Star the repository | free |
 | Tell one person who builds small tools | free |
 | Translate the docs or a spec into another language | your time |
-| Take a commercial licence | see [COMMERCIAL.md](COMMERCIAL.md) |
 
-There is no donation link, because there is no payment processor wired up. If that changes,
-this section changes with it.
+### Money, if you want to
+
+| | |
+|---|---|
+| UPI (India) | `drsohilboi@ybl` — payee Dr Sohil Momin, open amount, or scan [the QR](docs/assets/upi-qr.svg) |
+| GitHub Sponsors | [github.com/sponsors/drsamonline](https://github.com/sponsors/drsamonline) |
+| Ko-fi | [ko-fi.com/matneo](https://ko-fi.com/matneo) |
+| PayPal | [paypal.me/drsohilmomin](https://paypal.me/drsohilmomin?locale.x=en_GB&country.x=IN) |
+| My books | [Amazon author store](https://www.amazon.com/stores/author/B08ZT331LY/allbooks?ccs_id=aed72b9f-71d9-41dc-adee-e9368a317acc) |
+| More apps | [drsamonline.github.io](https://drsamonline.github.io/) |
+
+A donation buys no priority, no support window and no influence over the roadmap. It buys
+the time to keep the tests green, and nothing else is promised.

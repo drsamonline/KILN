@@ -1,7 +1,7 @@
 {
   "name": "KILN",
   "tagline": "Spec in. Finished app out.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "kind": "compiler",
   "language": "Python",
   "runtime": "python>=3.9",
@@ -25,10 +25,26 @@
     "kits": 5
   },
   "verification": {
-    "tests": 55,
-    "guards": 76,
+    "tests": 57,
+    "guards": 85,
     "ci": ".github/workflows/kiln.yml"
   },
-  "topics": ["offline-first", "single-file", "code-generator", "no-dependencies",
-             "app-builder", "spec-driven", "local-first", "python"]
+  "topics": [
+    "offline-first",
+    "single-file",
+    "code-generator",
+    "no-dependencies",
+    "app-builder",
+    "spec-driven",
+    "local-first",
+    "python"
+  ],
+  "support": {
+    "upi": "drsohilboi@ybl",
+    "github_sponsors": "https://github.com/sponsors/drsamonline",
+    "ko_fi": "https://ko-fi.com/matneo",
+    "paypal": "https://paypal.me/drsohilmomin?locale.x=en_GB&country.x=IN",
+    "books": "https://www.amazon.com/stores/author/B08ZT331LY/allbooks",
+    "email": "sohilmomin2000@gmail.com"
+  }
 }

@@ -8,8 +8,8 @@ A deterministic compiler that turns a small specification into a complete, worki
 offline application — one HTML file. No model in the loop, no network, nothing to install.
 
 [![CI](https://github.com/drsamonline/KILN/actions/workflows/kiln.yml/badge.svg)](https://github.com/drsamonline/KILN/actions/workflows/kiln.yml)
-[![tests](https://img.shields.io/badge/tests-55%20passing-brightgreen)](#verification)
-[![guards](https://img.shields.io/badge/guards-76%20passing-brightgreen)](#verification)
+[![tests](https://img.shields.io/badge/tests-57%20passing-brightgreen)](#verification)
+[![guards](https://img.shields.io/badge/guards-85%20passing-brightgreen)](#verification)
 [![dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)](#self-contained)
 [![network](https://img.shields.io/badge/network-not%20required-brightgreen)](#self-contained)
 [![python](https://img.shields.io/badge/python-3.9%20to%203.13-3776ab)](#quick-start)
@@ -20,7 +20,7 @@ offline application — one HTML file. No model in the loop, no network, nothing
 [Live demo](demo.html) ·
 [Studio](studio.html) ·
 [User guide](USAGE.md) ·
-[Spec reference](docs/SPEC-REFERENCE.md) ·
+[All docs](docs/README.md) ·
 [Prompt](PROMPT.md)
 
 <img src="assets/screenshot-app.png" alt="A generated offline notes app: search, tags, export, all stored on the device" width="880">
@@ -125,7 +125,7 @@ then a passing verification.
 | `kiln studio` | rebuild `studio.html` | no |
 | `kiln demo` | rebuild `demo.html` | no |
 | `kiln catalog` | features, kits, assertions | no |
-| `kiln audit` | 76 guards over this repository | no |
+| `kiln audit` | 85 guards over this repository | no |
 | `kiln doctor` | what this machine can do | no |
 
 ---
@@ -181,26 +181,38 @@ Nothing here is claimed without a command and its output.
 
 | Check | What it proves |
 |---|---|
-| `python3 -m unittest discover -s tests` | 55 tests, Python 3.9 → 3.13 |
+| `python3 -m unittest discover -s tests` | 57 tests, Python 3.9 → 3.13 |
 | `python3 -m kiln verify --all` | every spec builds; 136 checks across three apps |
-| `python3 -m kiln audit` | 76 guards: wiring, drift, licences, workflows, studio, prompt, site, links |
+| `python3 -m kiln audit` | 85 guards: wiring, drift, licences, workflows, studio, prompt, site, links, support |
 | `kiln verify --at <sha>` | the artifact is read at the commit, not the working tree |
 
 ---
 
+<!-- support:sweep -->
 ## Support
 
-| Shape | Where |
-|---|---|
-| **Use it and tell me what broke** | [open an issue](https://github.com/drsamonline/KILN/issues/new/choose) |
-| **Ask a question** | [discussions](https://github.com/drsamonline/KILN/discussions) |
-| **Report a vulnerability** | [SECURITY.md](SECURITY.md) — privately, please |
-| **Commercial licence** | [COMMERCIAL.md](COMMERCIAL.md) |
-| **Contribute a feature** | [CONTRIBUTING.md](CONTRIBUTING.md) — four steps, all checked by CI |
-| **Star it, share it** | costs nothing, helps more than you would think |
+KILN is free for personal, academic, hobby and non-profit use. If it saved you a week,
+the usual shapes are below — and the first one costs nothing.
 
-KILN is free for noncommercial use under the PolyForm Noncommercial licence. Selling it,
-or shipping it inside a paid product, needs a written licence.
+| | |
+|---|---|
+| UPI (India) | `drsohilboi@ybl` — payee Dr Sohil Momin, open amount, or scan [the QR](docs/assets/upi-qr.svg) |
+| GitHub Sponsors | [github.com/sponsors/drsamonline](https://github.com/sponsors/drsamonline) |
+| Ko-fi | [ko-fi.com/matneo](https://ko-fi.com/matneo) |
+| PayPal | [paypal.me/drsohilmomin](https://paypal.me/drsohilmomin?locale.x=en_GB&country.x=IN) |
+| My books | [Amazon author store](https://www.amazon.com/stores/author/B08ZT331LY/allbooks?ccs_id=aed72b9f-71d9-41dc-adee-e9368a317acc) |
+| More apps | [drsamonline.github.io](https://drsamonline.github.io/) |
+| Email | [sohilmomin2000@gmail.com](mailto:sohilmomin2000@gmail.com) |
+
+### Get help, not just give money
+
+| You need | Where |
+|---|---|
+| Use it and report what broke | [open an issue](https://github.com/drsamonline/KILN/issues/new/choose) — worth more than a donation |
+| Ask a question | [discussions](https://github.com/drsamonline/KILN/discussions) |
+| Report a vulnerability | [SECURITY.md](SECURITY.md) — privately, please |
+| A commercial licence | [COMMERCIAL.md](COMMERCIAL.md) |
+| Contribute a feature | [CONTRIBUTING.md](CONTRIBUTING.md) — four steps, all checked by CI |
 
 ---
 
@@ -219,9 +231,10 @@ or shipping it inside a paid product, needs a written licence.
 | `kiln/` | the compiler |
 | `templates/` | the runtime, the studio, the demo |
 | `specs/` | one spec per app |
-| `tests/` | 55 tests, including a deliberately sloppy model reply |
-| `docs/` | architecture, portability, workflow, self-containment, spec reference, FAQ |
+| `tests/` | 57 tests, including a deliberately sloppy model reply |
+| `docs/` | architecture, portability, workflow, self-containment, spec reference, FAQ — start at [`docs/README.md`](docs/README.md) |
 | `INDEX.md` | generated list of every spec |
+| `CITATION.cff` | how to cite it |
 
 ---
 
