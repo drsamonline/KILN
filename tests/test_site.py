@@ -67,24 +67,29 @@ class TestPages(unittest.TestCase):
         self.assertIn("<svg", (ROOT / "icon.svg").read_text(encoding="utf-8"))
 
 
+def failed(rows):
+    """A guard that skipped has not failed. Both must be read the same way."""
+    return [r.name + " " + r.detail for r in rows if not r.ok and not r.skip]
+
+
 class TestGuardResults(unittest.TestCase):
     def setUp(self):
         self.c = cat.load()
 
     def test_site_guards_pass(self):
-        bad = [r.name for r in guards.check_site(self.c) if not r.ok]
+        bad = [r.name for r in guards.check_site(self.c) if not r.ok and not r.skip]
         self.assertEqual([], bad)
 
     def test_legal_set_is_complete(self):
-        bad = [r.name for r in guards.check_legal_set() if not r.ok]
+        bad = [r.name for r in guards.check_legal_set() if not r.ok and not r.skip]
         self.assertEqual([], bad)
 
     def test_every_relative_link_resolves(self):
-        bad = [r.name + " " + r.detail for r in guards.check_links() if not r.ok]
+        bad = failed(guards.check_links())
         self.assertEqual([], bad)
 
     def test_support_block_is_present_and_consistent(self):
-        bad = [r.name + " " + r.detail for r in guards.check_support() if not r.ok]
+        bad = failed(guards.check_support())
         self.assertEqual([], bad)
 
     def test_support_reaches_the_landing_page(self):

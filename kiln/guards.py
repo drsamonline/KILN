@@ -309,7 +309,11 @@ def check_support() -> list[Row]:
             parsed = yaml.safe_load(body)
             rows.append(Row("C11 FUNDING.yml parses", isinstance(parsed, dict)))
         except ImportError:
-            rows.append(Row("C11 FUNDING.yml parses", False, "pyyaml absent", skip=True))
+            # no yaml module: a structural check, not a skip
+            structural = bool(re.search(r"^github:\s*\S+", body, re.M)) and \
+                bool(re.search(r"^ko_fi:\s*\S+", body, re.M))
+            rows.append(Row("C11 FUNDING.yml structure", structural,
+                            "checked without pyyaml"))
         except Exception as e:
             rows.append(Row("C11 FUNDING.yml parses", False, str(e).splitlines()[0]))
 

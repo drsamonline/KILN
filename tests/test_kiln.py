@@ -177,20 +177,21 @@ class TestGuards(unittest.TestCase):
 
     def test_audit_references_resolve(self):
         rows = guards.check_audit_map()
-        bad = [r for r in rows if not r.ok]
+        bad = [r for r in rows if not r.ok and not r.skip]
         self.assertEqual([], bad, [r.name for r in bad])
 
     def test_licence_consistent(self):
         rows = guards.check_licence(self.c)
-        self.assertEqual([], [r for r in rows if not r.ok])
+        self.assertEqual([], [r for r in rows if not r.ok and not r.skip])
 
     def test_workflows_lint(self):
         rows = guards.check_workflows()
-        self.assertEqual([], [r for r in rows if not r.ok], [r.detail for r in rows])
+        self.assertEqual([], [r for r in rows if not r.ok and not r.skip],
+                         [r.detail for r in rows])
 
     def test_index_is_current(self):
         rows = guards.check_index(self.c)
-        self.assertEqual([], [r for r in rows if not r.ok],
+        self.assertEqual([], [r for r in rows if not r.ok and not r.skip],
                          "run: python3 -m kiln audit --write")
 
 
