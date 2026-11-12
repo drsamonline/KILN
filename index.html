@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KILN — spec in, finished app out</title>
+<meta name="description" content="KILN is a deterministic compiler for offline single-file apps. Write a spec, get a working app. No model, no network, no dependencies.">
+<meta property="og:title" content="KILN — spec in, finished app out">
+<meta property="og:description" content="A deterministic compiler for offline single-file apps. No model required.">
+<meta property="og:image" content="assets/screenshot-app.png">
+<meta name="theme-color" content="#0f1116">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root{--bg:#0f1116;--panel:#171a21;--panel2:#12151c;--line:#262b36;--ink:#e7ebf3;
+    --muted:#98a2b3;--accent:#7c9cff;--accent2:#c08b5c;--ok:#4ade80;--r:14px}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+  header{position:sticky;top:0;z-index:20;background:rgba(15,17,22,.88);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  header .wrap{display:flex;gap:16px;align-items:center;height:58px}
+  .brand{display:flex;gap:9px;align-items:center;font-weight:800;letter-spacing:.5px}
+  .brand svg{display:block}
+  header nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
+  header nav a{color:var(--muted)}
+  header nav a:hover{color:var(--ink);text-decoration:none}
+
+  .hero{padding:64px 0 40px;text-align:center}
+  h1{font-size:clamp(32px,6vw,54px);line-height:1.1;margin:0 0 14px;letter-spacing:-1px}
+  h1 em{font-style:normal;color:var(--accent)}
+  .lede{font-size:clamp(16px,2.2vw,19px);color:var(--muted);max-width:640px;margin:0 auto 22px}
+  .chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 26px}
+  .chip{font-size:12px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);
+    color:var(--muted);background:var(--panel)}
+  .chip b{color:var(--ink);font-weight:600}
+  .cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-block;padding:11px 20px;border-radius:10px;border:1px solid var(--line);
+    background:var(--panel);color:var(--ink);font-size:15px;font-weight:600}
+  .btn:hover{text-decoration:none;border-color:var(--accent)}
+  .btn.p{background:var(--accent);color:#0b0d12;border-color:transparent}
+  .btn.p:hover{filter:brightness(1.08)}
+
+  section{padding:44px 0;border-top:1px solid var(--line)}
+  h2{font-size:clamp(20px,3vw,27px);margin:0 0 6px;letter-spacing:-.4px}
+  .sub{color:var(--muted);margin:0 0 22px;max-width:640px}
+
+  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+  .card h3{margin:0 0 6px;font-size:16px}
+  .card p{margin:0;color:var(--muted);font-size:14px}
+  .card .n{font-size:11px;letter-spacing:1px;color:var(--accent);font-weight:700;
+    display:block;margin-bottom:8px}
+  .card code{font-size:12.5px;color:var(--ink);background:var(--panel2);
+    padding:2px 6px;border-radius:5px;display:inline-block;margin-top:10px}
+
+  .shot{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+    background:var(--panel2);margin:0 0 8px}
+  .shot img{display:block;width:100%;height:auto}
+  .cap{color:var(--muted);font-size:12.5px;margin:0 0 24px}
+
+  .pipe{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;
+    margin-top:8px}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:12px;font-size:13px}
+  .step b{display:block;font-size:11px;letter-spacing:1px;color:var(--accent);margin-bottom:5px}
+  .step code{font-size:12px;color:var(--muted)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:11.5px;
+    letter-spacing:.6px;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--line)}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td:first-child{white-space:nowrap}
+
+  pre.term{background:var(--panel2);border:1px solid var(--line);border-radius:12px;
+    padding:16px;overflow:auto;font-size:13px;line-height:1.7;color:#cfd6e4;margin:0}
+  pre.term .c{color:#6b7688}
+  pre.term .g{color:var(--ok)}
+
+  .support{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .support .card a{font-weight:600}
+
+  footer{border-top:1px solid var(--line);padding:28px 0 46px;color:var(--muted);font-size:13px}
+  footer .cols{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:16px}
+  footer .cols div{min-width:150px}
+  footer b{display:block;color:var(--ink);font-size:12px;letter-spacing:.6px;
+    text-transform:uppercase;margin-bottom:8px}
+  footer a{color:var(--muted);display:block;margin:3px 0}
+  footer a:hover{color:var(--ink)}
+  .fine{font-size:12px;color:#6b7688;max-width:720px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 20h16" stroke="#7c9cff" stroke-width="2" stroke-linecap="round"/>
+        <path d="M7 20V10a5 5 0 0 1 10 0v10" stroke="#7c9cff" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M12 5V3" stroke="#c08b5c" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      KILN
+    </span>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#screens">Screens</a>
+      <a href="#start">Quick start</a>
+      <a href="demo.html">Demo</a>
+      <a href="studio.html">Studio</a>
+      <a href="https://github.com/drsamonline/KILN">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <h1>Spec in.<br><em>Finished app out.</em></h1>
+    <p class="lede">KILN compiles a small specification into a complete, working, offline
+      application — one HTML file. No model in the loop, no network, no dependencies to install.</p>
+
+    <div class="chips">
+      <span class="chip"><b>0</b> dependencies</span>
+      <span class="chip"><b>0</b> network calls</span>
+      <span class="chip"><b>21 KB</b> per app</span>
+      <span class="chip"><b>14</b> features</span>
+      <span class="chip"><b>76</b> guards</span>
+      <span class="chip"><b>55</b> tests</span>
+    </div>
+
+    <div class="cta">
+      <a class="btn p" href="demo.html">See a generated app</a>
+      <a class="btn" href="studio.html">Build one in your browser</a>
+      <a class="btn" href="https://github.com/drsamonline/KILN">Source</a>
+    </div>
+  </div>
+
+  <section id="how">
+    <h2>Three ways in, one result</h2>
+    <p class="sub">A spec is the only input. Whether you type a sentence, paste a model's
+      reply, or fill a form on a phone, the same compiler runs and the same checks pass.</p>
+    <div class="grid3">
+      <div class="card">
+        <span class="n">01 — PHRASE</span>
+        <h3>One sentence</h3>
+        <p>Say what the app is for. Aliases, tf-idf and slot filling turn it into a spec.
+          No model, no key, no network.</p>
+        <code>kiln new "a tea log with tags"</code>
+      </div>
+      <div class="card">
+        <span class="n">02 — PROMPT</span>
+        <h3>Any model, by copy-paste</h3>
+        <p><code>PROMPT.md</code> carries the catalogue with it. Paste the reply back and
+          <code>adopt</code> repairs it until it builds.</p>
+        <code>kiln prompt → paste → kiln adopt</code>
+      </div>
+      <div class="card">
+        <span class="n">03 — FORM</span>
+        <h3>A phone, offline</h3>
+        <p><code>studio.html</code> is the same compiler in a browser. Fill the form, tap
+          Build, the app downloads.</p>
+        <code>open studio.html</code>
+      </div>
+    </div>
+  </section>
+
+  <section id="screens">
+    <h2>What it looks like</h2>
+    <p class="sub">Both screenshots are real, rendered from the files in this repository.</p>
+
+    <div class="shot"><img src="assets/screenshot-studio.png" alt="KILN Studio: feature picker, field editor and build button" loading="lazy"></div>
+    <p class="cap">KILN Studio — pick features, describe the record, build. Runs on a phone, offline.</p>
+
+    <div class="shot"><img src="assets/screenshot-app.png" alt="A generated offline notes app with search, tags and export" loading="lazy"></div>
+    <p class="cap">A generated app — 21 KB, one file, storage on the device, all four failure paths handled.</p>
+  </section>
+
+  <section>
+    <h2>The pipeline</h2>
+    <p class="sub">Every arrow is deterministic. The same spec produces the same bytes.</p>
+    <div class="pipe">
+      <div class="step"><b>INTAKE</b>phrase → features<code>intent.py</code></div>
+      <div class="step"><b>SPEC</b>JSON block + prose<code>spec.py</code></div>
+      <div class="step"><b>COMPOSE</b>spec → file plan<code>compose.py</code></div>
+      <div class="step"><b>EMIT</b>plan → files<code>emit.py</code></div>
+      <div class="step"><b>VERIFY</b>read it, prove it<code>verify.py</code></div>
+      <div class="step"><b>GUARD</b>76 checks on the repo<code>guards.py</code></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What a generated app gets, without being asked</h2>
+    <p class="sub">This is the difference between a skeleton and an app. Nothing here needs
+      writing per application.</p>
+    <table>
+      <tr><th>Part</th><th>Behaviour</th></tr>
+      <tr><td>CRUD</td><td>List, create, edit, delete — generated from the entity schema</td></tr>
+      <tr><td>Storage</td><td>Namespaced <code>localStorage</code>, versioned, quota-aware</td></tr>
+      <tr><td>Search</td><td>Field scan with <code>Ctrl-K</code> focus</td></tr>
+      <tr><td>Export</td><td>JSON and CSV download, JSON restore</td></tr>
+      <tr><td>Theme</td><td>Dark and light, remembered</td></tr>
+      <tr><td>Failure path</td><td>Bad input, no network, storage full, corrupt state — all four surfaced</td></tr>
+      <tr><td>Docs</td><td>README, manifest, changelog, licence, smoke tests</td></tr>
+    </table>
+  </section>
+
+  <section id="start">
+    <h2>Quick start</h2>
+    <p class="sub">Python 3.9 or newer. Nothing else.</p>
+<pre class="term"><span class="c"># whole pipeline in one command</span>
+python3 -m kiln pipeline "a reading log with tags and a rating" --zip
+
+<span class="c"># or step by step</span>
+python3 -m kiln new "a notes app with tags, search and export"
+python3 -m kiln build specs/app-notes.md -o out
+python3 -m kiln verify out/app-notes
+
+<span class="g">ok   app-notes.md   43 checks, 0 failed</span></pre>
+  </section>
+
+  <section id="support">
+    <h2>Support</h2>
+    <p class="sub">KILN is free for noncommercial use. Support takes the usual shapes, and
+      the first two cost nothing.</p>
+    <div class="support">
+      <div class="card">
+        <h3>Use it</h3>
+        <p>Build something small and tell me what broke. A failed spec is worth more than a
+          star.</p>
+        <p style="margin-top:10px"><a href="https://github.com/drsamonline/KILN/issues/new/choose">Open an issue</a></p>
+      </div>
+      <div class="card">
+        <h3>Report a problem</h3>
+        <p>Include the spec, the command, and the output. <code>kiln audit</code> output helps.</p>
+        <p style="margin-top:10px"><a href="SUPPORT.md">SUPPORT.md</a></p>
+      </div>
+      <div class="card">
+        <h3>Commercial use</h3>
+        <p>The licence is PolyForm Noncommercial. Selling, or shipping inside a paid product,
+          needs a separate written licence.</p>
+        <p style="margin-top:10px"><a href="COMMERCIAL.md">COMMERCIAL.md</a></p>
+      </div>
+      <div class="card">
+        <h3>Contribute</h3>
+        <p>A new feature means a catalogue entry, a runtime gate, an assertion and a test.
+          The checklist is short.</p>
+        <p style="margin-top:10px"><a href="CONTRIBUTING.md">CONTRIBUTING.md</a></p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="cols">
+      <div>
+        <b>Project</b>
+        <a href="README.md">README</a>
+        <a href="PLAN.md">Plan</a>
+        <a href="CHANGELOG.md">Changelog</a>
+        <a href="INDEX.md">Spec index</a>
+        <a href="https://github.com/drsamonline/KILN">Source</a>
+      </div>
+      <div>
+        <b>Use</b>
+        <a href="INSTALL.md">Install</a>
+        <a href="USAGE.md">User guide</a>
+        <a href="docs/SPEC-REFERENCE.md">Spec reference</a>
+        <a href="docs/FAQ.md">FAQ</a>
+        <a href="PROMPT.md">Prompt</a>
+      </div>
+      <div>
+        <b>Legal</b>
+        <a href="LICENSE">Licence</a>
+        <a href="TERMS.md">Terms</a>
+        <a href="PRIVACY.md">Privacy</a>
+        <a href="SECURITY.md">Security</a>
+        <a href="DISCLAIMER.md">Disclaimer</a>
+        <a href="NOTICE">Notice</a>
+      </div>
+      <div>
+        <b>Community</b>
+        <a href="SUPPORT.md">Support</a>
+        <a href="CONTRIBUTING.md">Contributing</a>
+        <a href="CODE_OF_CONDUCT.md">Code of conduct</a>
+        <a href="https://github.com/drsamonline">Other projects</a>
+      </div>
+    </div>
+    <p class="fine">KILN compiles specifications into software. It does not call a model, does
+      not collect data, and does not guarantee that a generated app is fit for your purpose —
+      check it before you rely on it. PolyForm Noncommercial 1.0.0. © 2026 Dr Sohil Momin.</p>
+  </footer>
+
+</div>
+</body>
+</html>

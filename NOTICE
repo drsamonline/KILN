@@ -1,0 +1,40 @@
+# NOTICE
+
+**KILN** — spec in, finished app out.
+Copyright © 2026 Dr Sohil Momin. All rights reserved.
+
+Licensed under the **PolyForm Noncommercial License 1.0.0**. The full text is in
+[`LICENSE`](LICENSE) and at
+<https://polyformproject.org/licenses/noncommercial/1.0.0/>.
+
+---
+
+## Third-party material
+
+| Item | Status |
+|---|---|
+| Code | none. Every line in this repository is written for it. There are no vendored libraries, no submodules and no copied files |
+| Fonts | none bundled. Generated apps and the pages here use the system font stack |
+| Icons | `icon.svg` is drawn for this project |
+| Images | `assets/*.png` are screenshots rendered from this repository's own files |
+| Data | no datasets are bundled |
+| Model output | none is bundled. `tests/fixtures/reply-sloppy.md` is a hand-written fixture, deliberately malformed, used to test the repair path |
+
+## Relationship to other drsamonline projects
+
+KILN shares a design language with the rest of the estate — `forge`, the `*-kit` family,
+`app-builder` — and borrows their lessons, which are credited in
+[`AUDIT-FORGE.md`](AUDIT-FORGE.md). It does **not** import, vendor or depend on any of them.
+The five "kits" named in `catalog/kits.json` are regions of
+`templates/app/index.html`, in this repository.
+
+If you later wire `app-builder` into a generated app's packaging workflow, that repository's
+licence applies to that step, not this one.
+
+## Trademarks
+
+No third-party trademark is used. The name KILN is used here as the project name only.
+
+## Correspondence
+
+Dr Sohil Momin — sohilmomin2000@gmail.com

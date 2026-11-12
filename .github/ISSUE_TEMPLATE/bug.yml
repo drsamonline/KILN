@@ -1,0 +1,41 @@
+name: Bug report
+description: Something in KILN does not do what it says.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Four things make a bug report a fix: what you ran, what happened, what you expected,
+        and the spec. Please do not paste secrets.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The command, verbatim, and the output, verbatim.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: spec
+    attributes:
+      label: The spec, if a build is involved
+      description: Paste the whole file, or the `json kiln` block.
+      render: markdown
+  - type: input
+    id: version
+    attributes:
+      label: Commit or version
+      placeholder: db66f7a, or the date you cloned
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: kiln doctor and kiln audit output
+      render: shell

@@ -189,6 +189,91 @@ def check_studio(catalog) -> list[Row]:
     return rows
 
 
+# ------------------------------------------------ C8 landing, demo, screenshots
+def check_site(catalog) -> list[Row]:
+    """The pages are part of the deliverable, so they are checked like code."""
+    from . import demo as demomod
+    rows = []
+    landing = ROOT / "index.html"
+    if not landing.exists():
+        return [Row("C8 index.html exists", False)]
+    html = landing.read_text(encoding="utf-8")
+    rows.append(Row("C8 index.html exists", True, f"{len(html) // 1024} KB"))
+    for bad in ('src="http', "src='http", "<script src", 'link rel="stylesheet" href="http',
+                "url(http"):
+        rows.append(Row(f"C8 landing loads nothing remote: {bad}", bad not in html))
+    rows.append(Row("C8 landing loads no remote font or image",
+                    not re.search(r'(?:href|src)="https?://[^"]+\.(?:css|js|png|jpg|woff2?)"', html)))
+    for need in ("studio.html", "demo.html", "assets/screenshot-app.png"):
+        rows.append(Row(f"C8 landing links {need}", need in html))
+
+    demo = ROOT / "demo.html"
+    if not demo.exists():
+        rows.append(Row("C8 demo.html exists", False, "run kiln demo"))
+    else:
+        have = demo.read_text(encoding="utf-8")
+        rows.append(Row("C8 demo.html matches its sources", have == demomod.build(catalog),
+                        "stale, run kiln demo" if have != demomod.build(catalog) else ""))
+        rows.append(Row("C8 demo.html loads nothing remote", 'src="http' not in have))
+        rows.append(Row("C8 demo.html inlines a real app", "const MODEL =" in have))
+
+    for shot in ("assets/screenshot-app.png", "assets/screenshot-studio.png"):
+        p = ROOT / shot
+        rows.append(Row(f"C8 {shot} exists", p.exists() and p.stat().st_size > 2000,
+                        "" if p.exists() else "render it"))
+    return rows
+
+
+# ------------------------------------------------------------ C9 the legal set
+LEGAL = ["LICENSE", "NOTICE", "PRIVACY.md", "TERMS.md", "DISCLAIMER.md", "SECURITY.md",
+         "COMMERCIAL.md", "SUPPORT.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md"]
+GUIDES = ["USAGE.md", "INSTALL.md", "CHANGELOG.md", "docs/SPEC-REFERENCE.md", "docs/FAQ.md"]
+
+
+def check_legal_set() -> list[Row]:
+    rows = []
+    for f in LEGAL:
+        p = ROOT / f
+        rows.append(Row(f"C9 legal {f}", p.exists() and p.stat().st_size > 400,
+                        "" if p.exists() else "missing"))
+    for f in GUIDES:
+        p = ROOT / f
+        rows.append(Row(f"C9 guide {f}", p.exists() and p.stat().st_size > 400,
+                        "" if p.exists() else "missing"))
+    return rows
+
+
+# ------------------------------------------------------------------ C10 doc links
+def check_links() -> list[Row]:
+    """Every relative link in the README and the landing page must resolve."""
+    rows = []
+    targets = []
+
+    readme = ROOT / "README.md"
+    if readme.exists():
+        text = readme.read_text(encoding="utf-8")
+        for m in re.finditer(r"\]\(([^)\s]+)\)", text):
+            targets.append(("README.md", m.group(1)))
+    landing = ROOT / "index.html"
+    if landing.exists():
+        text = landing.read_text(encoding="utf-8")
+        for m in re.finditer(r'(?:href|src)="([^"]+)"', text):
+            targets.append(("index.html", m.group(1)))
+
+    bad = []
+    for src, link in targets:
+        if link.startswith(("http://", "https://", "#", "mailto:", "data:")):
+            continue
+        clean = link.split("#")[0]
+        if not clean:
+            continue
+        if not (ROOT / clean).exists():
+            bad.append(f"{src} -> {link}")
+    rows.append(Row("C10 every relative link resolves", not bad, "; ".join(bad[:6])))
+    rows.append(Row("C10 links were found to check", len(targets) > 30, f"{len(targets)} links"))
+    return rows
+
+
 # ------------------------------------------------------------------ C2 preflight
 def preflight() -> list[Row]:
     import shutil
@@ -268,6 +353,9 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_kit_coverage(catalog)
     rows += check_prompt_catalog(catalog)
     rows += check_studio(catalog)
+    rows += check_site(catalog)
+    rows += check_legal_set()
+    rows += check_links()
     rows += check_runs()
     rows += check_heartbeat()
     rows += check_shellcheck()

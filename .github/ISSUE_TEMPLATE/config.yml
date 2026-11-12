@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or idea
+    url: https://github.com/drsamonline/KILN/discussions
+    about: Ask anything that is not a bug report.
+  - name: Security problem
+    url: https://github.com/drsamonline/KILN/security/advisories/new
+    about: Report privately. Please do not open a public issue.
+  - name: Commercial licence
+    url: https://github.com/drsamonline/KILN/blob/main/COMMERCIAL.md
+    about: Selling it, or shipping it in a paid product.

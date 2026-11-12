@@ -1,0 +1,12 @@
+{
+  "site": "https://drsamonline.github.io/KILN/",
+  "source": "main",
+  "root": "/",
+  "pages": [
+    { "path": "/", "file": "index.html", "title": "KILN — spec in, finished app out" },
+    { "path": "/demo.html", "file": "demo.html", "title": "KILN — live demo" },
+    { "path": "/studio.html", "file": "studio.html", "title": "KILN Studio" }
+  ],
+  "assets": ["assets/", "icon.svg", "manifest.webmanifest"],
+  "note": "All three pages are self-contained and work offline once loaded."
+}

@@ -11,7 +11,7 @@ from pathlib import Path
 
 from . import adopt as adoptmod
 from . import catalog as cat
-from . import compose, emit, guards, intent, prose
+from . import compose, demo as demomod, emit, guards, intent, prose
 from . import prompt as promptmod
 from . import spec as specmod
 from . import studio as studiomod
@@ -186,6 +186,14 @@ def cmd_studio(args, catalog) -> int:
     return 0
 
 
+def cmd_demo(args, catalog) -> int:
+    dest = Path(args.out or ROOT / "demo.html")
+    demomod.write(catalog, dest)
+    print(f"wrote {dest}  ({dest.stat().st_size / 1024:.1f} KB)")
+    print("the app inside it is the one kiln build emits, inlined")
+    return 0
+
+
 def cmd_pipeline(args, catalog) -> int:
     """idea -> spec -> app -> verify -> zip, in one command."""
     s = intent.to_spec(args.text, catalog, spec_id=args.id)
@@ -326,6 +334,10 @@ def main(argv=None) -> int:
     p.add_argument("dir", nargs="?")
     p.add_argument("--all", action="store_true")
     p.set_defaults(fn=cmd_verify)
+
+    p = sub.add_parser("demo", help="build demo.html, a real app inlined in a page")
+    p.add_argument("-o", "--out")
+    p.set_defaults(fn=cmd_demo)
 
     p = sub.add_parser("studio", help="build studio.html, the browser version")
     p.add_argument("-o", "--out")

@@ -1,0 +1,12 @@
+{
+  "name": "KILN",
+  "short_name": "KILN",
+  "description": "Spec in. Finished app out. A deterministic compiler for offline single-file apps.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f1116",
+  "theme_color": "#0f1116",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

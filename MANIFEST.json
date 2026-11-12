@@ -1,0 +1,34 @@
+{
+  "name": "KILN",
+  "tagline": "Spec in. Finished app out.",
+  "version": "0.3.0",
+  "kind": "compiler",
+  "language": "Python",
+  "runtime": "python>=3.9",
+  "dependencies": [],
+  "network": false,
+  "offline": true,
+  "licence": "PolyForm-Noncommercial-1.0.0",
+  "owner": "Dr Sohil Momin",
+  "repository": "https://github.com/drsamonline/KILN",
+  "homepage": "https://drsamonline.github.io/KILN/",
+  "entry": {
+    "cli": "python3 -m kiln",
+    "browser": "studio.html",
+    "landing": "index.html",
+    "demo": "demo.html"
+  },
+  "generates": {
+    "artifact": "single-file HTML application",
+    "size_budget_kb": 60,
+    "features": 14,
+    "kits": 5
+  },
+  "verification": {
+    "tests": 55,
+    "guards": 76,
+    "ci": ".github/workflows/kiln.yml"
+  },
+  "topics": ["offline-first", "single-file", "code-generator", "no-dependencies",
+             "app-builder", "spec-driven", "local-first", "python"]
+}

@@ -50,10 +50,11 @@ jobs:
         run: python3 -m kiln verify --all
       - name: Build the demo apps
         run: python3 -m kiln build --all -o dist
-      - name: Studio must match its sources
+      - name: Generated pages must match their sources
         run: |
           python3 -m kiln studio
-          git diff --exit-code studio.html
+          python3 -m kiln demo
+          git diff --exit-code studio.html demo.html
       - uses: actions/upload-artifact@v4
         with:
           name: kiln-apps

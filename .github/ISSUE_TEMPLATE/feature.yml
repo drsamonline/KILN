@@ -1,0 +1,34 @@
+name: Feature request
+description: A new capability, or a change to one.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The catalogue is the design space. A new feature means a catalogue entry, a runtime
+        gate, an assertion and a test — see CONTRIBUTING.md. Requests that keep the tool
+        small are the ones that land.
+  - type: textarea
+    id: need
+    attributes:
+      label: What can you not build today
+      description: Describe the app you wanted, not the code you want written.
+    validations:
+      required: true
+  - type: input
+    id: feature
+    attributes:
+      label: Which catalogue id would this be
+      placeholder: e.g. reminder, or a new one
+  - type: textarea
+    id: assertion
+    attributes:
+      label: How would a person check that it works
+      description: One sentence, with an observable verb. If you cannot write it, the feature is not ready.
+  - type: dropdown
+    id: size
+    attributes:
+      label: Does this keep the generated app under 60 KB?
+      options: ["Yes", "Probably", "No — and I accept it may be declined"]
+    validations:
+      required: true

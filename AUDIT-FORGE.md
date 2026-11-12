@@ -96,3 +96,28 @@ The first version of this repo repeated two of the mistakes it criticises. Both 
 ### The rule this section establishes
 
 A tool that audits other systems has to audit itself first, and the self-audit has to be in the same table as the rest.
+
+---
+
+## H. Repository furniture, and what protects it
+
+Forge's repos carry a fixed set of files — landing page, changelog, contributing, privacy,
+security, notice, manifest. KILN now carries the same set, and unlike a checklist, each one
+is checked.
+
+| File | Purpose | Guard |
+|---|---|---|
+| `index.html` | landing page, self-contained, no remote asset | `C8` |
+| `demo.html` | a real generated app, inlined, not a mock | `C8` (byte-compared to `kiln demo`) |
+| `studio.html` | the browser compiler | `C7` (byte-compared to `kiln studio`) |
+| `assets/*.png` | screenshots rendered from this repository | `C8` (present and non-trivial) |
+| `LICENSE`, `NOTICE` | licence and third-party position | `C5`, `C9` |
+| `PRIVACY.md`, `TERMS.md`, `DISCLAIMER.md` | what the software does with data, and what it does not promise | `C9` |
+| `SECURITY.md`, `SUPPORT.md`, `COMMERCIAL.md` | how to report, how to get help, how to buy | `C9` |
+| `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` | the inbound licence grant and the behaviour rules | `C9` |
+| `USAGE.md`, `INSTALL.md`, `docs/SPEC-REFERENCE.md`, `docs/FAQ.md` | the guides a person actually reads | `C9` |
+| `MANIFEST.json`, `PAGES.json`, `manifest.webmanifest`, `icon.svg` | machine-readable project facts | `tests/test_site.py` |
+| every relative link in README and the landing page | — | `C10` (resolves or fails the build) |
+
+The point of the last row: a documentation set that rots into 404s is worse than no
+documentation, because it wastes the reader's time twice.
