@@ -4,6 +4,30 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.5 — 2026-11-13
+
+Tiers, watermark, and a gallery that shows every spec while running only some of them.
+
+| Area | Change |
+|---|---|
+| Tiers | `free`, `commercial`, `corporate`, and a capped `demo` — [`LICENSING.md`](LICENSING.md) |
+| Free builds | licence line, "Built with KILN", the sponsor block, in an About panel |
+| Commercial builds | sponsor block gone; one line in About: "Built with KILN", hyperlinked |
+| Corporate builds | no About button at all; the build comment stays in the file |
+| Keys | Ed25519, verified offline, no packages; pinned public key; expiry enforced at build |
+| Watermark | build record, fingerprint in the head, and an integrity check the app runs on boot |
+| Commands | `kiln licence status\|tiers\|keygen\|issue\|verify\|activate`, `build --tier` |
+| Demo | `demo.html` is a gallery of every spec; clinical and health specs are refused, with the reason |
+| Demo builds | capped to crud, search, sort, theme, with a banner that says so |
+| Guards | `C12` licensing and watermark, `C13` the gallery covers every spec and refuses some |
+| Counts | 81 tests, 107 guards |
+
+### One rule narrowed
+
+The verifier used to reject any `http://` or `https://` in an app. Attribution needs links, so
+the rule now rejects **loaded** resources — `src=`, `@import`, `fetch(`, `<script src` — and
+allows an anchor in About. The app still loads nothing.
+
 ## v0.4 — 2026-11-13
 
 The support block, and the last of the repository furniture.

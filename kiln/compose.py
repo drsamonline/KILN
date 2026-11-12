@@ -5,15 +5,33 @@ import datetime
 import json
 from pathlib import Path
 
-from . import catalog as cat
+from . import __version__, catalog as cat, licence as lic
 
 ROOT = Path(__file__).resolve().parent.parent
 TPL = ROOT / "templates" / "app"
 
 
-def plan(spec, catalog) -> list[dict]:
-    """The full file plan. Deterministic: same spec, same plan, byte for byte."""
+def fnv1a64(text: str) -> str:
+    """The same hash the runtime recomputes. Cheap, deterministic, both sides."""
+    h = 0xCBF29CE484222325
+    for byte in text.encode("utf-8"):
+        h ^= byte
+        h = (h * 0x100000001B3) & 0xFFFFFFFFFFFFFFFF
+    return format(h, "016x")
+
+
+def canonical(model) -> str:
+    return json.dumps(model, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def plan(spec, catalog, tier="free", licensee="") -> list[dict]:
+    """The full file plan. Deterministic: same spec and tier, same plan, byte for byte."""
     features = cat.expand(spec["features"], catalog)
+    if tier == "demo":
+        # the online demo is deliberately less capable than the real build
+        features = [f for f in features if f in lic.DEMO_FEATURES]
+        if "crud" not in features and "crud" in catalog["features"]:
+            features = ["crud"] + features
     kits = cat.resolve_kits(features, catalog)
     ent = spec["entities"][0]
     today = datetime.date.today().isoformat()
@@ -28,6 +46,19 @@ def plan(spec, catalog) -> list[dict]:
         "entities": spec["entities"],
         "assertions": [catalog["features"][f]["assertion"] for f in features],
         "not": spec["not"],
+    }
+
+    canon = canonical(model)
+    build = {
+        "tier": tier,
+        "version": __version__,
+        "fp": fnv1a64(canon),
+        "spec": spec["id"],
+        "licensee": licensee or "",
+        "licence": catalog["licence"]["badge"],
+        "licence_url": "https://polyformproject.org/licenses/noncommercial/1.0.0/",
+        "home": "https://github.com/drsamonline/KILN",
+        "sponsor": dict(lic.SPONSOR) if tier in ("free", "demo") else {},
     }
 
     ctx = {
@@ -47,6 +78,14 @@ def plan(spec, catalog) -> list[dict]:
         "LICENCE": catalog["licence"]["badge"],
         "LICENCE_ID": catalog["licence"]["id"],
         "SPEC_PATH": Path(spec.get("_path", f"specs/{spec['id']}.md")).name,
+        "KILN_VERSION": __version__,
+        "TIER": tier,
+        "FINGERPRINT": build["fp"],
+        "YEAR": today[:4],
+        "OWNER": "Dr Sohil Momin",
+        "LICENCE_URL": build["licence_url"],
+        "BUILD_JSON": json.dumps(build, indent=2),
+        "MODEL_CANON": json.dumps(canon).replace("</", "<\\/"),
     }
 
     return [

@@ -53,6 +53,34 @@ this is a single-maintainer project and honesty about that is better than a prom
 | `kiln adopt` parses untrusted text | it parses JSON and validates it; it never executes it |
 | No sandbox around a spec | a spec can only describe data, not code |
 
+## Protection and watermark
+
+This section states what is implemented, so it can be checked against the code. Anything not
+built is not described here as if it were.
+
+| Claim | Where it lives | Enforced by |
+|---|---|---|
+| Every build carries a build record: tier, compiler version, spec id, fingerprint | `const BUILD` in the emitted file | `verify` fails a build without it |
+| The fingerprint is a hash of the model the file was built from | `compose.fnv1a64(canonical(model))` | `tests/test_licence.py` |
+| The app recomputes the hash on boot and says so if it does not match | `tampered()` in the runtime | the app itself, visibly |
+| A free build carries the sponsor block; commercial carries one line; corporate carries none | `licence.describe()` | `verify` checks sponsor presence against tier |
+| A paid tier cannot be selected without a valid key | `licence.resolve()` | the build refuses with an explanation |
+| Keys are Ed25519-signed and verified offline, no packages | `kiln/ed25519.py` | RFC 8032 test vector in `tests/test_licence.py` |
+| The private signing key never enters the repository | `~/.kiln/private.key`, chmod 600 | guard `C12` |
+
+### What it is not
+
+| Not this | Why not |
+|---|---|
+| DRM | the compiler is source-available; anyone can edit it and remove the attribution |
+| Encryption of your app | the app is a plain HTML file by design |
+| A guarantee of authorship | the fingerprint is evidence of a build, not proof of who holds the copyright |
+| Tamper-proof | a determined edit can remove every marker; the point is that the file then disagrees with itself |
+
+The honest summary: a build that has been modified will say so, and a customer build can be
+checked against the spec it names. That is a deterrent and an evidence trail, and it is worth
+having. It is not a lock.
+
 ## Supported versions
 
 The `main` branch is the supported version. Fixes land there and are recorded in

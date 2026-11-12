@@ -15,7 +15,19 @@ permitted on those terms. Any commercial use — selling it, bundling it into a 
 or using it to deliver paid work — requires a separate written licence
 (see [`COMMERCIAL.md`](COMMERCIAL.md)).
 
-## 2. Applications you generate
+## 2. Tiers and attribution
+
+KILN is built in tiers, described in [`LICENSING.md`](LICENSING.md). The tier a build was made
+under is recorded in the generated file. Removing or altering that record does not change the
+tier the build was made under, and does not grant a licence you did not buy.
+
+| Tier | What the file carries |
+|---|---|
+| free | licence line, "Built with KILN", the sponsor block, the build record |
+| commercial | one line, "Built with KILN" |
+| corporate | no visible attribution; the build record remains in the file |
+
+## 3. Applications you generate
 
 Applications you generate belong to you. You may use, modify, distribute and sell them,
 subject to:
@@ -27,7 +39,7 @@ subject to:
 The specification you write is also yours. The compiler, its templates and its catalogue
 remain under the licence in section 1.
 
-## 3. What you are responsible for
+## 4. What you are responsible for
 
 | You are responsible for | Because |
 |---|---|
@@ -37,7 +49,7 @@ remain under the licence in section 1.
 | Any output you take from a third-party model | that model's terms apply to it, not KILN's |
 | Backups | a generated app stores data in a browser; clearing site data erases it |
 
-## 4. No warranty
+## 5. No warranty
 
 KILN is provided **as is**, without warranty of any kind, express or implied, including
 merchantability, fitness for a particular purpose and non-infringement. The entire risk as
@@ -46,36 +58,36 @@ to quality and performance is with you.
 The compiler is tested, and the tests are in the repository so you can run them. That is not
 the same as a warranty, and it should not be read as one.
 
-## 5. Limitation of liability
+## 6. Limitation of liability
 
 To the maximum extent permitted by law, the author is not liable for any direct, indirect,
 incidental, special or consequential damages, or for lost data, lost profit or business
 interruption, arising from the use of or inability to use KILN, even if advised of the
 possibility.
 
-## 6. No professional advice
+## 7. No professional advice
 
 Nothing in KILN or its documentation is medical, legal, financial or safety advice. See
 [`DISCLAIMER.md`](DISCLAIMER.md). Applications built with KILN that operate in those domains
 are your responsibility, and the disclaimers you ship with them are yours to write.
 
-## 7. Contributions
+## 8. Contributions
 
 Contributions are accepted on the terms in [`CONTRIBUTING.md`](CONTRIBUTING.md), which
 includes an inbound licence grant.
 
-## 8. Termination
+## 9. Termination
 
 Your licence to use KILN ends automatically if you breach section 1. Applications you
 already generated are yours and are unaffected.
 
-## 9. Governing law
+## 10. Governing law
 
 These terms are governed by the laws of India, and the courts at the owner's place of
 residence have exclusive jurisdiction. Nothing here removes a consumer right you have under
 mandatory law.
 
-## 10. Changes
+## 11. Changes
 
 Material changes will be recorded in [`CHANGELOG.md`](CHANGELOG.md), with a new version and
 effective date, in the same commit.

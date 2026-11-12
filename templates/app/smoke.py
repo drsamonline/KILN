@@ -42,8 +42,10 @@ ok("offline is handled", "offline" in HTML.lower())
 ok("export handler exists", "doExport" in HTML)
 ok("escape helper exists", ("esc =" in HTML) or ("function esc" in HTML))
 
-for bad in ("http://", "https://", "//cdn", "fetch(", "XMLHttpRequest", "import("):
-    ok("no external reference: %s" % bad, bad not in HTML.replace("https://polyformproject", ""))
+# A link in About is fine. Loading something remote is not.
+for bad in ('src="http', "src='http", "url(http", "@import", "fetch(", "XMLHttpRequest",
+            "<script src", "import(", "//cdn"):
+    ok("loads nothing remote: %s" % bad, bad not in HTML)
 
 for bad in ("TODO", "FIXME", "lorem ipsum", "placeholder text"):
     ok("no stub marker: %s" % bad, bad.lower() not in HTML.lower())

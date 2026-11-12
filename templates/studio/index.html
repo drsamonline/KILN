@@ -330,6 +330,20 @@ function buildApp(spec) {
     assertions: assertionsFor(feats), not: spec.not
   };
   const ent = spec.entities[0];
+  const canonModel = canon(model);
+  const build = {
+    tier: "free", version: "{{KILN_VERSION}}", fp: fnv(canonModel), spec: spec.id,
+    licensee: "", licence: LICENCE,
+    licence_url: "https://polyformproject.org/licenses/noncommercial/1.0.0/",
+    home: "https://github.com/drsamonline/KILN",
+    sponsor: {
+      upi: "drsohilboi@ybl",
+      sponsors: "https://github.com/sponsors/drsamonline",
+      kofi: "https://ko-fi.com/matneo",
+      books: "https://www.amazon.com/stores/author/B08ZT331LY/allbooks",
+      site: "https://drsamonline.github.io/KILN/"
+    }
+  };
   const map = {
     TITLE: spec.name, ID: spec.id, PITCH: spec.pitch, DATE: today(),
     ACCENT: spec.accent, MODEL_JSON: JSON.stringify(model, null, 2),
@@ -338,13 +352,34 @@ function buildApp(spec) {
     ASSERTIONS: assertionsFor(feats).map((a) => "- " + a).join("\n"),
     NOT: spec.not.map((n) => "- " + n).join("\n"),
     LICENCE: LICENCE, LICENCE_ID: "PolyForm-Noncommercial-1.0.0",
-    SPEC_PATH: spec.id + ".md"
+    SPEC_PATH: spec.id + ".md",
+    KILN_VERSION: "{{KILN_VERSION}}", TIER: "free", FINGERPRINT: build.fp,
+    YEAR: String(new Date().getFullYear()), OWNER: "Dr Sohil Momin",
+    LICENCE_URL: build.licence_url,
+    BUILD_JSON: JSON.stringify(build, null, 2),
+    MODEL_CANON: JSON.stringify(canonModel).split("</").join("<\\/")
   };
   let out = TPL;
   Object.keys(map).forEach((k) => { out = out.split("{{" + k + "}}").join(String(map[k])); });
   const left = out.match(/\{\{[A-Z_]+\}\}/);
   if (left) throw new Error("unsubstituted " + left[0]);
   return out;
+}
+/* the same canonical form and hash the CLI uses, so both builds agree */
+function canon(v) {
+  if (v === null || typeof v !== "object") return JSON.stringify(v);
+  if (Array.isArray(v)) return "[" + v.map(canon).join(",") + "]";
+  return "{" + Object.keys(v).sort().map((k) => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}";
+}
+function fnv(str) {
+  let h = 0xcbf29ce484222325n;
+  const prime = 0x100000001b3n, mask = 0xffffffffffffffffn;
+  const bytes = new TextEncoder().encode(str);
+  for (let i = 0; i < bytes.length; i++) {
+    h ^= BigInt(bytes[i]);
+    h = (h * prime) & mask;
+  }
+  return h.toString(16).padStart(16, "0");
 }
 function download(name, text, mime) {
   const blob = new Blob([text], {type: mime || "text/plain"});

@@ -11,7 +11,9 @@ from pathlib import Path
 
 from . import adopt as adoptmod
 from . import catalog as cat
-from . import compose, demo as demomod, emit, guards, intent, prose
+from . import compose, demo as demomod, emit, guards, intent
+from . import licence as lic
+from . import prose
 from . import prompt as promptmod
 from . import spec as specmod
 from . import studio as studiomod
@@ -40,9 +42,12 @@ def _write_spec(s, catalog, dest) -> Path:
     return dest
 
 
-def _build(spec_path, catalog, out_root, quiet=False):
+def _build(spec_path, catalog, out_root, quiet=False, tier=None):
     s = specmod.load(spec_path, catalog)
-    plan = compose.plan(s, catalog)
+    tier, licensee, source = lic.resolve(tier)
+    if not quiet:
+        print(f"  tier {tier} ({source})" + (f" for {licensee}" if licensee else ""))
+    plan = compose.plan(s, catalog, tier=tier, licensee=licensee)
     out = Path(out_root) / s["id"]
     written = emit.write(plan, out)
     if not quiet:
@@ -105,13 +110,15 @@ def cmd_build(args, catalog) -> int:
     if args.all:
         bad = 0
         for f in sorted((ROOT / "specs").glob("app-*.md")):
-            s, out, ok = _build(f, catalog, args.out or ROOT / "out", quiet=True)
+            s, out, ok = _build(f, catalog, args.out or ROOT / "out", quiet=True,
+                                tier=getattr(args, "tier", None))
             print(f"{'ok  ' if ok else 'FAIL'} {f.name:<24} {out}")
             bad += (not ok)
         print(f"\n{len(list((ROOT / 'specs').glob('app-*.md')))} apps, {bad} failing")
         return 1 if bad else 0
 
-    s, out, ok = _build(args.spec, catalog, args.out or ROOT / "out", quiet=args.quiet)
+    s, out, ok = _build(args.spec, catalog, args.out or ROOT / "out",
+                        quiet=args.quiet, tier=getattr(args, "tier", None))
     if ok and not args.no_verify:
         verify.record({"cmd": "build", "spec": s["id"], "out": str(out), "result": "ok"})
     return 0 if ok else 1
@@ -205,7 +212,8 @@ def cmd_pipeline(args, catalog) -> int:
     specmod.validate(s, catalog, spec_path.name)
     print(f"1. spec    {spec_path}")
 
-    _, app_dir, ok = _build(spec_path, catalog, args.out or ROOT / "out", quiet=True)
+    _, app_dir, ok = _build(spec_path, catalog, args.out or ROOT / "out", quiet=True,
+                            tier=getattr(args, "tier", None))
     print(f"2. app     {app_dir}")
     if not ok:
         print("stopped: the app did not verify")
@@ -221,6 +229,71 @@ def cmd_pipeline(args, catalog) -> int:
         print(f"4. package {z}  ({z.stat().st_size / 1024:.1f} KB)")
     print("\nopen " + str(app_dir / "index.html"))
     return 0
+
+
+def cmd_licence(args, catalog) -> int:
+    action = args.action
+    if action in (None, "status"):
+        tier, licensee, source = lic.resolve()
+        print(f"tier        {tier}  ({source})")
+        if licensee:
+            print(f"licensee    {licensee}")
+        act = lic.active()
+        if act:
+            print(f"expires     {act.get('expires')}   id {act.get('id')}")
+        else:
+            print("expires     -")
+        d = lic.describe(tier)
+        print(f"sponsor     {'yes' if d['sponsor'] else 'no'}")
+        print(f"attribution {d['attribution']}")
+        print(f"features    {d['features']}")
+        print(f"pinned key  {'yes' if lic.pinned() else 'no — run: kiln licence keygen'}")
+        return 0
+
+    if action == "tiers":
+        print(f"{'tier':<12} {'sponsor':<9} attribution")
+        for t_ in lic.TIERS:
+            d = lic.describe(t_)
+            print(f"{t_:<12} {('yes' if d['sponsor'] else 'no'):<9} {d['attribution']}")
+        print(f"{'demo':<12} {'yes':<9} {lic.describe('demo')['attribution']} (features capped)")
+        return 0
+
+    if action == "keygen":
+        out = lic.keygen(pin=not args.no_pin)
+        print("private key  " + out["private"] + "   (chmod 600, never commit this)")
+        print("public key   " + out["public"])
+        if out["pinned"]:
+            print("pinned in    " + out["pinned"] + "   (commit this file)")
+        print("\nissue a licence with: kiln licence issue --to \"Name\" --tier commercial")
+        return 0
+
+    if action == "issue":
+        key = lic.issue(args.tier, args.to or "unnamed", days=args.days, note=args.note or "")
+        if args.out:
+            Path(args.out).write_text(key + "\n", encoding="utf-8")
+            print(f"wrote {args.out}")
+        else:
+            print(key)
+        return 0
+
+    if action == "verify":
+        try:
+            payload = lic.decode(args.key)
+        except lic.LicenceError as e:
+            return _fail(e)
+        print(json.dumps(payload, indent=2))
+        return 0
+
+    if action == "activate":
+        try:
+            payload = lic.activate(args.key)
+        except lic.LicenceError as e:
+            return _fail(e)
+        print(f"activated {payload['tier']} for {payload['licensee']}, expires {payload['expires']}")
+        return 0
+
+    print(f"unknown action: {action}")
+    return 2
 
 
 def cmd_catalog(args, catalog) -> int:
@@ -321,6 +394,8 @@ def main(argv=None) -> int:
     p.add_argument("--all", action="store_true")
     p.add_argument("--no-verify", action="store_true")
     p.add_argument("--quiet", action="store_true")
+    p.add_argument("--tier", choices=["free", "commercial", "corporate"],
+                   help="what the build carries; paid tiers need a licence")
     p.set_defaults(fn=cmd_build)
 
     p = sub.add_parser("pipeline", help="idea -> spec -> app -> verify -> zip")
@@ -328,6 +403,7 @@ def main(argv=None) -> int:
     p.add_argument("--id")
     p.add_argument("-o", "--out")
     p.add_argument("--zip", action="store_true")
+    p.add_argument("--tier", choices=["free", "commercial", "corporate"])
     p.set_defaults(fn=cmd_pipeline)
 
     p = sub.add_parser("verify", help="check an emitted app")
@@ -342,6 +418,18 @@ def main(argv=None) -> int:
     p = sub.add_parser("studio", help="build studio.html, the browser version")
     p.add_argument("-o", "--out")
     p.set_defaults(fn=cmd_studio)
+
+    p = sub.add_parser("licence", help="tiers, keys, and what a build carries")
+    p.add_argument("action", nargs="?",
+                   choices=["status", "tiers", "keygen", "issue", "verify", "activate"])
+    p.add_argument("key", nargs="?")
+    p.add_argument("--to", help="licensee name, for issue")
+    p.add_argument("--tier", default="commercial", help="commercial or corporate, for issue")
+    p.add_argument("--days", type=int, default=365)
+    p.add_argument("--note")
+    p.add_argument("--out")
+    p.add_argument("--no-pin", action="store_true", help="do not write the public key")
+    p.set_defaults(fn=cmd_licence)
 
     p = sub.add_parser("catalog", help="features and kits")
     p.add_argument("--feature")
@@ -377,7 +465,7 @@ def main(argv=None) -> int:
 
     try:
         return args.fn(args, catalog)
-    except (specmod.SpecError, adoptmod.AdoptError) as e:
+    except (specmod.SpecError, adoptmod.AdoptError, lic.LicenceError) as e:
         return _fail(e)
     except (cat.CatalogError, emit.EmitError, ValueError) as e:
         return _fail(e)

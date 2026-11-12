@@ -24,6 +24,17 @@ This page says what counts, and how to ask. It is a summary, not the licence.
 If you are unsure which column you are in, ask. A one-line email costs nothing and an
 assumption costs a lot.
 
+## What you actually get
+
+The tiers, and exactly what changes inside a generated app, are in
+[`LICENSING.md`](LICENSING.md). The short version:
+
+| Tier | Sponsor block | Attribution | Features |
+|---|---|---|---|
+| free | yes | "Built with KILN", hyperlinked | all |
+| commercial | no | one line in About | all |
+| corporate | no | none | all |
+
 ## What a commercial licence looks like
 
 There is no price list, because the right terms depend on what you are doing. In practice

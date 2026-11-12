@@ -1,7 +1,8 @@
-"""Build demo.html: a real generated app, running inside the page.
+"""Build demo.html: every spec in the gallery, some of them runnable.
 
-Nothing is a mock. The app in the frame is the same file `kiln build` emits,
-and `kiln audit` fails if the demo drifts from the spec it claims to show.
+The apps in the frame are built at `demo` tier — features capped, export and
+import off, a banner that says so. What you can click here is deliberately less
+than what the compiler produces, and the page says which is which and why.
 """
 from __future__ import annotations
 
@@ -14,27 +15,60 @@ from . import compose, emit, spec as specmod
 
 ROOT = Path(__file__).resolve().parent.parent
 TPL = ROOT / "templates" / "demo" / "index.html"
-SPEC = ROOT / "specs" / "app-notes.md"
+SPEC_DIR = ROOT / "specs"
+
+# A clinical log holds patient data. It is not going to run in a public page.
+EXCLUDE = {"clinical", "health"}
 
 
-def build(catalog, spec_path=None) -> str:
-    s = specmod.load(spec_path or SPEC, catalog)
-    plan = compose.plan(s, catalog)
-    with tempfile.TemporaryDirectory() as td:
-        emit.write(plan, td)
-        app = (Path(td) / "index.html").read_text(encoding="utf-8")
+def gallery(catalog) -> list[dict]:
+    """Every spec, with a demo build where that is allowed."""
+    out = []
+    for f in sorted(SPEC_DIR.glob("app-*.md")):
+        s = specmod.load(f, catalog)
+        runnable = s["category"] not in EXCLUDE
+        entry = {
+            "id": s["id"],
+            "name": s["name"],
+            "pitch": s["pitch"],
+            "category": s["category"],
+            "tier": s["tier"],
+            "features": s["features"],
+            "runnable": runnable,
+            "reason": "" if runnable else (
+                f"holds {s['category']} data, so it is not run in a public page"),
+            "html": "",
+            "size": "",
+            "spec": json.dumps({k: v for k, v in s.items() if not k.startswith("_")}, indent=2),
+        }
+        if runnable:
+            plan = compose.plan(s, catalog, tier="demo")
+            with tempfile.TemporaryDirectory() as td:
+                emit.write(plan, td)
+                app = (Path(td) / "index.html").read_text(encoding="utf-8")
+            entry["html"] = app
+            entry["size"] = f"{len(app.encode('utf-8')) / 1024:.1f} KB"
+            entry["demo_features"] = [x for x in s["features"] if x in ("crud", "search", "theme", "sort")]
+        out.append(entry)
+    return out
+
+
+def build(catalog) -> str:
+    apps = gallery(catalog)
+    runnable = [a for a in apps if a["runnable"]]
+    payload = json.dumps({
+        "apps": apps,
+        "runnable": len(runnable),
+        "total": len(apps),
+    }, ensure_ascii=False)
     tpl = TPL.read_text(encoding="utf-8")
     ctx = {
-        "APP_SRCDOC": html.escape(app, quote=True),
-        "APP_SOURCE": html.escape(app, quote=False),
-        "SPEC_JSON": html.escape(json.dumps(
-            {k: v for k, v in s.items() if not k.startswith("_")}, indent=2), quote=False),
-        "APP_NAME": s["name"],
-        "APP_ID": s["id"],
-        "PITCH": s["pitch"],
-        "FEATURES": ", ".join(s["features"]),
-        "SIZE": f"{len(app.encode('utf-8')) / 1024:.1f} KB",
-        "FIELDS": ", ".join(f["name"] for f in s["entities"][0]["fields"]),
+        "PAYLOAD": payload.replace("</", "<\\/"),
+        "TOTAL": str(len(apps)),
+        "RUNNABLE": str(len(runnable)),
+        "BLOCKED": str(len(apps) - len(runnable)),
+        "FIRST_ID": runnable[0]["id"] if runnable else "",
+        "FIRST_HTML": html.escape(runnable[0]["html"], quote=True) if runnable else "",
     }
     for k, v in ctx.items():
         tpl = tpl.replace("{{" + k + "}}", str(v))

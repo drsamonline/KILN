@@ -101,7 +101,23 @@ is the backup.
 
 ---
 
-## 6. When something goes wrong
+## 6. Licences and tiers
+
+| I want to | Command |
+|---|---|
+| see what my builds will carry | `python3 -m kiln licence` |
+| see all three tiers | `python3 -m kiln licence tiers` |
+| activate a purchased key | `python3 -m kiln licence activate KILN1.…` |
+| build with the tier my key names | `python3 -m kiln build specs/app-x.md` |
+| force a free build | `python3 -m kiln build specs/app-x.md --tier free` |
+| check a key without activating it | `python3 -m kiln licence verify KILN1.…` |
+
+Owner-only, once per machine: `python3 -m kiln licence keygen` writes the private key to
+`~/.kiln/private.key` and pins the public half in `catalog/licence-key.json`. Then
+`kiln licence issue --to "Name" --tier commercial --days 365` prints the key to send.
+Full table: [`LICENSING.md`](LICENSING.md).
+
+## 7. When something goes wrong
 
 | Message | Meaning | Fix |
 |---|---|---|
@@ -116,7 +132,7 @@ is the backup.
 
 ---
 
-## 7. Where the limits are
+## 8. Where the limits are
 
 | Limit | Reality |
 |---|---|

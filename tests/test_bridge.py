@@ -129,9 +129,10 @@ class TestStudio(unittest.TestCase):
     def test_build_is_deterministic(self):
         self.assertEqual(studiomod.build(self.c), studiomod.build(self.c))
 
-    def test_no_external_reference(self):
+    def test_loads_nothing_remote(self):
+        """The studio may carry links in its output; it may not load anything."""
         html = studiomod.build(self.c)
-        for bad in ("http://", "https://", "fetch(", "//cdn"):
+        for bad in ('src="http', "<script src", "url(http", "fetch(", "//cdn"):
             self.assertNotIn(bad, html)
 
     def test_carries_the_catalogue_and_the_runtime(self):

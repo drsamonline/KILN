@@ -8,11 +8,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from . import __version__
+
 ROOT = Path(__file__).resolve().parent.parent
 STUDIO = ROOT / "templates" / "studio" / "index.html"
 APP = ROOT / "templates" / "app" / "index.html"
 
-KEYS = ["VERSION", "LICENCE", "CATALOG_JSON", "TPL_JS"]
+KEYS = ["VERSION", "KILN_VERSION", "LICENCE", "CATALOG_JSON", "TPL_JS"]
 
 
 def payload(catalog) -> dict:
@@ -35,6 +37,7 @@ def build(catalog) -> str:
     app_js = json.dumps(app, ensure_ascii=False).replace("</", "<\\/")
     ctx = {
         "VERSION": "1.0",
+        "KILN_VERSION": __version__,
         "LICENCE": catalog["licence"]["badge"],
         "CATALOG_JSON": json.dumps(payload(catalog), ensure_ascii=False,
                                    separators=(",", ":")),

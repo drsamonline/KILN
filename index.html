@@ -113,7 +113,8 @@
       <a href="#how">How it works</a>
       <a href="#screens">Screens</a>
       <a href="#start">Quick start</a>
-      <a href="demo.html">Demo</a>
+      <a href="demo.html">Gallery</a>
+      <a href="#tiers">Tiers</a>
       <a href="studio.html">Studio</a>
       <a href="https://github.com/drsamonline/KILN">GitHub</a>
     </nav>
@@ -132,12 +133,12 @@
       <span class="chip"><b>0</b> network calls</span>
       <span class="chip"><b>21 KB</b> per app</span>
       <span class="chip"><b>14</b> features</span>
-      <span class="chip"><b>85</b> guards</span>
-      <span class="chip"><b>57</b> tests</span>
+      <span class="chip"><b>107</b> guards</span>
+      <span class="chip"><b>81</b> tests</span>
     </div>
 
     <div class="cta">
-      <a class="btn p" href="demo.html">See a generated app</a>
+      <a class="btn p" href="demo.html">See the gallery</a>
       <a class="btn" href="studio.html">Build one in your browser</a>
       <a class="btn" href="https://github.com/drsamonline/KILN">Source</a>
     </div>
@@ -192,7 +193,7 @@
       <div class="step"><b>COMPOSE</b>spec → file plan<code>compose.py</code></div>
       <div class="step"><b>EMIT</b>plan → files<code>emit.py</code></div>
       <div class="step"><b>VERIFY</b>read it, prove it<code>verify.py</code></div>
-      <div class="step"><b>GUARD</b>85 checks on the repo<code>guards.py</code></div>
+      <div class="step"><b>GUARD</b>107 checks on the repo<code>guards.py</code></div>
     </div>
   </section>
 
@@ -210,6 +211,23 @@
       <tr><td>Failure path</td><td>Bad input, no network, storage full, corrupt state — all four surfaced</td></tr>
       <tr><td>Docs</td><td>README, manifest, changelog, licence, smoke tests</td></tr>
     </table>
+  </section>
+
+  <section id="tiers">
+    <h2>What ends up inside your app</h2>
+    <p class="sub">An app you generate is yours in every tier. What changes is the attribution
+      the compiler puts in it — and the free tier is the one that pays for the rest.</p>
+    <table>
+      <tr><th>Tier</th><th>Sponsor block</th><th>Attribution</th><th>Features</th></tr>
+      <tr><td><b>free</b></td><td>yes</td><td>"Built with KILN", hyperlinked</td><td>all 14</td></tr>
+      <tr><td><b>commercial</b></td><td>no</td><td>one line in About</td><td>all 14</td></tr>
+      <tr><td><b>corporate</b></td><td>no</td><td>none</td><td>all 14</td></tr>
+      <tr><td><b>demo</b> <span class="sub">online only</span></td><td>yes</td><td>"Built with KILN"</td><td>crud, search, sort, theme</td></tr>
+    </table>
+    <p class="sub" style="margin-top:14px">Every build carries a fingerprint of the model it came
+      from. Edit the file and the app says so on load. That is evidence, not a lock — the honest
+      list is in <a href="SECURITY.md">SECURITY.md</a>, the table is in
+      <a href="LICENSING.md">LICENSING.md</a>.</p>
   </section>
 
   <section id="start">

@@ -8,8 +8,8 @@ A deterministic compiler that turns a small specification into a complete, worki
 offline application — one HTML file. No model in the loop, no network, nothing to install.
 
 [![CI](https://github.com/drsamonline/KILN/actions/workflows/kiln.yml/badge.svg)](https://github.com/drsamonline/KILN/actions/workflows/kiln.yml)
-[![tests](https://img.shields.io/badge/tests-57%20passing-brightgreen)](#verification)
-[![guards](https://img.shields.io/badge/guards-85%20passing-brightgreen)](#verification)
+[![tests](https://img.shields.io/badge/tests-81%20passing-brightgreen)](#verification)
+[![guards](https://img.shields.io/badge/guards-107%20passing-brightgreen)](#verification)
 [![dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)](#self-contained)
 [![network](https://img.shields.io/badge/network-not%20required-brightgreen)](#self-contained)
 [![python](https://img.shields.io/badge/python-3.9%20to%203.13-3776ab)](#quick-start)
@@ -17,7 +17,7 @@ offline application — one HTML file. No model in the loop, no network, nothing
 [![licence](https://img.shields.io/badge/licence-PolyForm%20Noncommercial%201.0.0-blue)](LICENSE)
 
 [Landing page](https://drsamonline.github.io/KILN/) ·
-[Live demo](demo.html) ·
+[Live demo](demo.html) — a gallery of every spec ·
 [Studio](studio.html) ·
 [User guide](USAGE.md) ·
 [All docs](docs/README.md) ·
@@ -125,7 +125,7 @@ then a passing verification.
 | `kiln studio` | rebuild `studio.html` | no |
 | `kiln demo` | rebuild `demo.html` | no |
 | `kiln catalog` | features, kits, assertions | no |
-| `kiln audit` | 85 guards over this repository | no |
+| `kiln audit` | 107 guards over this repository | no |
 | `kiln doctor` | what this machine can do | no |
 
 ---
@@ -181,12 +181,33 @@ Nothing here is claimed without a command and its output.
 
 | Check | What it proves |
 |---|---|
-| `python3 -m unittest discover -s tests` | 57 tests, Python 3.9 → 3.13 |
+| `python3 -m unittest discover -s tests` | 81 tests, Python 3.9 → 3.13 |
 | `python3 -m kiln verify --all` | every spec builds; 136 checks across three apps |
 | `python3 -m kiln audit` | 85 guards: wiring, drift, licences, workflows, studio, prompt, site, links, support |
 | `kiln verify --at <sha>` | the artifact is read at the commit, not the working tree |
 
 ---
+
+## Tiers, and what ends up inside your app
+
+| Tier | Sponsor block | Attribution in the app | Features |
+|---|---|---|---|
+| **free** | yes | "Built with KILN", hyperlinked | all 14 |
+| **commercial** | no | one line in About: "Built with KILN" | all 14 |
+| **corporate** | no | none | all 14 |
+| **demo** (online only) | yes | "Built with KILN" | crud, search, sort, theme |
+
+Every build carries a fingerprint of the model it came from, and the app recomputes it on boot:
+a file edited after it was built says so. That is a deterrent and an evidence trail, not DRM —
+[`SECURITY.md`](SECURITY.md) says exactly what is and is not enforced, and
+[`LICENSING.md`](LICENSING.md) has the full table.
+
+```bash
+kiln build specs/app-x.md                      # free build
+kiln licence activate KILN1.…                  # a purchased key
+kiln build specs/app-x.md                      # now commercial, sponsor block gone
+kiln licence tiers                             # what each tier carries
+```
 
 <!-- support:sweep -->
 ## Support
@@ -231,7 +252,7 @@ the usual shapes are below — and the first one costs nothing.
 | `kiln/` | the compiler |
 | `templates/` | the runtime, the studio, the demo |
 | `specs/` | one spec per app |
-| `tests/` | 57 tests, including a deliberately sloppy model reply |
+| `tests/` | 81 tests, including a deliberately sloppy model reply and the RFC's Ed25519 vector |
 | `docs/` | architecture, portability, workflow, self-containment, spec reference, FAQ — start at [`docs/README.md`](docs/README.md) |
 | `INDEX.md` | generated list of every spec |
 | `CITATION.cff` | how to cite it |
