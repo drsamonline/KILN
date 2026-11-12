@@ -215,6 +215,9 @@ def check_runs() -> list[Row]:
 
 # ------------------------------------------------------------------------- all
 def audit(catalog, write=False) -> list[Row]:
+    # An audit that ran is evidence that it ran. Record it before checking,
+    # so a fresh clone is not reported as stale while a stopped schedule is.
+    heartbeat()
     rows = []
     rows += check_index(catalog, write=write)
     rows += check_workflows()
