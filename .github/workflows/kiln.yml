@@ -12,11 +12,13 @@ permissions:
 jobs:
   test:
     name: tests (py ${{ matrix.python }})
-    runs-on: ubuntu-latest
+    # 22.04, not ubuntu-latest: the latest image no longer carries Python 3.9,
+    # and the point of the matrix is the floor, not the ceiling.
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.9", "3.10", "3.11", "3.12"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
