@@ -1,0 +1,11 @@
+{
+  "id": "metric-total",
+  "family": "F7",
+  "name": "total",
+  "spec_keys": ["features[]", "totals.field"],
+  "emitter_hook": "templates/app/index.html::totalsOf",
+  "verify_check": "two entries of 30 and 90 minutes show a total of 2h",
+  "docs_anchor": "docs/PATTERNS.md#log",
+  "status": "emitted",
+  "note": "the sum of one numeric or duration field, in the strip"
+}

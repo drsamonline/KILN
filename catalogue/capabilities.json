@@ -385,6 +385,40 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "a three step wizard shows Back only from the second step and Save only on the last"
+    },
+    "detail": {
+      "label": "Read one record in full, without opening the form",
+      "aliases": [
+        "detail",
+        "read view",
+        "open entry",
+        "full text",
+        "reading view"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "clicking a row title opens the record read-only, with its long text as paragraphs"
+    },
+    "totals": {
+      "label": "A running total of one numeric field",
+      "aliases": [
+        "total",
+        "sum",
+        "how long in total",
+        "add up",
+        "running total"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "two entries of 30 and 90 minutes show a total of 2h"
     }
   }
 }

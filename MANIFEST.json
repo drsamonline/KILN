@@ -25,8 +25,8 @@
     "kits": 5
   },
   "verification": {
-    "tests": 211,
-    "guards": 200,
+    "tests": 231,
+    "guards": 220,
     "ci": ".github/workflows/kiln.yml"
   },
   "topics": [
@@ -63,20 +63,23 @@
     "layout": "single file",
     "file": "index.html",
     "docs_flag": "--with-docs",
-    "size_ceiling_kb": 40
+    "size_target_kb": 40,
+    "size_ceiling_kb": 44,
+    "justification": "the tracker archetype needs derived + chart + stats + search + sort + theme"
   },
   "registry": {
     "path": "catalogue/features/",
     "families": [
       "F1",
       "F2",
+      "F4",
       "F5",
       "F6",
       "F7",
       "F12",
       "F14"
     ],
-    "entries": 54,
+    "entries": 57,
     "patterns": "catalogue/patterns/",
     "archetypes_emitted": [
       "crud-list",
@@ -84,7 +87,9 @@
       "checklist",
       "calculator",
       "converter",
-      "wizard"
+      "wizard",
+      "journal",
+      "log"
     ]
   },
   "guides": {

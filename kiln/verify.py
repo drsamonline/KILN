@@ -199,6 +199,15 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "detail" in model["features"]:
+        res.add("L5", "detail: the read view is emitted", "function openDetail(" in html)
+        res.add("L5", "detail: the dialog exists", 'id="detail"' in html)
+        res.add("L5", "detail: the row title opens it", "openDetail(r)" in html)
+    if "totals" in model["features"]:
+        res.add("L5", "totals: the sum is emitted", "function totalsOf(" in html)
+        res.add("L5", "totals: the strip shows it", "totalsOf(rows, MODEL.totals)" in html)
+        res.add("L5", "totals: the config reached the model",
+                bool((model.get("totals") or {}).get("field")))
     if "convert" in model["features"]:
         res.add("L5", "convert: the conversion function is emitted", "function convertValue(" in html)
         res.add("L5", "convert: the screen is emitted", 'id="convert"' in html)
@@ -221,7 +230,9 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 isinstance(model.get("i18n", {}).get("languages"), list))
         res.add("L5", "i18n: the html lang attribute is set at runtime", 'setAttribute("lang"' in html)
         for code in (model.get("i18n") or {}).get("languages", []):
-            res.add("L5", f"i18n: a {code} dictionary exists", f"{code}: {{" in html)
+            # English is the EN table the runtime always carries; the others are inline
+            found = ("const EN = {" in html) if code == "en" else (f"{code}: {{" in html)
+            res.add("L5", f"i18n: a {code} dictionary exists", found)
     if "feedback" in model["features"]:
         res.add("L5", "feedback: the size banner is emitted", "SIZE_WARN" in html)
         res.add("L5", "feedback: the backup reminder is emitted", "lastExport" in html)

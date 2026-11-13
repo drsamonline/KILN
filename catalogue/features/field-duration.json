@@ -2,13 +2,11 @@
   "id": "field-duration",
   "family": "F2",
   "name": "duration",
-  "runtime_type": null,
-  "spec_keys": [
-    "entities[].fields[].type"
-  ],
-  "emitter_hook": null,
-  "verify_check": null,
+  "runtime_type": "duration",
+  "spec_keys": ["entities[].fields[].type"],
+  "emitter_hook": "templates/app/index.html::fieldInput",
+  "verify_check": "field <entity>.<field> is wired",
   "docs_anchor": "docs/SPEC-REFERENCE.md#field-types",
-  "status": "planned",
-  "note": "minutes or seconds"
+  "status": "emitted",
+  "note": "whole minutes, stored as an integer, shown as 1h 25m"
 }

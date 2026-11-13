@@ -1,0 +1,35 @@
+{
+  "id": "journal",
+  "name": "Journal",
+  "archetype": 6,
+  "status": "emitted",
+  "descriptor": "A dated entry you read, not a row you scan. One long text, a date, and a way back to yesterday.",
+  "view": "list + detail",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "search", "detail", "theme"],
+  "requires_fields": ["longtext", "date"],
+  "requires_keys": ["detail"],
+  "spec_defaults": {"tier": 1, "features": ["crud", "search", "detail", "sort", "export", "theme"]},
+  "verify_checks": [
+    "pattern journal: required features present",
+    "detail: the read view is emitted",
+    "detail: the row title opens it",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/journal.md",
+  "screenshot": "docs/gallery/journal.png",
+  "pros": [
+    "the entry is read at a comfortable width, not squeezed into a row",
+    "one field carries the writing; everything else is a label",
+    "search still finds a word from three months ago",
+    "no formatting to fiddle with, so the writing gets done"
+  ],
+  "cons": [
+    "no rich text, no images: plain paragraphs only",
+    "no encryption, and the file is a plain HTML file",
+    "one entry per day is a habit, not an enforcement: duplicates are allowed",
+    "no export to a diary format; JSON and CSV only"
+  ],
+  "best_for": "writing a paragraph or two, most days",
+  "avoid_if": "entries need images, or the writing must be encrypted at rest"
+}

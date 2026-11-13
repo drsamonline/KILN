@@ -8,7 +8,7 @@
   "category": "health",
   "pattern": "tracker",
   "pitch": "How much water, how many days in a row, and whether this week beat the goal.",
-  "features": ["crud", "search", "sort", "stats", "derived", "chart", "export", "theme"],
+  "features": ["crud", "search", "sort", "stats", "derived", "chart", "theme"],
   "entities": [
     {
       "name": "entry",

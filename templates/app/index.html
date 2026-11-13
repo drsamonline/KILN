@@ -180,12 +180,32 @@
     <button id="print" class="ghost" title="Print">Print</button>
   </div>
   <div class="strip" id="strip" hidden></div>
+  <!-- @only derived -->
   <div id="derived" hidden></div>
+  <!-- @end only -->
+  <!-- @only progress -->
   <div id="progress" hidden></div>
+  <!-- @end only -->
+  <!-- @only formula -->
   <section id="calc" hidden></section>
+  <!-- @end only -->
+  <!-- @only convert -->
   <section id="convert" hidden></section>
+  <!-- @end only -->
   <ul class="list" id="list"></ul>
 </main>
+
+<!-- @only detail -->
+<dialog id="detail" aria-labelledby="detailTitle">
+  <strong id="detailTitle">Record</strong>
+  <div id="detailBody" style="margin-top:10px;font-size:14px;line-height:1.6"></div>
+  <div class="row" style="margin-top:16px">
+    <div class="spacer"></div>
+    <button type="button" class="ghost" id="detailClose">Close</button>
+    <button type="button" class="primary" id="detailEdit">Edit</button>
+  </div>
+</dialog>
+<!-- @end only -->
 
 <dialog id="about">
   <strong>About {{TITLE}}</strong>
@@ -251,27 +271,25 @@ const KEY = "kiln:" + MODEL.namespace;
 const THEME_KEY = "kiln:" + MODEL.namespace + ":theme";
 const LANG_KEY = "kiln:" + MODEL.namespace + ":lang";
 
-/* the interface in each language. Data is never translated (§1) */
+/* the interface in each language. Data is never translated (§1).
+   EN is always emitted, so an app with no i18n still has readable labels. */
+/* only the labels the runtime actually translates */
+const EN = {add: "New", search: "Search", empty: "Nothing here yet.", del: "Delete",
+            edit: "Edit", sortBy: "Sort: ", all: "All", total: "total", shown: "shown"
+};
 /* @only i18n */
 const LANGS = {
-  en: {add: "New", search: "Search", empty: "Nothing here yet.", save: "Save",
-       cancel: "Cancel", del: "Delete", edit: "Edit", print: "Print",
-       export: "Export", import: "Import", about: "About", theme: "Theme",
-       sortBy: "Sort: ", all: "All", total: "total", shown: "shown"},
-  hi: {add: "नया", search: "खोजें", empty: "अभी कुछ नहीं है।", save: "सहेजें",
-       cancel: "रद्द", del: "हटाएँ", edit: "बदलें", print: "छापें",
-       export: "निर्यात", import: "आयात", about: "परिचय", theme: "रूप",
-       sortBy: "क्रम: ", all: "सभी", total: "कुल", shown: "दिखे"},
-  gu: {add: "નવું", search: "શોધો", empty: "અહીં હજી કંઈ નથી.", save: "સાચવો",
-       cancel: "રદ કરો", del: "કાઢી નાખો", edit: "બદલો", print: "છાપો",
-       export: "નિકાસ", import: "આયાત", about: "વિશે", theme: "રૂપ",
-       sortBy: "ક્રમ: ", all: "બધા", total: "કુલ", shown: "દેખાયા"}
+  en: EN,
+  hi: {add: "नया", search: "खोजें", empty: "अभी कुछ नहीं है।", del: "हटाएँ",
+       edit: "बदलें", sortBy: "क्रम: ", all: "सभी", total: "कुल", shown: "दिखे"},
+  gu: {add: "નવું", search: "શોધો", empty: "અહીં હજી કંઈ નથી.", del: "કાઢી નાખો",
+       edit: "બદલો", sortBy: "ક્રમ: ", all: "બધા", total: "કુલ", shown: "દેખાયા"}
 };
 /* @end only */
 let lang = "en";
 const LANGLIST = (MODEL.i18n && MODEL.i18n.languages) || ["en"];
-/* T falls back to the key itself when the dictionary is not in this build */
-const T = (k) => (typeof LANGS !== "undefined" && LANGS[lang] && LANGS[lang][k]) || k;
+/* T falls back to English, then to the key itself */
+const T = (k) => (typeof LANGS !== "undefined" && LANGS[lang] && LANGS[lang][k]) || EN[k] || k;
 
 let rows = [];
 let query = "";
@@ -310,6 +328,19 @@ const toCents = (value) => {
   return isFinite(n) ? Math.round(n * 100) : null;
 };
 /* ids come from the data, not from a clock or a random source (§1.1) */
+/* whole minutes in, "1h 25m" out. duration:start */
+function fmtDuration(mins) {
+  const n = Math.round(Number(mins));
+  if (!isFinite(n) || n === 0) return "";
+  const sign = n < 0 ? "-" : "";
+  const a = Math.abs(n);
+  const h = Math.floor(a / 60), m = a % 60;
+  if (h && m) return sign + h + "h " + m + "m";
+  if (h) return sign + h + "h";
+  return sign + m + "m";
+}
+/* duration:end */
+
 const uid = () => {
   let max = 0;
   for (const r of rows) {
@@ -550,6 +581,25 @@ function convertValue(amount, units, from, to) {
 }
 /* convert:end */
 
+/* ---------- totals ----------
+   The sum of one field, and how many rows carried a value. totals:start */
+function totalsOf(rows, cfg) {
+  const out = {sum: 0, count: 0};
+  const field = cfg && cfg.field;
+  if (!field) return out;
+  for (const r of rows) {
+    const raw = r[field];
+    /* a missing value is not a zero: counting it would make the count lie */
+    if (raw === null || raw === undefined || raw === "") continue;
+    const v = Number(raw);
+    if (!isFinite(v)) continue;
+    out.sum += v;
+    out.count += 1;
+  }
+  return out;
+}
+/* totals:end */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -754,6 +804,40 @@ function renderProgress() {
     '" aria-valuemin="0" aria-valuemax="100"><span style="width:' + p.pct + '%"></span></div>';
 }
 /* @end only */
+/* @only detail */
+function openDetail(r) {
+  if (!r) return;
+  $("#detailTitle").textContent = String(r[FIELDS[0].name] || ENTITY.label);
+  const box = $("#detailBody");
+  box.innerHTML = "";
+  const lead = (MODEL.detail && MODEL.detail.field) || null;
+  for (const f of FIELDS) {
+    const v = r[f.name];
+    if (v === undefined || v === null || v === "" || (Array.isArray(v) && !v.length)) continue;
+    if (f.name === FIELDS[0].name) continue;
+    if (lead && f.name === lead) {
+      const para = document.createElement("p");
+      para.style.margin = "10px 0";
+      para.style.whiteSpace = "pre-wrap";
+      para.textContent = String(v);
+      box.appendChild(para);
+      continue;
+    }
+    const row = document.createElement("div");
+    row.style.margin = "6px 0";
+    row.style.color = "var(--muted)";
+    row.textContent = f.label + ": " + (f.type === "duration" ? fmtDuration(v)
+      : f.type === "currency_cents" ? money(v)
+      : f.type === "bool" ? (v ? "yes" : "no")
+      : Array.isArray(v) ? v.join(", ") : String(v));
+    box.appendChild(row);
+  }
+  $("#detailEdit").onclick = () => { $("#detail").close(); openEditor(r.id); };
+  $("#detailClose").onclick = () => $("#detail").close();
+  $("#detail").showModal();
+}
+/* @end only */
+
 /* @only derived */
 function renderDerived() {
   const box = $("#derived");
@@ -802,7 +886,23 @@ function render() {
     }
     const body = el("div", "body");
     const title = el("div", "t");
-    title.innerHTML = esc(r[FIELDS[0].name] || "(untitled)");
+    if (F.has("detail") && typeof openDetail === "function") {
+      const link = document.createElement("button");
+      link.className = "ghost";
+      link.style.padding = "0";
+      link.style.border = "0";
+      link.style.background = "none";
+      link.style.font = "inherit";
+      link.style.fontWeight = "600";
+      link.style.textAlign = "left";
+      link.style.cursor = "pointer";
+      link.textContent = String(r[FIELDS[0].name] || "(untitled)");
+      link.setAttribute("aria-label", "open " + link.textContent);
+      link.onclick = () => openDetail(r);
+      title.appendChild(link);
+    } else {
+      title.innerHTML = esc(r[FIELDS[0].name] || "(untitled)");
+    }
     body.appendChild(title);
     for (const f of FIELDS.slice(1)) {
       if (f.type === "bool") continue;
@@ -814,6 +914,8 @@ function render() {
         body.appendChild(chips);
       } else if (f.type === "currency_cents") {
         body.appendChild(el("div", "d", (f.label + ": " + money(v))));
+      } else if (f.type === "duration") {
+        body.appendChild(el("div", "d", (f.label + ": " + fmtDuration(v))));
       } else {
         body.appendChild(el("div", "d", (f.label + ": " + v)));
       }
@@ -836,16 +938,24 @@ function render() {
   if (CALC && F.has("formula")) { return; }
   if (F.has("progress")) renderProgress();
   if (F.has("derived")) renderDerived();
+  /* one place builds the strip, so a total and a count cannot overwrite each other */
   const strip = $("#strip");
-  if (F.has("stats")) {
-    strip.hidden = false;
-    const over = rows.filter(isOverdue).length;
-    strip.innerHTML = "<span><b>" + rows.length + "</b> " + T("total") + "</span>" +
-      "<span><b>" + items.length + "</b> " + T("shown") + "</span>" +
-      (F.has("reminder") ? "<span><b>" + over + "</b> overdue</span>" : "");
-  } else {
-    strip.hidden = true;
+  const bits = [];
+  if (F.has("totals") && MODEL.totals) {
+    const tt = totalsOf(rows, MODEL.totals);
+    const shown = MODEL.totals.format === "duration" ? fmtDuration(tt.sum) : String(tt.sum);
+    bits.push("<span><b>" + esc(shown) + "</b> " + esc(MODEL.totals.label || "total") + "</span>");
   }
+  if (F.has("stats")) {
+    bits.push("<span><b>" + rows.length + "</b> " + T("total") + "</span>");
+    bits.push("<span><b>" + items.length + "</b> " + T("shown") + "</span>");
+  }
+  if (F.has("reminder")) {
+    const over = rows.filter(isOverdue).length;
+    if (over) bits.push('<span class="bad"><b>' + over + "</b> overdue</span>");
+  }
+  strip.hidden = !bits.length;
+  strip.innerHTML = bits.join("");
 }
 
 /* ---------- form ---------- */
@@ -872,6 +982,20 @@ function fieldInput(f, value) {
     input = document.createElement("input");
     input.type = "number";
     input.step = "any";
+  } else if (f.type === "duration") {
+    input = document.createElement("input");
+    input.type = "number";
+    input.step = "1";
+    input.min = "0";
+    input.inputMode = "numeric";
+    input.placeholder = "minutes";
+  } else if (f.type === "duration") {
+    input = document.createElement("input");
+    input.type = "number";
+    input.step = "1";
+    input.min = "0";
+    input.inputMode = "numeric";
+    input.placeholder = "minutes";
   } else if (f.type === "currency_cents") {
     input = document.createElement("input");
     input.type = "number";
@@ -892,6 +1016,7 @@ function fieldInput(f, value) {
   input.id = "f_" + f.name;
   input.name = f.name;
   if (f.type === "bool") input.checked = value === true || value === "true";
+  else if (f.type === "duration") input.value = (value === undefined || value === null || value === "") ? "" : value;
   else if (f.type === "currency_cents") input.value = (value === undefined || value === null || value === "") ? "" : moneyPlain(value);
   else if (f.type === "tags") input.value = Array.isArray(value) ? value.join(", ") : (value || "");
   else input.value = value === undefined || value === null ? (f.default !== undefined ? f.default : "") : value;

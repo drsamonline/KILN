@@ -8,7 +8,7 @@
   "category": "clinical",
   "pattern": "crud-list",
   "pitch": "What is on the shelf, what it cost, and what to reorder before Thursday.",
-  "features": ["crud", "search", "sort", "stats", "export", "import", "theme",
+  "features": ["crud", "search", "sort", "stats", "export", "theme",
                "i18n", "a11y", "feedback"],
   "entities": [
     {

@@ -1,0 +1,35 @@
+{
+  "id": "log",
+  "name": "Log",
+  "archetype": 24,
+  "status": "emitted",
+  "descriptor": "A dated entry with a duration or a distance, and a running total. Time, mileage, practice, sessions.",
+  "view": "table + total",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "search", "sort", "totals", "theme"],
+  "requires_fields": ["duration", "date"],
+  "requires_keys": ["totals"],
+  "spec_defaults": {"tier": 1, "features": ["crud", "search", "sort", "stats", "totals", "export", "theme"]},
+  "verify_checks": [
+    "pattern log: required features present",
+    "totals: the sum is emitted",
+    "totals: the strip shows it",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/log.md",
+  "screenshot": "docs/gallery/log.png",
+  "pros": [
+    "the running total answers 'how much this month' without a spreadsheet",
+    "a duration is entered in minutes and read as 1h 25m",
+    "sorting by date or by length is one dropdown",
+    "exports as minutes, so it opens in a spreadsheet unchanged"
+  ],
+  "cons": [
+    "one unit per app: minutes or kilometres, not both",
+    "no start and stop timer; you type the minutes",
+    "the total is over every row, not over a chosen period",
+    "no charts: that is the tracker archetype"
+  ],
+  "best_for": "logging sessions and seeing the sum",
+  "avoid_if": "you need a timer, a per-period total, or two different measures"
+}

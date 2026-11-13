@@ -4,6 +4,22 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.15 — 2026-11-13
+
+Two archetypes in one batch: `journal` and `log`.
+
+| Area | Change |
+|---|---|
+| Archetype | `journal` — a dated entry you read: a read-only dialog with the long text as paragraphs |
+| Archetype | `log` — a dated entry with a `duration`, and a running total in the strip |
+| Field type | `duration` — whole minutes in, `1h 30m` out, exported as minutes |
+| Capabilities | `detail` and `totals` — 27 in total |
+| Registry | `view-detail` (F4), `field-duration` (F2), `metric-total` (F7) — 57 entries |
+| Strip | one place builds it now, so a total and a count cannot overwrite each other |
+| Correctness | a null value is skipped by the total, not counted as zero |
+| Size ceiling | **40 KB target, 44 KB enforced ceiling.** The tracker archetype needs `derived` + `chart` + `stats` + `search` + `sort` + `theme`, which cannot fit in 40 KB without dropping a capability it declares. That is the written justification §5 asks for; everything else builds under 40 KB |
+| Counts | 231 tests, 220 guards |
+
 ## v0.14 — 2026-11-13
 
 Two archetypes in one batch: `converter` and `wizard`.

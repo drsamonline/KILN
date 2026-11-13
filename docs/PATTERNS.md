@@ -260,6 +260,78 @@ names a field that does not exist or repeats one.
 
 ---
 
+## journal
+
+| | |
+|---|---|
+| Archetype | 6 |
+| Status | **emitted** |
+| View | list + a read-only detail dialog |
+| Requires | `crud`, `search`, `detail`, `theme` |
+| Requires fields | a `longtext` and a `date` |
+| Spec keys | `pattern`, `detail.field` |
+| Sample | [`specs/gallery/journal.md`](../specs/gallery/journal.md) |
+| Screenshot | [`docs/gallery/journal.png`](gallery/journal.png) |
+
+**Pros**
+
+- the entry is read at a comfortable width, not squeezed into a row
+- one field carries the writing; everything else is a label
+- search still finds a word from three months ago
+- no formatting to fiddle with, so the writing gets done
+
+**Cons**
+
+- no rich text, no images: plain paragraphs only
+- no encryption, and the file is a plain HTML file
+- one entry per day is a habit, not an enforcement: duplicates are allowed
+- no export to a diary format; JSON and CSV only
+
+**Best for:** writing a paragraph or two, most days.
+
+**Avoid if:** entries need images, or the writing must be encrypted at rest.
+
+**The rule:** the list is for finding, the dialog is for reading. `detail.field` names the
+long text that gets the width; every other field is shown as a labelled line.
+
+---
+
+## log
+
+| | |
+|---|---|
+| Archetype | 24 |
+| Status | **emitted** |
+| View | table, with a running total in the strip |
+| Requires | `crud`, `search`, `sort`, `totals`, `theme` |
+| Requires fields | a `duration` and a `date` |
+| Spec keys | `pattern`, `totals.field`, `totals.format`, `totals.label` |
+| Sample | [`specs/gallery/log.md`](../specs/gallery/log.md) |
+| Screenshot | [`docs/gallery/log.png`](gallery/log.png) |
+
+**Pros**
+
+- the running total answers "how much this month" without a spreadsheet
+- a duration is entered in minutes and read as 1h 25m
+- sorting by date or by length is one dropdown
+- exports as minutes, so it opens in a spreadsheet unchanged
+
+**Cons**
+
+- one unit per app: minutes or kilometres, not both
+- no start and stop timer; you type the minutes
+- the total is over every row, not over a chosen period
+- no charts: that is the tracker archetype
+
+**Best for:** logging sessions and seeing the sum.
+
+**Avoid if:** you need a timer, a per-period total, or two different measures.
+
+**The rule:** `duration` is stored as whole minutes and formatted only when drawn; the total
+is the sum of one field, recomputed on every render and never stored.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -273,7 +345,7 @@ spec naming it fails verification rather than silently building something else.
 | Calendar | time context | overlap, cramped month view | planned |
 | tracker | streaks, motivation | needs discipline | **emitted** |
 | checklist | packing, grocery | one level only | **emitted** |
-| Journal | low friction | no encryption | planned |
+| journal | low friction | no encryption | **emitted** |
 | Dashboard | insight at a glance | charts add weight | planned |
 | wizard | guided, fewer errors | long specs, slow for pros | **emitted** |
 | Quiz / Flashcard | a learning loop | content authoring burden | planned |
@@ -284,9 +356,20 @@ spec naming it fails verification rather than silently building something else.
 | Gallery / Cards | visual, scannable | verbose for data-heavy | planned |
 | Grid / Matrix | many dimensions | cramped on mobile | planned |
 | Search directory | scales by search | still linear underneath | planned |
+| log | time and mileage | duration field | **emitted** |
 | Print / Report | shareable artefact | layout brittle across browsers | planned |
 
 ---
+
+## Size, and the ceiling
+
+The target is 40 KB per generated app. The enforced ceiling is 44 KB.
+
+A capability that a spec does not declare is stripped at emit time, including its CSS and
+its markup, so most apps sit between 34 and 40 KB. The tracker archetype is the exception:
+`derived` + `chart` + `stats` + `search` + `sort` + `theme` together do not fit in 40 KB, and
+dropping one would break the pattern's own contract. That is the written justification §5
+asks for.
 
 ## Adding an archetype
 

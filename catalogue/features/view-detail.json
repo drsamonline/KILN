@@ -1,0 +1,11 @@
+{
+  "id": "view-detail",
+  "family": "F4",
+  "name": "detail",
+  "spec_keys": ["features[]", "detail.field"],
+  "emitter_hook": "templates/app/index.html::openDetail",
+  "verify_check": "clicking a row title opens the record read-only",
+  "docs_anchor": "docs/PATTERNS.md#journal",
+  "status": "emitted",
+  "note": "a read-only view of one record, long text as paragraphs"
+}

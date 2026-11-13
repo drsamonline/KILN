@@ -20,15 +20,21 @@ SPEC = ROOT / "specs" / "gallery" / "crud-list.md"
 
 
 def langs_block() -> dict:
-    """Pull the three dictionaries out of the template and parse them as JSON."""
-    tpl = TEMPLATE.read_text(encoding="utf-8")
-    start = tpl.index("const LANGS = {")
-    end = tpl.index("\n};", start) + 3
-    body = tpl[start:end].replace("const LANGS = ", "return ")
-    js = body + "\nconsole.log(JSON.stringify(LANGS));\n"
-    js = js.replace("return {", "const LANGS = {", 1)
+    """Pull the dictionaries out of the template and evaluate them as JavaScript.
+
+    EN is defined before LANGS and referenced by it, so both slices go in.
+    """
     import shutil
     import subprocess
+    tpl = TEMPLATE.read_text(encoding="utf-8")
+
+    def slice_of(name):
+        start = tpl.index("const " + name + " = {")
+        end = tpl.index("\n};", start) + 3
+        return tpl[start:end]
+
+    js = (slice_of("EN") + "\n" + slice_of("LANGS") +
+          "\nconsole.log(JSON.stringify(LANGS));\n")
     with tempfile.NamedTemporaryFile("w", suffix=".mjs", delete=False) as f:
         f.write(js)
         path = f.name

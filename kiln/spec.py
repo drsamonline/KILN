@@ -10,11 +10,11 @@ from pathlib import Path
 
 BLOCK = re.compile(r"```json\s+kiln\s*\n(.*?)\n```", re.S)
 FIELD_TYPES = {"text", "longtext", "number", "date", "bool", "select", "tags",
-               "currency_cents"}
+               "currency_cents", "duration"}
 REQUIRED_KEYS = ["id", "name", "tier", "category", "pitch", "features",
                  "entities", "storage", "done_means", "not"]
 OPTIONAL_KEYS = ["pattern", "accent", "currency", "tracker", "progress",
-                 "calculator", "i18n", "converter", "wizard"]
+                 "calculator", "i18n", "converter", "wizard", "detail", "totals"]
 KNOWN_LANGS = {"en", "hi", "gu"}
 
 # A done-means must name something a person can watch happen.
@@ -159,6 +159,38 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
                 p.append("tracker.window must be a whole number from 1 to 90")
 
     field_names = {f["name"] for e in ents for f in (e.get("fields") or [])}
+
+    if "detail" in spec:
+        dt = spec["detail"]
+        if not isinstance(dt, dict):
+            p.append("detail must be an object")
+        else:
+            fld = dt.get("field")
+            if fld is not None and fld not in field_names:
+                p.append(f"detail.field '{fld}' is not a field on any entity")
+            elif fld is not None:
+                types = {f["name"]: f["type"] for e in ents for f in (e.get("fields") or [])}
+                if types[fld] not in ("longtext", "text"):
+                    p.append("detail.field must be longtext or text")
+        if "detail" not in spec.get("features", []):
+            p.append("a detail block needs the 'detail' capability in features")
+
+    if "totals" in spec:
+        tt = spec["totals"]
+        if not isinstance(tt, dict):
+            p.append("totals must be an object")
+        else:
+            fld = tt.get("field")
+            if fld not in field_names:
+                p.append(f"totals.field '{fld}' is not a field on any entity")
+            else:
+                types = {f["name"]: f["type"] for e in ents for f in (e.get("fields") or [])}
+                if types[fld] not in ("number", "duration", "currency_cents"):
+                    p.append("totals.field must be number, duration or currency_cents")
+            if tt.get("format") not in (None, "duration", "number"):
+                p.append("totals.format must be duration or number")
+        if "totals" not in spec.get("features", []):
+            p.append("a totals block needs the 'totals' capability in features")
 
     if "converter" in spec:
         cv = spec["converter"]
