@@ -114,6 +114,16 @@
   label input,label textarea,label select{width:100%; margin-top:4px}
   .err{color:var(--danger); font-size:12px; min-height:16px}
   .hint{color:var(--muted); font-size:11px}
+  .skip{position:absolute;left:-9999px;top:0;background:var(--accent);color:#0b0d12;
+    padding:10px 14px;border-radius:0 0 8px 0;font-weight:700;z-index:50}
+  .skip:focus{left:0}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+  .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
   @media print{
     header button, #search, .strip, .chips, .hint{display:none !important}
     body{background:#fff; color:#000}
@@ -122,6 +132,9 @@
 </style>
 </head>
 <body>
+<!-- @only a11y -->
+<a class="skip" href="#list">Skip to the list</a>
+<!-- @end only -->
 <header>
   <h1>{{TITLE}}<small>{{PITCH}}</small></h1>
   <div class="row">
@@ -132,7 +145,7 @@
   </div>
 </header>
 <main>
-  <div id="banners"></div>
+  <div id="banners" role="status" aria-live="polite"></div>
   <div class="row" style="margin-bottom:10px">
     <input id="search" type="search" placeholder="Search {{ENTITY_PLURAL}}  (Ctrl-K)" autocomplete="off">
     <select id="sort" aria-label="Sort"></select>
@@ -207,11 +220,27 @@ const KEY = "kiln:" + MODEL.namespace;
 const THEME_KEY = "kiln:" + MODEL.namespace + ":theme";
 const LANG_KEY = "kiln:" + MODEL.namespace + ":lang";
 
+/* the interface in each language. Data is never translated (§1) */
+/* @only i18n */
 const LANGS = {
-  en: {add: "New", search: "Search", empty: "Nothing here yet.", save: "Save", cancel: "Cancel", del: "Delete"},
-  hi: {add: "नया", search: "खोजें", empty: "अभी कुछ नहीं है।", save: "सहेजें", cancel: "रद्द", del: "हटाएँ"}
+  en: {add: "New", search: "Search", empty: "Nothing here yet.", save: "Save",
+       cancel: "Cancel", del: "Delete", edit: "Edit", print: "Print",
+       export: "Export", import: "Import", about: "About", theme: "Theme",
+       sortBy: "Sort: ", all: "All", total: "total", shown: "shown"},
+  hi: {add: "नया", search: "खोजें", empty: "अभी कुछ नहीं है।", save: "सहेजें",
+       cancel: "रद्द", del: "हटाएँ", edit: "बदलें", print: "छापें",
+       export: "निर्यात", import: "आयात", about: "परिचय", theme: "रूप",
+       sortBy: "क्रम: ", all: "सभी", total: "कुल", shown: "दिखे"},
+  gu: {add: "નવું", search: "શોધો", empty: "અહીં હજી કંઈ નથી.", save: "સાચવો",
+       cancel: "રદ કરો", del: "કાઢી નાખો", edit: "બદલો", print: "છાપો",
+       export: "નિકાસ", import: "આયાત", about: "વિશે", theme: "રૂપ",
+       sortBy: "ક્રમ: ", all: "બધા", total: "કુલ", shown: "દેખાયા"}
 };
+/* @end only */
 let lang = "en";
+const LANGLIST = (MODEL.i18n && MODEL.i18n.languages) || ["en"];
+/* T falls back to the key itself when the dictionary is not in this build */
+const T = (k) => (typeof LANGS !== "undefined" && LANGS[lang] && LANGS[lang][k]) || k;
 
 let rows = [];
 let query = "";
@@ -472,6 +501,33 @@ function evalFormula(src, vars) {
 /* @end only */
 
 /* ---------- rendering ---------- */
+/* @only feedback */
+const SIZE_WARN = 2000;
+const BACKUP_DAYS = 7;
+function lastExport() {
+  try { return Number(localStorage.getItem(KEY + ":lastExport")) || 0; } catch (e) { return 0; }
+}
+function markExport() {
+  try { localStorage.setItem(KEY + ":lastExport", String(Date.now())); } catch (e) {}
+}
+function feedbackBanners() {
+  const out = [];
+  if (rows.length > SIZE_WARN) {
+    out.push({kind: "warn", text: "This app holds " + rows.length +
+      " rows. Search is a linear scan, so it will start to feel slow past a few thousand. " +
+      "Export and start a new file if that happens."});
+  }
+  const last = lastExport();
+  const days = last ? Math.floor((Date.now() - last) / 86400000) : null;
+  if (rows.length > 0 && (last === 0 || days >= BACKUP_DAYS)) {
+    out.push({kind: "", text: last === 0
+      ? "You have not exported this list yet. Export writes a file you keep; nothing else backs it up."
+      : "Last export was " + days + " days ago. Export writes a file you keep; nothing else backs it up."});
+  }
+  return out;
+}
+/* @end only */
+
 function paintBanners() {
   const box = $("#banners");
   box.innerHTML = "";
@@ -480,6 +536,7 @@ function paintBanners() {
   if (F.has("crud") && navigator.onLine === false) {
     list.push({kind: "warn", text: "You are offline. Everything here still works; nothing needs the network."});
   }
+  if (F.has("feedback")) list.push.apply(list, feedbackBanners());
   for (const b of list) {
     const d = el("div", "banner " + (b.kind || ""), b.text);
     box.appendChild(d);
@@ -635,7 +692,7 @@ function render() {
   const items = visible();
   list.innerHTML = "";
   if (!items.length) {
-    list.appendChild(el("li", "empty", rows.length ? "No match." : LANGS[lang].empty));
+    list.appendChild(el("li", "empty", rows.length ? "No match." : T("empty")));
   }
   const tickField = F.has("toggle") && MODEL.progress ? MODEL.progress.field : null;
   for (const r of items) {
@@ -676,9 +733,9 @@ function render() {
     if (isOverdue(r)) body.appendChild(el("div", "overdue", "Overdue since " + r.due));
     li.appendChild(body);
     const acts = el("div", "row");
-    const edit = el("button", "ghost", "Edit");
+    const edit = el("button", "ghost", T("edit"));
     edit.onclick = () => openEditor(r.id);
-    const del = el("button", "ghost", LANGS[lang].del);
+    const del = el("button", "ghost", T("del"));
     del.onclick = () => {
       if (!confirm("Delete this " + ENTITY.label.toLowerCase() + "?")) return;
       rows = rows.filter((x) => x.id !== r.id);
@@ -695,8 +752,8 @@ function render() {
   if (F.has("stats")) {
     strip.hidden = false;
     const over = rows.filter(isOverdue).length;
-    strip.innerHTML = "<span><b>" + rows.length + "</b> total</span>" +
-      "<span><b>" + items.length + "</b> shown</span>" +
+    strip.innerHTML = "<span><b>" + rows.length + "</b> " + T("total") + "</span>" +
+      "<span><b>" + items.length + "</b> " + T("shown") + "</span>" +
       (F.has("reminder") ? "<span><b>" + over + "</b> overdue</span>" : "");
   } else {
     strip.hidden = true;
@@ -815,6 +872,7 @@ function toCSV() {
 }
 function doExport() {
   const stamp = today();
+  if (typeof markExport === "function") markExport();
   if (F.has("export")) {
     download(MODEL.id + "-" + stamp + ".json", JSON.stringify({v: MODEL.version, rows: rows}, null, 2), "application/json");
     download(MODEL.id + "-" + stamp + ".csv", toCSV(), "text/csv");
@@ -904,7 +962,7 @@ function bootSort() {
   sel.innerHTML = "";
   for (const f of FIELDS) {
     const o = document.createElement("option");
-    o.value = f.name; o.textContent = "Sort: " + f.label;
+    o.value = f.name; o.textContent = T("sortBy") + f.label;
     sel.appendChild(o);
   }
   sel.value = FIELDS[0].name;
@@ -917,7 +975,7 @@ function bootSort() {
   if (F.has("filters") && filterFields.length) {
     fsel.hidden = false;
     const all = document.createElement("option");
-    all.value = ""; all.textContent = "All";
+    all.value = ""; all.textContent = T("all");
     fsel.appendChild(all);
     const seen = new Set();
     for (const f of filterFields) {
@@ -935,6 +993,20 @@ function bootSort() {
     fsel.onchange = () => { filterVal = fsel.value; render(); };
   }
 }
+/* @only i18n */
+function applyLang() {
+  document.documentElement.setAttribute("lang", lang);
+  const add = $("#add");
+  if (add) add.textContent = T("add") + " " + ENTITY.label;
+  const s = $("#search");
+  if (s) s.placeholder = T("search") + " " + ENTITY.label + "s (Ctrl-K)";
+  const b = document.querySelector("header .row button[aria-label='switch language']");
+  if (b) b.textContent = lang.toUpperCase();
+  bootSort();
+  render();
+}
+/* @end only */
+
 function boot() {
   bootTheme();
   bootPWA();
@@ -1000,18 +1072,20 @@ function boot() {
     bootSort();
     render();
   };
-  if (F.has("i18n")) {
+  if (F.has("i18n") && LANGLIST.length > 1) {
+    try { const saved = localStorage.getItem(LANG_KEY); if (saved && LANGLIST.indexOf(saved) >= 0) lang = saved; } catch (e) {}
     const sw = document.createElement("button");
     sw.className = "ghost";
-    sw.textContent = "EN/हिं";
+    sw.setAttribute("aria-label", "switch language");
+    sw.textContent = lang.toUpperCase();
     sw.onclick = () => {
-      lang = lang === "en" ? "hi" : "en";
+      const i = LANGLIST.indexOf(lang);
+      lang = LANGLIST[(i + 1) % LANGLIST.length];
       try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
-      $("#add").textContent = LANGS[lang].add + " " + ENTITY.label;
-      s.placeholder = LANGS[lang].search + " (" + "Ctrl-K" + ")";
-      render();
+      applyLang();
     };
     document.querySelector("header .row").appendChild(sw);
+    applyLang();
   }
   const imp = document.createElement("input");
   imp.type = "file"; imp.accept = ".json,application/json"; imp.hidden = true;

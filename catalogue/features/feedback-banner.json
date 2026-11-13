@@ -1,0 +1,11 @@
+{
+  "id": "feedback-banner",
+  "family": "F12",
+  "name": "size-and-backup-banners",
+  "spec_keys": ["features[]"],
+  "emitter_hook": "templates/app/index.html::paintBanners",
+  "verify_check": "over 2000 rows the app says so and offers an export",
+  "docs_anchor": "docs/PATTERNS.md",
+  "status": "emitted",
+  "note": "row-count warning and a backup reminder, both dismissible and both honest"
+}

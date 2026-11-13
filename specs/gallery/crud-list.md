@@ -8,7 +8,8 @@
   "category": "clinical",
   "pattern": "crud-list",
   "pitch": "What is on the shelf, what it cost, and what to reorder before Thursday.",
-  "features": ["crud", "search", "sort", "stats", "export", "theme"],
+  "features": ["crud", "search", "sort", "stats", "export", "import", "theme",
+               "i18n", "a11y", "feedback"],
   "entities": [
     {
       "name": "item",
@@ -22,6 +23,7 @@
       ]
     }
   ],
+  "i18n": {"languages": ["en", "hi", "gu"]},
   "storage": {"kind": "localstorage", "namespace": "clinic-stock"},
   "currency": "₹",
   "accent": "#4ade80",
@@ -29,7 +31,9 @@
     "saving an item and reloading the page shows the item in the list",
     "entering 12.50 as a price stores 1250 and shows ₹12.50",
     "typing a remedy no item contains hides every row",
-    "exporting writes one row per item, with the price as a decimal"
+    "exporting writes one row per item, with the price as a decimal",
+    "switching language shows at least one label in the other language",
+    "pressing Tab from the top shows a skip link before the header buttons"
   ],
   "not": ["network calls", "accounts", "prescriptions", "patient data"]
 }

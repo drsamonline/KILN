@@ -13,7 +13,9 @@ FIELD_TYPES = {"text", "longtext", "number", "date", "bool", "select", "tags",
                "currency_cents"}
 REQUIRED_KEYS = ["id", "name", "tier", "category", "pitch", "features",
                  "entities", "storage", "done_means", "not"]
-OPTIONAL_KEYS = ["pattern", "accent", "currency", "tracker", "progress", "calculator"]
+OPTIONAL_KEYS = ["pattern", "accent", "currency", "tracker", "progress",
+                 "calculator", "i18n"]
+KNOWN_LANGS = {"en", "hi", "gu"}
 
 # A done-means must name something a person can watch happen.
 # Stems, not inflections: "reloading" must match "reload".
@@ -155,6 +157,24 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
             win = tr.get("window", 7)
             if not isinstance(win, int) or isinstance(win, bool) or not 1 <= win <= 90:
                 p.append("tracker.window must be a whole number from 1 to 90")
+
+    if "i18n" in spec:
+        i = spec["i18n"]
+        if not isinstance(i, dict):
+            p.append("i18n must be an object")
+        else:
+            langs = i.get("languages")
+            if not isinstance(langs, list) or len(langs) < 2:
+                p.append("i18n.languages must list at least two languages")
+            else:
+                bad = [x for x in langs if x not in KNOWN_LANGS]
+                if bad:
+                    p.append(f"i18n.languages has no dictionary for: {', '.join(map(str, bad))} "
+                             f"(known: {', '.join(sorted(KNOWN_LANGS))})")
+                if "en" not in langs:
+                    p.append("i18n.languages must include en as the fallback")
+        if "i18n" not in spec.get("features", []):
+            p.append("an i18n block needs the 'i18n' capability in features")
 
     if "calculator" in spec:
         if "formula" not in spec.get("features", []):

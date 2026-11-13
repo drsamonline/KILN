@@ -216,7 +216,7 @@
       "conflicts": [],
       "kit": "web-kit",
       "emitter": "runtime",
-      "assertion": "switching language changes at least one rendered label"
+      "assertion": "switching language changes at least one rendered label and sets the html lang attribute"
     },
     "backup": {
       "label": "One-click full backup and restore",
@@ -320,6 +320,38 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "words 1000 at 200 wpm shows 5.0 minutes"
+    },
+    "a11y": {
+      "label": "Accessibility: skip link, focus ring, live regions, reduced motion",
+      "aliases": [
+        "accessibility",
+        "a11y",
+        "keyboard",
+        "screen reader",
+        "focus"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "kit": "web-kit",
+      "emitter": "runtime",
+      "assertion": "pressing Tab from the top reaches a skip link before the header buttons"
+    },
+    "feedback": {
+      "label": "Size and backup banners, and a live status region",
+      "aliases": [
+        "banner",
+        "warning",
+        "reminder",
+        "status",
+        "feedback"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "web-kit",
+      "emitter": "runtime",
+      "assertion": "over 2000 rows the app says so and offers an export"
     }
   }
 }

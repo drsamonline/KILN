@@ -7,7 +7,10 @@ from pathlib import Path
 from .compose import TPL
 
 VAR = re.compile(r"\{\{([A-Z_]+)\}\}")
-ONLY = re.compile(r"/\* @only ([a-z_]+) \*/.*?/\* @end only \*/\n?", re.S)
+ONLY = re.compile(
+    r"(?:/\*|<!--)\s*@only ([a-z0-9_]+)\s*(?:\*/|-->).*?(?:/\*|<!--)\s*@end only\s*(?:\*/|-->)\n?",
+    re.S)
+MARKER = re.compile(r"(?:/\*|<!--)\s*@(?:only [a-z0-9_]+|end only)\s*(?:\*/|-->)\n?")
 
 
 def strip_unused(text: str, features) -> tuple[str, list[str]]:
@@ -22,7 +25,7 @@ def strip_unused(text: str, features) -> tuple[str, list[str]]:
     def sub(m):
         name = m.group(1)
         if name in keep:
-            return m.group(0).replace(f"/* @only {name} */\n", "").replace("/* @end only */\n", "")
+            return MARKER.sub("", m.group(0))
         dropped.append(name)
         return ""
     return ONLY.sub(sub, text), dropped

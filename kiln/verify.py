@@ -199,6 +199,22 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "a11y" in model["features"]:
+        res.add("L5", "a11y: a skip link is emitted", 'class="skip"' in html)
+        res.add("L5", "a11y: a visible focus ring is emitted", ":focus-visible" in html)
+        res.add("L5", "a11y: reduced motion is respected", "prefers-reduced-motion" in html)
+        res.add("L5", "a11y: banners are a live region", 'aria-live="polite"' in html)
+    if "i18n" in model["features"]:
+        res.add("L5", "i18n: a dictionary is emitted", "const LANGS =" in html)
+        res.add("L5", "i18n: the language list reached the model",
+                isinstance(model.get("i18n", {}).get("languages"), list))
+        res.add("L5", "i18n: the html lang attribute is set at runtime", 'setAttribute("lang"' in html)
+        for code in (model.get("i18n") or {}).get("languages", []):
+            res.add("L5", f"i18n: a {code} dictionary exists", f"{code}: {{" in html)
+    if "feedback" in model["features"]:
+        res.add("L5", "feedback: the size banner is emitted", "SIZE_WARN" in html)
+        res.add("L5", "feedback: the backup reminder is emitted", "lastExport" in html)
+        res.add("L5", "feedback: exporting records the day", "markExport" in html)
     if "progress" in model["features"]:
         res.add("L5", "progress: a progressOf function is emitted", "function progressOf(" in html)
         res.add("L5", "progress: the bar is emitted", 'id="progress"' in html and 'role="progressbar"' in html)

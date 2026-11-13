@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.13 — 2026-11-13
+
+Phase B4 and B5 in one batch: a real i18n dictionary, an accessibility pass, and the two banners.
+
+| Area | Change |
+|---|---|
+| B4 i18n | the `i18n` capability now has actual dictionaries for **en, hi and gu**, a spec key `i18n.languages`, a toggle that cycles the declared languages, and `lang` set on `<html>`. Before this, the catalogue claimed a dictionary that did not exist |
+| B4 a11y | skip link first in the body, a visible `:focus-visible` ring, `aria-live` on the banner region, `prefers-reduced-motion` respected, `aria-label` on every control that has no text |
+| B5 feedback | a size warning past 2000 rows, and a backup reminder after 7 days without an export; exporting records the day |
+| Registry | `a11y-skip-link` and `i18n-dictionary` (F14), `feedback-banner` (F12) — 52 entries |
+| Emit | the strip markers now accept **digits** in a capability id (`i18n`, `a11y`), and both comment styles; three blocks had been leaking into every build |
+| Counts | 188 tests, 180 guards |
+
 ## v0.12 — 2026-11-13
 
 Phase B2 and B3: the guides. Two of the six are generated, so they cannot drift.

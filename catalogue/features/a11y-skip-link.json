@@ -1,0 +1,11 @@
+{
+  "id": "a11y-skip-link",
+  "family": "F14",
+  "name": "skip-link",
+  "spec_keys": ["features[]"],
+  "emitter_hook": "templates/app/index.html::boot",
+  "verify_check": "pressing Tab from the top reaches a skip link before the header buttons",
+  "docs_anchor": "docs/PATTERNS.md",
+  "status": "emitted",
+  "note": "a skip link, a visible focus ring, and a live region for banners"
+}

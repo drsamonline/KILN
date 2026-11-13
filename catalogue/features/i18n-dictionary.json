@@ -1,0 +1,11 @@
+{
+  "id": "i18n-dictionary",
+  "family": "F14",
+  "name": "dictionary",
+  "spec_keys": ["features[]", "i18n.languages"],
+  "emitter_hook": "templates/app/index.html::LANGS",
+  "verify_check": "switching language changes at least one rendered label",
+  "docs_anchor": "docs/PATTERNS.md",
+  "status": "emitted",
+  "note": "en, hi and gu dictionaries for the interface strings; the data is never translated"
+}
