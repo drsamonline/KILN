@@ -45,7 +45,7 @@ and goes to them, not to KILN. Read their policy before you paste anything sensi
 
 KILN is a local tool with no server, no accounts and no collection, so the obligations that
 attach to a data fiduciary handling personal data do not arise in its ordinary use. If you
-build an app that holds other people's data — a clinic log, for instance — **you** are the
+build an app that holds other people's data, a clinic log, for instance, **you** are the
 one handling that data, on your own device, and the obligations are yours. No data leaves
 the device unless you export it, and the export is a plain file you are responsible for.
 
@@ -63,5 +63,5 @@ version and effective date above will change in the same commit.
 
 ## Contact
 
-Dr Sohil Momin — sohilmomin2000@gmail.com — or open an issue at
+Dr Sohil Momin, sohilmomin2000@gmail.com, or open an issue at
 [github.com/drsamonline/KILN/issues](https://github.com/drsamonline/KILN/issues).

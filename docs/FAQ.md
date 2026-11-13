@@ -14,14 +14,14 @@ No, for any command. The only step that needs the internet is the one you do by 
 choose to use a model.
 
 **Does it need Python?**
-For the command line, yes — 3.9 or newer, standard library only. For `studio.html`, no: that
+For the command line, yes: 3.9 or newer, standard library only. For `studio.html`, no: that
 is one file and a browser.
 
 **Does it work on Windows?**
 Yes. The compiler uses `pathlib` throughout and no shell commands in its own path.
 
 **Can I use it on my phone?**
-Yes — send yourself `studio.html`, open it, tap Build. The app downloads. No Python involved.
+Yes: send yourself `studio.html`, open it, tap Build. The app downloads. No Python involved.
 
 **Why only 14 features?**
 Because a bounded catalogue is what makes the output reliable. Every feature has an emitter
@@ -47,7 +47,7 @@ You can, but the next build replaces it. The spec is the source; the app is a bu
 If you want to own the code, fork the app folder and stop using the spec.
 
 **Can I sell an app I built with KILN?**
-The app is yours — see [`TERMS.md`](TERMS.md) section 2. The compiler itself is
+The app is yours; see [`TERMS.md`](TERMS.md) section 2. The compiler itself is
 noncommercial; see [`COMMERCIAL.md`](COMMERCIAL.md).
 
 **Is the generated app secure?**
@@ -60,7 +60,7 @@ Because a check that did not run must never look like a check that passed. Insta
 to turn that SKIP into a real check.
 
 **Can I add a feature?**
-Yes — four files, listed in [`CONTRIBUTING.md`](CONTRIBUTING.md). CI enforces all four.
+Yes: four files, listed in [`CONTRIBUTING.md`](CONTRIBUTING.md). CI enforces all four.
 
 **Why is the studio a separate generated file?**
 Because a browser cannot run Python, and a phone is a legitimate place to build a small app.

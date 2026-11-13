@@ -30,9 +30,9 @@ TOP_LEVEL = [
 
 OPTIONAL = [
     ("pattern", "string", "an archetype from `catalogue/patterns/`; verification then checks conformance"),
-    ("tracker", "object", "`{field, goal, window, unit}` — for the `tracker` archetype"),
-    ("progress", "object", "`{field, label}` — for the `checklist` archetype; `field` must be a bool"),
-    ("calculator", "object", "`{inputs[], formula, output, note}` — for the `calculator` archetype"),
+    ("tracker", "object", "`{field, goal, window, unit}`: for the `tracker` archetype"),
+    ("progress", "object", "`{field, label}`: for the `checklist` archetype; `field` must be a bool"),
+    ("calculator", "object", "`{inputs[], formula, output, note}`: for the `calculator` archetype"),
     ("currency", "string", "a short symbol shown before money; default `₹`"),
     ("accent", "string", "`#rrggbb`; default `#7c9cff`"),
 ]
@@ -62,9 +62,9 @@ def spec_reference(catalog) -> str:
     fields = [(f"`{t}`", FIELD_NOTE.get(t, "")) for t in sorted(specmod.FIELD_TYPES)]
 
     parts = [
-        "# Guide — spec reference",
+        "# Guide: spec reference",
         "",
-        "> **TL;DR** — a spec is one Markdown file: a `json kiln` block the compiler reads, and prose a",
+        "> **TL;DR:** a spec is one Markdown file: a `json kiln` block the compiler reads, and prose a",
         "> person reads. The filename must equal the `id`. Run `kiln compose <spec>` to see the plan",
         "> before anything is written.",
         "",
@@ -163,9 +163,9 @@ def spec_reference(catalog) -> str:
         "",
         "## Links",
         "",
-        "- [`docs/SPEC-SHAPE.md`](SPEC-SHAPE.md) — the shape, one page",
-        "- [`GUIDE-FEATURES.md`](../GUIDE-FEATURES.md) — capabilities and the registry",
-        "- [`docs/PATTERNS.md`](PATTERNS.md) — the archetypes, with pros and cons",
+        "- [`docs/SPEC-SHAPE.md`](SPEC-SHAPE.md): the shape, one page",
+        "- [`GUIDE-FEATURES.md`](../GUIDE-FEATURES.md): capabilities and the registry",
+        "- [`docs/PATTERNS.md`](PATTERNS.md): the archetypes, with pros and cons",
         "",
     ]
     return "\n".join(parts)
@@ -197,9 +197,9 @@ def features_guide(catalog) -> str:
                 for f, v in sorted(fams.items())]
 
     parts = [
-        "# Guide — features",
+        "# Guide: features",
         "",
-        "> **TL;DR** — a spec names **capabilities** (`features`), a spec chooses **field types**, and an",
+        "> **TL;DR:** a spec names **capabilities** (`features`), a spec chooses **field types**, and an",
         "> **archetype** (`pattern`) decides the shape. Nothing is emitted unless it is in the registry",
         "> with an emitter and a check.",
         "",
@@ -227,7 +227,7 @@ def features_guide(catalog) -> str:
         "",
     ]
     for fam in sorted(fams):
-        parts += [f"### {fam} — {cat.FAMILIES.get(fam, '')}", "",
+        parts += [f"### {fam}: {cat.FAMILIES.get(fam, '')}", "",
                   _table(["id", "status", "note"],
                          [(f"`{e['id']}`", e["status"], e.get("note", ""))
                           for e in sorted(fams[fam], key=lambda x: x["id"])]), ""]
@@ -249,9 +249,9 @@ def features_guide(catalog) -> str:
         "",
         "## Links",
         "",
-        "- [`GUIDE-SPEC-REF.md`](GUIDE-SPEC-REF.md) — every key and type",
-        "- [`docs/PATTERNS.md`](docs/PATTERNS.md) — the archetypes in depth",
-        "- [`PROMPT.md`](PROMPT.md) — the prompt that writes a spec for you",
+        "- [`GUIDE-SPEC-REF.md`](GUIDE-SPEC-REF.md): every key and type",
+        "- [`docs/PATTERNS.md`](docs/PATTERNS.md): the archetypes in depth",
+        "- [`PROMPT.md`](PROMPT.md): the prompt that writes a spec for you",
         "",
     ]
     return "\n".join(parts)

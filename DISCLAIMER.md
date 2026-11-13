@@ -63,5 +63,5 @@ from its use. The full text is in [`TERMS.md`](TERMS.md) sections 4 and 5.
 ## 6. If something in a generated app is wrong
 
 Open an issue with the spec, the command and the output. A defect in the template is a real
-bug and will be fixed. A defect in your spec is yours, but it is worth reporting anyway —
+bug and will be fixed. A defect in your spec is yours, but it is worth reporting anyway , 
 it usually means the catalogue is missing something.

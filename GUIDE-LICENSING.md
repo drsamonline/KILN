@@ -1,6 +1,6 @@
-# Guide — licensing
+# Guide: licensing
 
-> **TL;DR** — two editions. **Personal** is free under PolyForm Noncommercial and puts your
+> **TL;DR**: two editions. **Personal** is free under PolyForm Noncommercial and puts your
 > sponsor block and author line inside every app it generates. **Commercial** is paid, and
 > replaces all of that with one line: *Built with KILN*.
 
@@ -88,7 +88,7 @@ python3 -m kiln licence tiers                       # the table above, from code
 
 ## Links
 
-- [`LICENSING.md`](LICENSING.md) — the editions, in full
-- [`COMMERCIAL.md`](COMMERCIAL.md) — what a commercial licence covers
-- [`TERMS.md`](TERMS.md) — the terms both editions sit under
-- [`PRIVACY.md`](PRIVACY.md) — nothing is collected, in either edition
+- [`LICENSING.md`](LICENSING.md): the editions, in full
+- [`COMMERCIAL.md`](COMMERCIAL.md): what a commercial licence covers
+- [`TERMS.md`](TERMS.md): the terms both editions sit under
+- [`PRIVACY.md`](PRIVACY.md): nothing is collected, in either edition

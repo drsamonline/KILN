@@ -28,7 +28,7 @@ python3 -m kiln audit
 ```
 
 Plus the spec itself, if the problem is in a build. A spec is one file and it is the whole
-input — there is nothing else to guess at.
+input, there is nothing else to guess at.
 
 ## What support is not
 

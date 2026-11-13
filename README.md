@@ -5,10 +5,10 @@
 **Spec in. Finished app out.**
 
 A deterministic compiler that turns a small specification into a complete, working,
-offline application — one HTML file. No model in the loop, no network, nothing to install.
+offline application: one HTML file. No model in the loop, no network, nothing to install.
 
 [![CI](https://github.com/drsamonline/KILN/actions/workflows/kiln.yml/badge.svg)](https://github.com/drsamonline/KILN/actions/workflows/kiln.yml)
-[![tests](https://img.shields.io/badge/tests-512%20passing-brightgreen)](#verification)
+[![tests](https://img.shields.io/badge/tests-518%20passing-brightgreen)](#verification)
 [![guards](https://img.shields.io/badge/guards-452%20passing-brightgreen)](#verification)
 [![dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)](#self-contained)
 [![network](https://img.shields.io/badge/network-not%20required-brightgreen)](#self-contained)
@@ -17,7 +17,7 @@ offline application — one HTML file. No model in the loop, no network, nothing
 [![licence](https://img.shields.io/badge/licence-PolyForm%20Noncommercial%201.0.0-blue)](LICENSE)
 
 [Landing page](https://drsamonline.github.io/KILN/) ·
-[Live demo](demo.html) — a gallery of every spec ·
+[Live demo](demo.html): a gallery of every spec ·
 [Studio](studio.html) ·
 [User guide](USAGE.md) ·
 [All docs](docs/README.md) ·
@@ -32,8 +32,7 @@ offline application — one HTML file. No model in the loop, no network, nothing
 ## The idea
 
 Forge made the shape of an app and left the rest to an agent. KILN finishes the job
-with a compiler instead: the boring 90% — storage, forms, search, export, error paths,
-docs, tests — is written once, in the template, and every generated app inherits it.
+with a compiler instead: the boring 90% (storage, forms, search, export, error paths, docs, tests) is written once, in the template, and every generated app inherits it.
 
 | | |
 |---|---|
@@ -55,7 +54,7 @@ docs, tests — is written once, in the template, and every generated app inheri
 
 <div align="center">
 <img src="assets/screenshot-studio.png" alt="KILN Studio: pick features, describe the record, build" width="880">
-<br><sub>KILN Studio — 209 KB, one file, runs on a phone with no network.</sub>
+<br><sub>KILN Studio: 209 KB, one file, runs on a phone with no network.</sub>
 </div>
 
 ---
@@ -188,7 +187,7 @@ Nothing here is claimed without a command and its output.
 
 | Check | What it proves |
 |---|---|
-| `python3 -m unittest discover -s tests` | 512 tests, Python 3.9 → 3.13 |
+| `python3 -m unittest discover -s tests` | 518 tests, Python 3.9 → 3.13 |
 | `python3 -m kiln verify --all` | every spec builds; 700+ checks across thirteen specs |
 | `python3 -m kiln audit` | 85 guards: wiring, drift, licences, workflows, studio, prompt, site, links, support |
 | `kiln verify --at <sha>` | the artifact is read at the commit, not the working tree |
@@ -216,7 +215,7 @@ kiln licence tiers                             # what each edition carries
 
 Every build carries a fingerprint of the model it came from, and the app recomputes it on
 boot: a file edited after it was built says so. That is a deterrent and an evidence trail,
-not DRM — [`SECURITY.md`](SECURITY.md) lists exactly what is and is not enforced, and
+not DRM. [`SECURITY.md`](SECURITY.md) lists exactly what is and is not enforced, and
 [`LICENSING.md`](LICENSING.md) has the full table. No releases are published until the owner
 says so ([`RELEASE.md`](RELEASE.md)).
 
@@ -224,7 +223,7 @@ says so ([`RELEASE.md`](RELEASE.md)).
 ## Support
 
 KILN is free for personal, academic, hobby and non-profit use. If it saved you a week,
-the usual shapes are below — and the first one costs nothing.
+the usual shapes are below, and the first one costs nothing.
 
 | | |
 |---|---|
@@ -264,7 +263,7 @@ the usual shapes are below — and the first one costs nothing.
 | `kiln/` | the compiler, including `guide.py`, which writes two of the guides |
 | `templates/` | the runtime, the studio, the demo |
 | `specs/` | one spec per app; `specs/gallery/` holds one per archetype |
-| `tests/` | 512 tests: the Ed25519 RFC vector, determinism, the registry, the archetypes, and the tracker maths run under node |
+| `tests/` | 518 tests: the Ed25519 RFC vector, determinism, the registry, the archetypes, and the tracker maths run under node |
 | `docs/` | architecture, portability, workflow, self-containment, spec reference, FAQ, [patterns](docs/PATTERNS.md) — start at [`docs/README.md`](docs/README.md) |
 | `INDEX.md` | generated list of every spec |
 | `CITATION.cff` | how to cite it |
@@ -275,7 +274,7 @@ the usual shapes are below — and the first one costs nothing.
 <sub>
 
 KILN compiles specifications into software. It does not call a model, does not collect data,
-and does not warrant that a generated app suits your purpose — check it before you rely on it.
+and does not warrant that a generated app suits your purpose. Check it before you rely on it.
 
 [Licence](LICENSE) · [Terms](TERMS.md) · [Privacy](PRIVACY.md) · [Security](SECURITY.md) ·
 [Disclaimer](DISCLAIMER.md) · [Notice](NOTICE)<br>

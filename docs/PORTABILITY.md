@@ -1,4 +1,4 @@
-# PORTABILITY — desktop, phone, Linux, or nothing at all
+# PORTABILITY: desktop, phone, Linux, or nothing at all
 
 Short answer: **it runs anywhere, and it needs nothing from GitHub.**
 
@@ -13,7 +13,7 @@ Short answer: **it runs anywhere, and it needs nothing from GitHub.**
 | a hand-written spec | anything that writes text | nothing | app, once built |
 
 The Python CLI and the studio share the same catalogue and the same runtime
-template — `kiln studio` generates the second from the first, and `kiln audit`
+template, `kiln studio` generates the second from the first, and `kiln audit`
 fails if they drift.
 
 ---

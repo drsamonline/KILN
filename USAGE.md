@@ -14,7 +14,7 @@ python3 -m kiln doctor
 ```
 
 `doctor` prints what your machine has. If it says `network needed: no`, you are ready.
-No Python? See [`INSTALL.md`](INSTALL.md) — `studio.html` needs only a browser.
+No Python? See [`INSTALL.md`](INSTALL.md): `studio.html` needs only a browser.
 
 ---
 
@@ -41,7 +41,7 @@ Paste `p.txt` into any chat window. Save the reply as `reply.md`. Then:
 python3 -m kiln adopt reply.md --build
 ```
 
-`adopt` prints every repair it made. Read them — they tell you what the model got wrong.
+`adopt` prints every repair it made. Read them: they tell you what the model got wrong.
 
 ### C. A form, on a phone
 

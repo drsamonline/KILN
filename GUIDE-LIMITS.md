@@ -1,6 +1,6 @@
-# Guide — limits
+# Guide: limits
 
-> **TL;DR** — this page is the honest list of what KILN will not do. Every line is something
+> **TL;DR**: this page is the honest list of what KILN will not do. Every line is something
 > you would otherwise discover by building an app and finding the gap.
 
 ---
@@ -47,7 +47,7 @@ sentence is either a pattern that has not been written, or something a browser c
 
 ## Links
 
-- [`GUIDE-PATTERNS.md`](GUIDE-PATTERNS.md) — what each archetype can and cannot do
-- [`docs/PATTERNS.md`](docs/PATTERNS.md) — the cons column, in full
-- [`GUIDE-LICENSING.md`](GUIDE-LICENSING.md) — the two editions
-- [`docs/FAQ.md`](docs/FAQ.md) — the questions this page usually answers
+- [`GUIDE-PATTERNS.md`](GUIDE-PATTERNS.md): what each archetype can and cannot do
+- [`docs/PATTERNS.md`](docs/PATTERNS.md): the cons column, in full
+- [`GUIDE-LICENSING.md`](GUIDE-LICENSING.md): the two editions
+- [`docs/FAQ.md`](docs/FAQ.md): the questions this page usually answers

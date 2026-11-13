@@ -4,6 +4,20 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.8 — 2026-11-14
+
+A prose pass, and a guard so the tell cannot come back.
+
+| Area | Change |
+|---|---|
+| Detected | 77 prose em dashes across 30 documents, the single mechanical tell the style guide names first. Nothing else it looks for was present: no not-X-but-Y contrasts, no staged openers, no forced triads, no inflated vocabulary, no curly quotes |
+| Fixed | every one replaced with the punctuation the sentence needed: a colon after a label or a link, parentheses for an aside, a full stop before a new sentence, a comma for a parenthetical |
+| Fixed | the cookbook still said "Four are buildable today". All 24 are |
+| Fixed | the two generated guides carried 18 more, from their generator. The fix went into `kiln guide`, not into its output |
+| Guard | **C22** fails the audit when prose carries an em dash. A dash inside a table cell is a separator and stays; a dash in a dated heading is typography and stays |
+| Tests | 6 new |
+| Counts | 518 tests, 454 guards |
+
 ## v1.0.7 — 2026-11-14
 
 A printable changelog, generated from the changelog itself.
@@ -475,7 +489,7 @@ Tiers, watermark, and a gallery that shows every spec while running only some of
 ### One rule narrowed
 
 The verifier used to reject any `http://` or `https://` in an app. Attribution needs links, so
-the rule now rejects **loaded** resources — `src=`, `@import`, `fetch(`, `<script src` — and
+the rule now rejects **loaded** resources, `src=`, `@import`, `fetch(`, `<script src`, and
 allows an anchor in About. The app still loads nothing.
 
 ## v0.4 — 2026-11-13

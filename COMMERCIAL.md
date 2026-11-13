@@ -62,5 +62,5 @@ You will get an answer, a price if there is one, and no pressure.
 ## What you never need to ask about
 
 Applications you generate are yours. Selling an app you built with KILN is governed by
-the terms in [`TERMS.md`](TERMS.md) section 2 — the free licence covers the compiler, and
+the terms in [`TERMS.md`](TERMS.md) section 2, the free licence covers the compiler, and
 your own work is your own.

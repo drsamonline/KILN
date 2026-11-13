@@ -1,6 +1,6 @@
-# Guide — contributing a feature or an archetype
+# Guide: contributing a feature or an archetype
 
-> **TL;DR** — five touches for a capability, six for an archetype, and the build fails if
+> **TL;DR**: five touches for a capability, six for an archetype, and the build fails if
 > any is missing. One archetype per pull request, never two.
 
 ---
@@ -43,7 +43,7 @@ python3 -m kiln audit
 - [ ] unused code is inside `@only` markers, so a spec that does not need it does not ship it
 - [ ] the two generated guides are current (`python3 -m kiln guide --check`)
 - [ ] `PROMPT.md` lists the capability
-- [ ] no new dependency — `python3 -m kiln doctor` still shows none
+- [ ] no new dependency: `python3 -m kiln doctor` still shows none
 - [ ] determinism holds: two builds, one hash
 
 ## What will be declined
@@ -59,6 +59,6 @@ python3 -m kiln audit
 
 ## Links
 
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — the inbound licence grant and the four CI steps
-- [`docs/PATTERNS.md`](docs/PATTERNS.md) — the archetype template
-- [`AUDIT-FORGE.md`](AUDIT-FORGE.md) — why the guards exist
+- [`CONTRIBUTING.md`](CONTRIBUTING.md): the inbound licence grant and the four CI steps
+- [`docs/PATTERNS.md`](docs/PATTERNS.md): the archetype template
+- [`AUDIT-FORGE.md`](AUDIT-FORGE.md): why the guards exist

@@ -1,14 +1,13 @@
-# Guide — cookbook
+# Guide: cookbook
 
-> **TL;DR** — one recipe per archetype. Four are buildable today and live in
-> [`specs/gallery/`](specs/gallery); the rest are named so you know what is coming, not
-> promised as if it worked. Every recipe is a spec, not code.
+> **TL;DR:** one recipe per archetype. All 24 are buildable, and each has a working
+> spec in [`specs/gallery/`](specs/gallery). Every recipe is a spec, not code.
 
 ---
 
 ## The four you can build now
 
-### 1. A list of records — `crud-list`
+### 1. A list of records (`crud-list`)
 
 ```bash
 python3 -m kiln build specs/gallery/crud-list.md -o out
@@ -21,7 +20,7 @@ python3 -m kiln build specs/gallery/crud-list.md -o out
 | Screenshot | [`docs/gallery/crud-list.png`](docs/gallery/crud-list.png) |
 | Shows off | `currency_cents`, sort, search, export |
 
-### 2. One number a day — `tracker`
+### 2. One number a day (`tracker`)
 
 | | |
 |---|---|
@@ -34,7 +33,7 @@ python3 -m kiln build specs/gallery/crud-list.md -o out
 "tracker": {"field": "litres", "goal": 2.5, "window": 7, "unit": "L"}
 ```
 
-### 3. Things that get done — `checklist`
+### 3. Things that get done (`checklist`)
 
 | | |
 |---|---|
@@ -43,7 +42,7 @@ python3 -m kiln build specs/gallery/crud-list.md -o out
 | Screenshot | [`docs/gallery/checklist.png`](docs/gallery/checklist.png) |
 | Shows off | `progress`, `toggle` |
 
-### 4. One calculation — `calculator`
+### 4. One calculation (`calculator`)
 
 | | |
 |---|---|
@@ -100,6 +99,6 @@ fails verification, deliberately.
 
 ## Links
 
-- [`docs/PATTERNS.md`](docs/PATTERNS.md) — pros, cons, and the numbers each pattern derives
-- [`GUIDE-SPEC-REF.md`](GUIDE-SPEC-REF.md) — the keys these recipes use
-- [`specs/gallery/`](specs/gallery) — the specs themselves
+- [`docs/PATTERNS.md`](docs/PATTERNS.md): pros, cons, and the numbers each pattern derives
+- [`GUIDE-SPEC-REF.md`](GUIDE-SPEC-REF.md): the keys these recipes use
+- [`specs/gallery/`](specs/gallery): the specs themselves

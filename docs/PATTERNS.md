@@ -693,7 +693,7 @@ the options exactly. The score is counted from the picks at the end and is never
 
 **Avoid if:** the images must be carried inside the file.
 
-**The rule:** an `image` field is a url string — `https://…` or a `data:` uri. Nothing is
+**The rule:** an `image` field is a url string, `https://…` or a `data:` uri. Nothing is
 uploaded and nothing is fetched at build time. A card with no image shows a placeholder.
 
 ---
@@ -730,7 +730,7 @@ uploaded and nothing is fetched at build time. A card with no image shows a plac
 **Avoid if:** you need a ledger of individual transactions.
 
 **The rule:** remaining is `planned − actual`, the percent is rounded, and a row is "over"
-when actual exceeds planned — including the case where nothing was planned but something was
+when actual exceeds planned, including the case where nothing was planned but something was
 spent.
 
 ---
@@ -874,7 +874,7 @@ tie is broken by id, so the sort is stable and the same rows always appear in th
 
 **Avoid if:** you need two dimensions at once.
 
-**The rule:** groups sort by sum, then count, then key — a stable order, so the same rows always
+**The rule:** groups sort by sum, then count, then key, a stable order, so the same rows always
 print the same way. A record with no group is its own row, not a silent omission.
 
 ---
@@ -1181,8 +1181,8 @@ spec naming it fails verification rather than silently building something else.
 
 **Target: under 100 KB. The ceiling is 100 KB, and it is a backstop, not a target.**
 
-Most apps build at 38–43 KB. A capability a spec does not declare is stripped at emit time —
-its code, its CSS and its markup — so a calculator does not carry the board, and a journal
+Most apps build at 38–43 KB. A capability a spec does not declare is stripped at emit time , 
+its code, its CSS and its markup, so a calculator does not carry the board, and a journal
 does not carry the month grid. That is why the numbers stay where they are without anyone
 rationing features.
 

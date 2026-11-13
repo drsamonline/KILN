@@ -479,6 +479,42 @@ def check_row_loop_is_linear(catalog) -> list[Row]:
     return out
 
 
+PROSE_DOCS = ["README.md", "USAGE.md", "INSTALL.md", "CHANGELOG.md", "LICENSING.md",
+              "RELEASE.md", "PRIVACY.md", "TERMS.md", "DISCLAIMER.md", "SECURITY.md",
+              "COMMERCIAL.md", "SUPPORT.md", "CONTRIBUTING.md"]
+
+
+def check_prose_punctuation() -> list[Row]:
+    """An em dash used as a connector is the easiest mechanical tell there is.
+
+    A dash inside a table cell is a separator and stays; a dash in a dated heading
+    is typography and stays. Prose gets the punctuation the sentence needs.
+    """
+    import re as _re
+    files = list(PROSE_DOCS)
+    files += [p.name for p in sorted(ROOT.glob("GUIDE-*.md"))]
+    files += [f"docs/{p.name}" for p in sorted((ROOT / "docs").glob("*.md"))]
+    bad = []
+    checked = 0
+    for rel in files:
+        p = ROOT / rel
+        if not p.exists():
+            continue
+        for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+            if "\u2014" not in line:
+                continue
+            if line.strip().startswith("|"):
+                continue
+            if _re.match(r"^#{1,3} .*\u2014.*\d{4}", line):
+                continue
+            checked += 1
+            bad.append(Row(f"C22 prose em dash in {rel}", False,
+                           f"line {i}: {line.strip()[:70]}"))
+    if not bad:
+        return [Row("C22 no em dash in prose", True, f"{len(files)} documents")]
+    return bad
+
+
 def check_changelog_report(catalog) -> list[Row]:
     """The printable changelog must be the changelog, not a stale copy of it."""
     from . import changelog as chlogmod
@@ -750,6 +786,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_row_loop_is_linear(catalog)
     rows += check_sizes(catalog)
     rows += check_changelog_report(catalog)
+    rows += check_prose_punctuation()
     rows += check_counts()
     rows += check_guides(catalog)
     rows += check_licensing()

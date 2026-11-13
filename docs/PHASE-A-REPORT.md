@@ -91,7 +91,7 @@ L5 (provenance, failure paths, smoke), L6 (golden).
 | 2 | `56361b0993f8f0dd` |
 | 3 | `56361b0993f8f0dd` |
 
-Enforced by `tests/test_kiln.py::TestDeterminism` — byte-identical rebuild, no `{{` left in
+Enforced by `tests/test_kiln.py::TestDeterminism`, byte-identical rebuild, no `{{` left in
 the output, no build date, no `Date.now(`, no `Math.random(`, no `crypto.randomUUID`, and a
 stable fingerprint.
 
@@ -99,7 +99,7 @@ stable fingerprint.
 
 ## (f) Proposed next archetype
 
-**`tracker`** (archetype 5 — habit, weight, water, mood, sleep, BP, workouts).
+**`tracker`** (archetype 5, habit, weight, water, mood, sleep, BP, workouts).
 
 | Why it is next | Detail |
 |---|---|
@@ -109,7 +109,7 @@ stable fingerprint.
 | It is the archetype the estate already ships most of | habit and weight trackers are the common shape in `QUEUE/` |
 
 Alternative if you would rather stay flat: `checklist` (archetype 19), which adds only a
-boolean field and a progress count — cheaper, and proves less.
+boolean field and a progress count, cheaper, and proves less.
 
 ---
 

@@ -29,11 +29,11 @@
 
 ## The order to read them in
 
-1. [INSTALL.md](../INSTALL.md) — five minutes, nothing to install
-2. [USAGE.md](../USAGE.md) — build one app
-3. [SPEC-REFERENCE.md](SPEC-REFERENCE.md) — when you want a second field
-4. [ARCHITECTURE.md](ARCHITECTURE.md) — when you want to change the compiler
-5. [AUDIT-FORGE.md](../AUDIT-FORGE.md) — when you want to know why it is built this way
+1. [INSTALL.md](../INSTALL.md), five minutes, nothing to install
+2. [USAGE.md](../USAGE.md), build one app
+3. [SPEC-REFERENCE.md](SPEC-REFERENCE.md), when you want a second field
+4. [ARCHITECTURE.md](ARCHITECTURE.md), when you want to change the compiler
+5. [AUDIT-FORGE.md](../AUDIT-FORGE.md), when you want to know why it is built this way
 
 ---
 

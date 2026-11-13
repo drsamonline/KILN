@@ -1,6 +1,6 @@
-# Guide — quickstart
+# Guide: quickstart
 
-> **TL;DR** — clone, run one command, open one file. Five minutes, no install, no account,
+> **TL;DR**: clone, run one command, open one file. Five minutes, no install, no account,
 > no network.
 
 ---
@@ -75,7 +75,7 @@ downloads. No Python, no network.
 
 ## Links
 
-- [`INSTALL.md`](INSTALL.md) — every platform
-- [`USAGE.md`](USAGE.md) — the day-to-day loop
-- [`GUIDE-SPEC-REF.md`](GUIDE-SPEC-REF.md) — every key and type
-- [`PROMPT.md`](PROMPT.md) — if you would rather a model wrote the spec
+- [`INSTALL.md`](INSTALL.md): every platform
+- [`USAGE.md`](USAGE.md): the day-to-day loop
+- [`GUIDE-SPEC-REF.md`](GUIDE-SPEC-REF.md): every key and type
+- [`PROMPT.md`](PROMPT.md): if you would rather a model wrote the spec

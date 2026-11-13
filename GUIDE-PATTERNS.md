@@ -1,6 +1,6 @@
-# Guide — choosing an archetype
+# Guide: choosing an archetype
 
-> **TL;DR** — an archetype is the shape of the app. Pick it before you write the spec;
+> **TL;DR**: an archetype is the shape of the app. Pick it before you write the spec;
 > the pattern decides which capabilities and fields are required, and `kiln verify` fails
 > a spec that does not satisfy the one it names.
 
@@ -15,7 +15,7 @@
 | a list of things that get done | `checklist` |
 | one calculation, no list | `calculator` |
 
-If none of those fit, the app probably needs an archetype that does not exist yet — see
+If none of those fit, the app probably needs an archetype that does not exist yet; see
 [`docs/PATTERNS.md`](docs/PATTERNS.md) for the 17 seeded shapes and their trade-offs, and
 [`GUIDE-CONTRIBUTE.md`](GUIDE-CONTRIBUTE.md) for what adding one costs.
 
@@ -60,6 +60,6 @@ or in a spec:
 
 ## Links
 
-- [`docs/PATTERNS.md`](docs/PATTERNS.md) — every archetype, with pros, cons and derived numbers
-- [`GUIDE-FEATURES.md`](GUIDE-FEATURES.md) — capabilities and the registry
-- [`specs/gallery/`](specs/gallery) — one working spec per archetype
+- [`docs/PATTERNS.md`](docs/PATTERNS.md): every archetype, with pros, cons and derived numbers
+- [`GUIDE-FEATURES.md`](GUIDE-FEATURES.md): capabilities and the registry
+- [`specs/gallery/`](specs/gallery): one working spec per archetype

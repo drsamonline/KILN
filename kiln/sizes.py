@@ -21,7 +21,7 @@ CLAIMS = {
     "README.md": [
         (r"generated%20app-(\d+)%20KB", "app"),
         (r"one `index\.html` \(~(\d+) KB\)", "app"),
-        (r"KILN Studio — (\d+) KB", "studio"),
+        (r"KILN Studio: (\d+) KB", "studio"),
         (r"typically \d+–\d+ KB", "band"),
     ],
     "index.html": [
@@ -85,7 +85,7 @@ def rewrite(text: str, m: dict) -> str:
     subs = [
         (r"generated%20app-\d+%20KB", f"generated%20app-{m['app']}%20KB"),
         (r"one `index\.html` \(~\d+ KB\)", f"one `index.html` (~{m['app']} KB)"),
-        (r"KILN Studio — \d+ KB", f"KILN Studio — {m['studio']} KB"),
+        (r"KILN Studio: \d+ KB", f"KILN Studio: {m['studio']} KB"),
         (r"typically \d+–\d+ KB", f"typically {lo}–{hi} KB"),
         (r"A generated app — \d+ KB", f"A generated app — {m['app']} KB"),
         (r"copy `studio\.html` \(\d+ KB\)", f"copy `studio.html` ({m['studio']} KB)"),

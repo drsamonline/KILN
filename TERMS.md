@@ -11,8 +11,8 @@ the documentation, and the applications it generates.
 
 KILN is licensed, not sold. The software is made available under the
 **PolyForm Noncommercial License 1.0.0** (see [`LICENSE`](LICENSE)). Noncommercial use is
-permitted on those terms. Any commercial use — selling it, bundling it into a paid product,
-or using it to deliver paid work — requires a separate written licence
+permitted on those terms. Any commercial use, selling it, bundling it into a paid product,
+or using it to deliver paid work, requires a separate written licence
 (see [`COMMERCIAL.md`](COMMERCIAL.md)).
 
 ## 2. Editions and attribution
