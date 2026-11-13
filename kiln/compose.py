@@ -71,6 +71,8 @@ def plan(spec, catalog, tier="personal", licensee="", with_docs=False) -> list[d
         "crosstab": spec.get("crosstab"),
         "compute": spec.get("compute"),
         "running": spec.get("running"),
+        "split": spec.get("split"),
+        "versus": spec.get("versus"),
         "features": features,
         "entities": spec["entities"],
         "assertions": [catalog["features"][f]["assertion"] for f in features],

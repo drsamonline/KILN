@@ -1,0 +1,35 @@
+{
+  "id": "comparison-of-records",
+  "name": "Comparison of records",
+  "archetype": 24,
+  "status": "emitted",
+  "descriptor": "Pick two records, and see them field by field, with the better value in each row marked.",
+  "view": "two pickers + table",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "versus", "theme"],
+  "requires_fields": ["text"],
+  "requires_keys": ["versus"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "versus", "search", "export", "theme"]},
+  "verify_checks": [
+    "pattern comparison-of-records: required features present",
+    "versus: the pickers are emitted",
+    "versus: the better value is marked",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/comparison-of-records.md",
+  "screenshot": "docs/gallery/comparison-of-records.png",
+  "pros": [
+    "two records, every field, no scrolling between cards",
+    "matching fields are called out, so the eye goes to the differences",
+    "the better numeric value is marked, and a tie marks neither",
+    "it is a picker, so it works on any two records without a spec change"
+  ],
+  "cons": [
+    "two records at a time, not three",
+    "the better direction must be stated per field: a rating and a price do not both improve downward",
+    "no weighting, no verdict",
+    "long text fields are truncated to keep the table readable"
+  ],
+  "best_for": "choosing between two options you already have",
+  "avoid_if": "you need to score or rank many records"
+}

@@ -1060,6 +1060,78 @@ amount. A missing amount leaves the balance where it was.
 
 ---
 
+## splitter
+
+| | |
+|---|---|
+| Archetype | 12 |
+| Status | **emitted** |
+| View | the list, with a share per row |
+| Requires | `crud`, `split`, `theme` |
+| Requires fields | a `text`, a `number` |
+| Spec keys | `pattern`, `split.total`, `split.weight` |
+| Sample | [`specs/gallery/splitter.md`](../specs/gallery/splitter.md) |
+| Screenshot | [`docs/gallery/splitter.png`](gallery/splitter.png) |
+
+**Pros**
+
+- the parts always add up to the whole: largest-remainder, not naive rounding
+- a weight of zero is a real case and is handled
+- the total is one number in the spec, so changing it re-splits everything
+- it prints a fair bill with no argument about the last rupee
+
+**Cons**
+
+- one total per app, not per row
+- no rounding to whole rupees or to a minimum unit
+- weights are numbers you type, not percentages that must add to 100
+- no tax, no tip, no adjustment lines
+
+**Best for:** splitting one bill across people by how much they had.
+
+**Avoid if:** each person's share must be a round number.
+
+**The rule:** every share is floored, and the leftover units go to the largest fractional parts
+in order, so the shares sum to the total exactly. A negative or missing weight is zero.
+
+---
+
+## comparison-of-records
+
+| | |
+|---|---|
+| Archetype | 24 |
+| Status | **emitted** |
+| View | two pickers and a field-by-field table |
+| Requires | `crud`, `versus`, `theme` |
+| Requires fields | a `text` |
+| Spec keys | `pattern`, `versus.fields`, `versus.better` |
+| Sample | [`specs/gallery/comparison-of-records.md`](../specs/gallery/comparison-of-records.md) |
+| Screenshot | [`docs/gallery/comparison-of-records.png`](gallery/comparison-of-records.png) |
+
+**Pros**
+
+- two records, every field, no scrolling between cards
+- matching fields are dimmed, so the eye goes to the differences
+- the better value is marked only where the spec says which way is better
+- it is a picker, so it works on any two records without a spec change
+
+**Cons**
+
+- two records at a time, not three
+- the direction must be stated per field: a rating and a price do not both improve downward
+- no weighting, no verdict
+- text fields are never marked, only numeric ones
+
+**Best for:** choosing between two options you already have.
+
+**Avoid if:** you need to score or rank many records.
+
+**The rule:** nothing is marked unless `versus.better` says `lower` or `higher` for that field.
+A field where both agree is dimmed; text is never marked.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -1099,6 +1171,8 @@ spec naming it fails verification rather than silently building something else.
 | grid | two dimensions | cramped past eight columns | **emitted** |
 | formula-app | a computed column | one formula per app | **emitted** |
 | register | a statement that adds up | no reconciliation | **emitted** |
+| splitter | a fair split | no round shares | **emitted** |
+| comparison-of-records | two options, one screen | two at a time | **emitted** |
 | Print / Report | shareable artefact | layout brittle across browsers | planned |
 
 ---

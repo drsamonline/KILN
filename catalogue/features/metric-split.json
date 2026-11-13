@@ -1,0 +1,11 @@
+{
+  "id": "metric-split",
+  "family": "F7",
+  "name": "split",
+  "spec_keys": ["features[]", "split.total", "split.weight"],
+  "emitter_hook": "templates/app/index.html::splitOf",
+  "verify_check": "an amount of 100 split by 1, 1 and 1 shows 34, 33 and 33",
+  "docs_anchor": "docs/PATTERNS.md#splitter",
+  "status": "emitted",
+  "note": "largest-remainder apportionment: the parts always add up to the whole, exactly"
+}

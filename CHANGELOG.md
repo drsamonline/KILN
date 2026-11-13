@@ -4,6 +4,20 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.0 — 2026-11-13
+
+The last two archetypes, and the catalogue is complete.
+
+| Area | Change |
+|---|---|
+| Archetype | `splitter` — one amount divided by weight, using **largest-remainder** apportionment, so the parts add up to the whole exactly |
+| Archetype | `comparison-of-records` — two pickers and a field-by-field table |
+| Capabilities | `split` and `versus` — 50 in total |
+| Registry | `metric-split` and `view-versus` — 84 entries |
+| **Honesty** | the first cut marked the *lower* number as better in every field, which marked a 4 as better than a 5 on a rating. The direction is now stated per field in `versus.better`, and **nothing** is marked unless the spec says which way is better |
+| Version | 1.0.0: **all 24 archetypes emitted**, 30 sample specs, 33 verifying |
+| Counts | 463 tests, 450 guards |
+
 ## v0.28 — 2026-11-13
 
 Two archetypes in one batch: `formula-app` and `register`.

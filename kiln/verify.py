@@ -199,6 +199,19 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "split" in model["features"]:
+        res.add("L5", "split: the apportionment is emitted", "function splitOf(" in html)
+        res.add("L5", "split: it is largest remainder", "left -= 1" in html)
+        res.add("L5", "split: the config reached the model",
+                bool((model.get("split") or {}).get("weight")))
+    if "versus" in model["features"]:
+        res.add("L5", "versus: the pickers are emitted", '"vs_" + which' in html)
+        res.add("L5", "versus: the field comparison is emitted", "function comparePair(" in html)
+        res.add("L5", "versus: the better value is marked", 'className = "win"' in html)
+        res.add("L5", "versus: the direction is stated, not guessed",
+                "dir[f]" in html and "MODEL.versus.better" in html)
+        res.add("L5", "versus: the config reached the model",
+                len((model.get("versus") or {}).get("fields", [])) >= 2)
     if "compute" in model["features"]:
         res.add("L5", "compute: the formula is evaluated per row", "evalFormula(MODEL.compute.formula" in html)
         res.add("L5", "compute: the parser is emitted", "function evalFormula(" in html)

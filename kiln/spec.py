@@ -93,6 +93,7 @@ NEEDS_KEY = {
     "report": "report", "decide": "decide",
     "tally": "tally", "crosstab": "crosstab",
     "compute": "compute", "running": "running",
+    "split": "split", "versus": "versus",
     "dashboard": "dashboard", "multi": "entities",
 }
 
@@ -198,6 +199,45 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
         p.append("the 'multi' capability needs at least two entities")
     if len(ents) > 1 and "multi" not in (spec.get("features") or []):
         p.append(f"{len(ents)} entities need the 'multi' capability in features")
+
+    if "split" in spec:
+        sp = spec["split"]
+        if not isinstance(sp, dict):
+            p.append("split must be an object")
+        else:
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            w = sp.get("weight")
+            if w not in types:
+                p.append(f"split.weight '{w}' is not a field on any entity")
+            elif types[w]["type"] != "number":
+                p.append("split.weight must be a number field")
+            tot = sp.get("total")
+            if not isinstance(tot, int) or tot <= 0:
+                p.append("split.total must be a positive integer, in cents or whole units")
+
+    if "versus" in spec:
+        vs = spec["versus"]
+        if not isinstance(vs, dict):
+            p.append("versus must be an object")
+        else:
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            flds = vs.get("fields")
+            if not isinstance(flds, list) or len(flds) < 2:
+                p.append("versus.fields must name at least two fields")
+                flds = []
+            for name in flds:
+                if name not in types:
+                    p.append(f"versus.fields names a field that does not exist: {name}")
+            bet = vs.get("better")
+            if bet is not None:
+                if not isinstance(bet, dict):
+                    p.append("versus.better must be an object of field: lower|higher")
+                else:
+                    for k, v in bet.items():
+                        if k not in flds:
+                            p.append(f"versus.better names '{k}', which is not in versus.fields")
+                        if v not in ("lower", "higher"):
+                            p.append(f"versus.better.{k} must be lower or higher")
 
     if "compute" in spec:
         cp2 = spec["compute"]

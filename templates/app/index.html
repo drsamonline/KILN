@@ -77,6 +77,15 @@
   /* @only tally */
   .d.lead{color:var(--ok)}
   /* @end only */
+  /* @only versus */
+  #versus{margin:0 0 14px;overflow-x:auto}
+  #versus table{border-collapse:collapse;width:100%;font-size:13px}
+  #versus th,#versus td{border-bottom:1px solid var(--line);padding:9px 11px;text-align:left}
+  #versus th{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+  #versus td.k{color:var(--muted)}
+  #versus tr.same td{opacity:.55}
+  #versus td.win{color:var(--ok);font-weight:700}
+  /* @end only */
   /* @only crosstab */
   #cross{margin:0 0 14px;overflow-x:auto}
   #cross table{border-collapse:collapse;font-size:13px;min-width:100%}
@@ -327,6 +336,9 @@
   <!-- @end only -->
   <!-- @only calendar -->
   <section id="cal" aria-label="calendar"></section>
+  <!-- @end only -->
+  <!-- @only versus -->
+  <section id="versus" aria-label="comparison"></section>
   <!-- @end only -->
   <!-- @only crosstab -->
   <section id="cross" aria-label="crosstab"></section>
@@ -1098,6 +1110,58 @@ function runningTotal(rows, field, dateField) {
 }
 /* run:end */
 
+/* ---------- apportion one amount by weight ----------
+   Pure: rows, a weight field and a total in cents; a share per row that adds up.
+   Largest remainder, so rounding can never lose or invent a unit. split:start */
+function splitOf(rows, weightField, total) {
+  const T = Math.round(Number(total) || 0);
+  const weights = rows.map((r) => {
+    const w = Number(r[weightField]);
+    return isFinite(w) && w > 0 ? w : 0;
+  });
+  const sumW = weights.reduce((a, b) => a + b, 0);
+  if (sumW === 0) {
+    return rows.map((r) => ({id: r.id, share: 0, pct: 0, weight: 0}));
+  }
+  const exact = weights.map((w) => (T * w) / sumW);
+  const floors = exact.map((v) => Math.floor(v));
+  let left = T - floors.reduce((a, b) => a + b, 0);
+  const order = exact.map((v, i) => ({i: i, frac: v - Math.floor(v)}))
+    .sort((a, b) => (b.frac - a.frac) || (a.i - b.i));
+  for (let k = 0; k < order.length && left > 0; k++) {
+    floors[order[k].i] += 1;
+    left -= 1;
+  }
+  return rows.map((r, i) => ({
+    id: r.id,
+    share: floors[i],
+    pct: Math.round((weights[i] / sumW) * 100),
+    weight: weights[i]
+  }));
+}
+/* split:end */
+
+/* ---------- two records, field by field ----------
+   Pure: two records and the fields to compare; one line per field. versus:start */
+function comparePair(a, b, fields, directions) {
+  const dir = directions || {};
+  return fields.map((f) => {
+    const av = a ? a[f] : undefined;
+    const bv = b ? b[f] : undefined;
+    const same = String(av === undefined ? "" : av) === String(bv === undefined ? "" : bv);
+    let better = null;
+    /* nothing is marked unless the spec says which way is better */
+    if (!same && dir[f]) {
+      const na = Number(av), nb = Number(bv);
+      if (isFinite(na) && isFinite(nb) && na !== nb) {
+        better = dir[f] === "lower" ? (na < nb ? "a" : "b") : (na > nb ? "a" : "b");
+      }
+    }
+    return {field: f, a: av, b: bv, same: same, better: better};
+  });
+}
+/* versus:end */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -1426,6 +1490,77 @@ function renderComparison() {
     table.appendChild(tr);
   }
   box.innerHTML = "";
+  box.appendChild(table);
+}
+/* @end only */
+
+/* @only versus */
+function renderVersus() {
+  const box = $("#versus");
+  if (!MODEL.versus) return;
+  box.hidden = false;
+  const items = visible();
+  if (items.length < 2) {
+    box.innerHTML = "";
+    box.appendChild(el("p", "hint", "Two records are needed to compare."));
+    return;
+  }
+  const pick = (which, fallback) => {
+    const sel = document.createElement("select");
+    sel.id = "vs_" + which;
+    sel.setAttribute("aria-label", "record " + which);
+    for (const r of items) {
+      const o = document.createElement("option");
+      o.value = r.id;
+      o.textContent = String(r[FIELDS[0].name] || r.id);
+      sel.appendChild(o);
+    }
+    sel.value = versusPicks[which] || fallback;
+    sel.onchange = () => { versusPicks[which] = sel.value; render(); };
+    return sel;
+  };
+  const left = pick("a", items[0].id);
+  const right = pick("b", items[1].id);
+  const a = items.find((r) => r.id === left.value) || items[0];
+  const b = items.find((r) => r.id === right.value) || items[1];
+  const rows2 = comparePair(a, b, MODEL.versus.fields || FIELDS.slice(1).map((f) => f.name),
+    MODEL.versus.better || {});
+  const table = document.createElement("table");
+  const head = document.createElement("tr");
+  for (const h of ["field", String(a[FIELDS[0].name] || "A"), String(b[FIELDS[0].name] || "B")]) {
+    const th = document.createElement("th");
+    th.textContent = h;
+    head.appendChild(th);
+  }
+  table.appendChild(head);
+  for (const row of rows2) {
+    const tr = document.createElement("tr");
+    if (row.same) tr.className = "same";
+    const label = FIELDS.find((f) => f.name === row.field);
+    const c0 = document.createElement("td");
+    c0.className = "k";
+    c0.textContent = (label && label.label) || row.field;
+    tr.appendChild(c0);
+    for (const side of ["a", "b"]) {
+      const td = document.createElement("td");
+      const v = side === "a" ? row.a : row.b;
+      td.textContent = v === undefined || v === null ? "—"
+        : Array.isArray(v) ? v.join(", ")
+        : (label && label.type === "currency_cents") ? money(v)
+        : (label && label.type === "duration") ? fmtDuration(v)
+        : String(v);
+      if (row.better === side) td.className = "win";
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+  box.innerHTML = "";
+  const bar = document.createElement("div");
+  bar.className = "row";
+  bar.style.margin = "0 0 10px";
+  bar.appendChild(left);
+  bar.appendChild(right);
+  box.appendChild(bar);
   box.appendChild(table);
 }
 /* @end only */
@@ -1766,6 +1901,10 @@ function renderBoard() {
 }
 /* @end only */
 
+/* @only versus */
+const versusPicks = {a: "", b: ""};
+/* @end only */
+
 /* @only quiz */
 let quizState = null;
 /* @end only */
@@ -1931,6 +2070,15 @@ function renderStrip() {
   }
   /* @end only */
 
+  /* @only split */
+  if (MODEL.split) {
+    const parts = splitOf(rows, MODEL.split.weight, MODEL.split.total);
+    let given = 0;
+    for (const p of parts) given += p.share;
+    bits.push("<span><b>" + esc(money(given)) + "</b> of " + esc(money(MODEL.split.total)) + "</span>");
+    bits.push("<span><b>" + parts.length + "</b> shares</span>");
+  }
+  /* @end only */
   /* @only compute */
   if (MODEL.compute) {
     let total = 0, bad = 0;
@@ -2045,6 +2193,9 @@ function render() {
   paintBanners();
   const list = $("#list");
   let items = visible();
+  /* @only versus */
+  if (MODEL.versus && typeof renderVersus === "function") renderVersus();
+  /* @end only */
   /* @only crosstab */
   if (MODEL.crosstab && typeof renderCrosstab === "function") renderCrosstab();
   /* @end only */
@@ -2149,6 +2300,14 @@ function render() {
       title.innerHTML = esc(r[FIELDS[0].name] || "(untitled)");
     }
     body.appendChild(title);
+    /* @only split */
+    if (MODEL.split) {
+      const parts = splitOf(rows, MODEL.split.weight, MODEL.split.total);
+      const mine = parts.find((p) => p.id === r.id) || {share: 0, pct: 0};
+      body.appendChild(el("div", "d",
+        "share " + money(mine.share) + " · " + mine.pct + "%"));
+    }
+    /* @end only */
     /* @only compute */
     if (MODEL.compute) {
       const vars = {};

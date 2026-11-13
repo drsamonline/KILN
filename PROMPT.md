@@ -86,6 +86,11 @@ FIELD RULES
   Include the steps feature.
 - If the work MOVES THROUGH STAGES (new → done), use "pattern": "kanban" with
   "board": {"field": "<select field>"}. The columns are that field's options, in order.
+- If ONE AMOUNT must be shared out, use "pattern": "splitter" with
+  "split": {"weight": "<number field>", "total": <positive integer>}.
+- If the app COMPARES TWO RECORDS, use "pattern": "comparison-of-records" with
+  "versus": {"fields": [...], "better": {"price": "lower", "rating": "higher"}}.
+  State the direction per field: never assume.
 - If a column is COMPUTED from other columns, use "pattern": "formula-app" with
   "compute": {"inputs": ["a", "b"], "formula": "a * b"}. Include formula and compute.
 - If the app is a STATEMENT that adds up, use "pattern": "register" with
@@ -196,6 +201,8 @@ FEATURE CATALOGUE — the only features that exist
 | crosstab | two dimensions at once, with counts | crud |
 | compute | a formula evaluated over each row's own fields | crud, formula |
 | running | a running balance in date order | crud |
+| split | one amount divided across rows by weight | crud |
+| versus | two records side by side | crud |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees

@@ -1,0 +1,35 @@
+{
+  "id": "splitter",
+  "name": "Splitter",
+  "archetype": 12,
+  "status": "emitted",
+  "descriptor": "One amount, divided across rows by weight, where the parts add up to the whole exactly.",
+  "view": "list + shares",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "split", "theme"],
+  "requires_fields": ["text", "number"],
+  "requires_keys": ["split"],
+  "spec_defaults": {"tier": 1, "features": ["crud", "split", "export", "theme"]},
+  "verify_checks": [
+    "pattern splitter: required features present",
+    "split: the apportionment is emitted",
+    "split: the parts add up to the whole",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/splitter.md",
+  "screenshot": "docs/gallery/splitter.png",
+  "pros": [
+    "the parts always add up to the whole: largest-remainder, not naive rounding",
+    "a weight of zero is a real case and is handled",
+    "the total is one number in the spec, so changing it re-splits everything",
+    "it prints a fair bill with no argument about the last rupee"
+  ],
+  "cons": [
+    "one total per app, not per row",
+    "no rounding to whole rupees or to a minimum unit",
+    "weights are numbers you type, not percentages that must add to 100",
+    "no tax, no tip, no adjustment lines"
+  ],
+  "best_for": "splitting one bill across people by how much they had",
+  "avoid_if": "each person's share must be a round number"
+}

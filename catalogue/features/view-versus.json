@@ -1,0 +1,11 @@
+{
+  "id": "view-versus",
+  "family": "F4",
+  "name": "versus",
+  "spec_keys": ["features[]", "versus.fields"],
+  "emitter_hook": "templates/app/index.html::renderVersus",
+  "verify_check": "two records differing on a price show which is cheaper",
+  "docs_anchor": "docs/PATTERNS.md#comparison-of-records",
+  "status": "emitted",
+  "note": "two pickers and a field-by-field table, with the better value marked"
+}

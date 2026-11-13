@@ -778,6 +778,40 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "three entries of 500, -200 and -100 show 500, 300 and 200 as balances"
+    },
+    "split": {
+      "label": "One amount divided across rows by weight, with nothing lost to rounding",
+      "aliases": [
+        "split",
+        "share the bill",
+        "apportion",
+        "divide by weight",
+        "who owes what"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "an amount of 100 split by 1, 1 and 1 shows 34, 33 and 33"
+    },
+    "versus": {
+      "label": "Two records side by side, field by field",
+      "aliases": [
+        "compare two",
+        "versus",
+        "side by side",
+        "which of these two",
+        "head to head"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "two records differing on a price show which is cheaper and which fields match"
     }
   }
 }

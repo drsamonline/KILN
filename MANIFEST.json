@@ -25,8 +25,8 @@
     "kits": 5
   },
   "verification": {
-    "tests": 444,
-    "guards": 430,
+    "tests": 463,
+    "guards": 450,
     "ci": ".github/workflows/kiln.yml"
   },
   "topics": [
@@ -79,7 +79,7 @@
       "F12",
       "F14"
     ],
-    "entries": 82,
+    "entries": 84,
     "patterns": "catalogue/patterns/",
     "archetypes_emitted": [
       "crud-list",
@@ -109,8 +109,11 @@
       "voting",
       "grid",
       "formula-app",
-      "register"
-    ]
+      "register",
+      "splitter",
+      "comparison-of-records"
+    ],
+    "archetypes_total": 24
   },
   "guides": {
     "count": 8,
