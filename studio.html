@@ -342,7 +342,7 @@ function buildApp(spec) {
   const ent = spec.entities[0];
   const canonModel = canon(model);
   const build = {
-    tier: "free", version: "0.11.0", fp: fnv(canonModel), spec: spec.id,
+    tier: "free", version: "0.12.0", fp: fnv(canonModel), spec: spec.id,
     licensee: "", licence: LICENCE,
     licence_url: "https://polyformproject.org/licenses/noncommercial/1.0.0/",
     home: "https://github.com/drsamonline/KILN",
@@ -363,7 +363,7 @@ function buildApp(spec) {
     NOT: spec.not.map((n) => "- " + n).join("\n"),
     LICENCE: LICENCE, LICENCE_ID: "PolyForm-Noncommercial-1.0.0",
     SPEC_PATH: spec.id + ".md",
-    KILN_VERSION: "0.11.0", TIER: "free", FINGERPRINT: build.fp,
+    KILN_VERSION: "0.12.0", TIER: "free", FINGERPRINT: build.fp,
     YEAR: String(new Date().getFullYear()), OWNER: "Dr Sohil Momin",
     LICENCE_URL: build.licence_url,
     BUILD_JSON: JSON.stringify(build, null, 2),

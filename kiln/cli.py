@@ -11,7 +11,7 @@ from pathlib import Path
 
 from . import adopt as adoptmod
 from . import catalog as cat
-from . import compose, demo as demomod, emit, guards, intent
+from . import compose, demo as demomod, emit, guards, guide as guidemod, intent
 from . import licence as lic
 from . import prose
 from . import prompt as promptmod
@@ -213,6 +213,23 @@ def cmd_adopt(args, catalog) -> int:
         _, out, ok = _build(dest, catalog, args.out_dir or ROOT / "out")
         return 0 if ok else 1
     print("next: python3 -m kiln build " + str(dest))
+    return 0
+
+
+def cmd_guide(args, catalog) -> int:
+    """Regenerate the two guides that are written from the catalogue."""
+    if args.check:
+        want = guidemod.build(catalog)
+        stale = [n for n, text in want.items()
+                 if not (ROOT / n).exists() or (ROOT / n).read_text(encoding="utf-8") != text]
+        if stale:
+            print("stale: " + ", ".join(stale))
+            print("run: python3 -m kiln guide")
+            return 1
+        print(f"{len(want)} guides are current")
+        return 0
+    for p in guidemod.write(catalog):
+        print(f"wrote {p.relative_to(ROOT)}  ({p.stat().st_size} bytes)")
     return 0
 
 
@@ -481,6 +498,10 @@ def main(argv=None) -> int:
     p = sub.add_parser("demo", help="build demo.html, a real app inlined in a page")
     p.add_argument("-o", "--out")
     p.set_defaults(fn=cmd_demo)
+
+    p = sub.add_parser("guide", help="regenerate the generated guides")
+    p.add_argument("--check", action="store_true", help="fail if a guide is stale")
+    p.set_defaults(fn=cmd_guide)
 
     p = sub.add_parser("studio", help="build studio.html, the browser version")
     p.add_argument("-o", "--out")

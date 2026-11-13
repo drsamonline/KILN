@@ -25,8 +25,8 @@
     "kits": 5
   },
   "verification": {
-    "tests": 163,
-    "guards": 157,
+    "tests": 173,
+    "guards": 178,
     "ci": ".github/workflows/kiln.yml"
   },
   "topics": [
@@ -82,5 +82,13 @@
       "checklist",
       "calculator"
     ]
+  },
+  "guides": {
+    "count": 6,
+    "generated": [
+      "GUIDE-SPEC-REF.md",
+      "GUIDE-FEATURES.md"
+    ],
+    "command": "python3 -m kiln guide"
   }
 }

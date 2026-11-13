@@ -2,6 +2,12 @@
 
 | Document | Answers |
 |---|---|
+| [GUIDE-QUICKSTART.md](../GUIDE-QUICKSTART.md) | five minutes: clone, build, open |
+| [GUIDE-SPEC-REF.md](../GUIDE-SPEC-REF.md) | every key, type and rule — **generated** |
+| [GUIDE-FEATURES.md](../GUIDE-FEATURES.md) | capabilities and the registry — **generated** |
+| [GUIDE-COOKBOOK.md](../GUIDE-COOKBOOK.md) | one recipe per archetype |
+| [GUIDE-PATTERNS.md](../GUIDE-PATTERNS.md) | choosing an archetype |
+| [GUIDE-CONTRIBUTE.md](../GUIDE-CONTRIBUTE.md) | the five touches for a capability |
 | [USAGE.md](../USAGE.md) | how do I build an app, start to finish |
 | [INSTALL.md](../INSTALL.md) | what do I need, on this machine or a phone |
 | [SPEC-REFERENCE.md](SPEC-REFERENCE.md) | every key, type, feature and rule in a spec |

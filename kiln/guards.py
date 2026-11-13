@@ -420,6 +420,37 @@ def check_counts() -> list[Row]:
     return rows
 
 
+# --------------------------------------------------- C17 the guides are current
+GUIDES = ["GUIDE-QUICKSTART.md", "GUIDE-SPEC-REF.md", "GUIDE-COOKBOOK.md",
+          "GUIDE-PATTERNS.md", "GUIDE-FEATURES.md", "GUIDE-CONTRIBUTE.md"]
+
+
+def check_guides(catalog) -> list[Row]:
+    """§7: eight guides, two of them generated. A stale guide is a lie."""
+    from . import guide as guidemod
+    rows = []
+    for name in GUIDES:
+        p = ROOT / name
+        rows.append(Row(f"C17 {name} exists", p.exists() and p.stat().st_size > 400))
+    want = guidemod.build(catalog)
+    for name, text in want.items():
+        p = ROOT / name
+        if not p.exists():
+            rows.append(Row(f"C17 {name} is generated", False, "missing"))
+            continue
+        current = p.read_text(encoding="utf-8") == text
+        rows.append(Row(f"C17 {name} matches its sources", current,
+                        "" if current else "stale, run: python3 -m kiln guide"))
+    for name in GUIDES:
+        p = ROOT / name
+        if not p.exists():
+            continue
+        text = p.read_text(encoding="utf-8")
+        rows.append(Row(f"C17 {name} opens with a TL;DR", "TL;DR" in text.split("---")[0]))
+        rows.append(Row(f"C17 {name} ends with links", "## Links" in text))
+    return rows
+
+
 # ------------------------------------------------- C12 licensing and watermark
 def check_licensing() -> list[Row]:
     """The tiers must exist in code, be documented, and leave no private key behind."""
@@ -579,6 +610,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_registry(catalog)
     rows += check_patterns(catalog)
     rows += check_counts()
+    rows += check_guides(catalog)
     rows += check_licensing()
     rows += check_gallery(catalog)
     rows += check_runs()

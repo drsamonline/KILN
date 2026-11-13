@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.12 — 2026-11-13
+
+Phase B2 and B3: the guides. Two of the six are generated, so they cannot drift.
+
+| Area | Change |
+|---|---|
+| B2 | `GUIDE-SPEC-REF.md` and `GUIDE-FEATURES.md` are written from `catalogue/` and `kiln/spec.py` by `kiln guide`. Every capability, field type, archetype and registry family appears because it exists, not because someone remembered |
+| B3 | `GUIDE-QUICKSTART.md`, `GUIDE-COOKBOOK.md`, `GUIDE-PATTERNS.md`, `GUIDE-CONTRIBUTE.md` |
+| Command | `kiln guide` regenerates, `kiln guide --check` fails on a stale file |
+| Guard | `C17`: six guides exist, both generated ones match their sources, each opens with a TL;DR and ends with links |
+| Cookbook | four buildable recipes, twenty-six named and marked as not written — the same honesty the registry applies to features |
+| Counts | 173 tests, 178 guards |
+
 ## v0.11 — 2026-11-13
 
 Phase B, third archetype: `calculator`. The first app with no entity.
