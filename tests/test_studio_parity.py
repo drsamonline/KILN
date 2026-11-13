@@ -71,6 +71,25 @@ class TestStudioCarriesItsSources(unittest.TestCase):
     def test_the_feature_grid_scrolls_so_the_build_button_stays_reachable(self):
         self.assertIn("#features{max-height", self.html)
 
+    def test_the_form_tab_is_not_called_build(self):
+        """A tab and a button both labelled Build is the only ambiguity on the page."""
+        self.assertIn('id="tab-build" aria-selected="true">Form<', self.html)
+        self.assertNotIn('id="tab-build" aria-selected="true">Build<', self.html)
+
+    def test_hint_text_is_at_least_thirteen_pixels(self):
+        self.assertIn(".hint{color:var(--muted);font-size:13px}", self.html)
+
+    def test_the_feature_grid_reads_as_scrollable(self):
+        self.assertIn("mask-image:linear-gradient", self.html)
+        self.assertIn("#features:focus-within{mask-image:none", self.html)
+
+    def test_the_accent_shows_its_value(self):
+        self.assertIn('id="accenthex"', self.html)
+        self.assertIn('$("#accenthex")', self.html)
+
+    def test_features_are_one_per_row_on_a_phone(self):
+        self.assertIn("@media (max-width:520px){ #features{grid-template-columns:1fr} }", self.html)
+
     def test_it_says_which_edition_it_builds(self):
         self.assertIn("Personal edition", self.html)
 

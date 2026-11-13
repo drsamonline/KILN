@@ -4,6 +4,25 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.6 — 2026-11-14
+
+A HIG critique of the studio, and the four findings that held up.
+
+| Finding | Fix |
+|---|---|
+| a **Build** tab and a **Build app** button: two things, one name | the tab is now **Form** — the three tabs are the three ways in, and the button is the one action |
+| the feature grid clipped a row mid-word, which reads as broken rather than scrollable | a mask fade at the bottom edge, removed on focus-within so keyboard users are not cut off |
+| the accent was a bare colour block | it shows its value: `#4ADE80` beside the swatch, updated as you pick |
+| two feature cards per row at 390 px wrapped a label to three lines | one per row below 520 px |
+
+| Claim I made and then withdrew | Measured |
+|---|---|
+| "hint text sits near 3:1" | **7.33:1** on `--bg`, 6.76:1 on `--panel`. The contrast passes WCAG AA. The real defect was **size**, not colour: 12 px raised to 13 px |
+
+| Tests | 6 new, one per finding |
+|---|---|
+| Counts | 501 tests, 452 guards |
+
 ## v1.0.5 — 2026-11-14
 
 The commercial edition, exercised end to end for the first time.

@@ -49,7 +49,7 @@ fails if they drift.
 | Install the result | open the downloaded `index.html`, *Add to Home Screen* |
 | Network | none, at any point |
 
-The studio is 208 KB and carries the catalogue and the runtime inside it. It has no
+The studio is 209 KB and carries the catalogue and the runtime inside it. It has no
 build step and no service worker, because a local file needs neither.
 
 ---
@@ -100,6 +100,6 @@ than three binaries that each need a build.
 | Artifact | Target | Actual |
 |---|---|---|
 | `index.html` (generated app) | under 100 KB | 50 KB |
-| `studio.html` | under 300 KB | 208 KB |
+| `studio.html` | under 300 KB | 209 KB |
 | KILN source | under 400 KB | 210 KB |
 | Whole repo with history | under 1 MB | 0.3 MB |
