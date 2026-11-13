@@ -199,6 +199,16 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "balance" in model["features"]:
+        res.add("L5", "balance: the balance maths is emitted", "function balanceOf(" in html)
+        res.add("L5", "balance: the reorder flag is emitted", "to reorder" in html)
+        res.add("L5", "balance: the config reached the model",
+                bool((model.get("balance") or {}).get("field")))
+    if "timeline" in model["features"]:
+        res.add("L5", "timeline: the grouping is emitted", "function groupByMonth(" in html)
+        res.add("L5", "timeline: the view is emitted", "function renderTimeline(" in html)
+        res.add("L5", "timeline: the config reached the model",
+                bool((model.get("timeline") or {}).get("field")))
     if "relation" in model["features"]:
         res.add("L5", "relation: the lookup select is emitted",
                 'f.type === "lookup"' in html)

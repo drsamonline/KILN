@@ -86,6 +86,11 @@ FIELD RULES
   Include the steps feature.
 - If the work MOVES THROUGH STAGES (new → done), use "pattern": "kanban" with
   "board": {"field": "<select field>"}. The columns are that field's options, in order.
+- If the app COUNTS STOCK (items and movements), use "pattern": "inventory" with a
+  signed numeric field on the child and "balance": {"master", "child", "field", "lookup",
+  "reorder"}. The balance is derived, never stored.
+- If the app is a HISTORY read backwards, use "pattern": "timeline" with
+  "timeline": {"field": "<date field>"}. One heading per month, newest first.
 - If a child BELONGS TO a parent (a visit belongs to a patient), use
   "pattern": "master-detail" with a field of type "lookup" carrying "entity": "<parent>",
   and "master_detail": {"master": "patient", "child": "visit", "field": "patient"}.
@@ -154,6 +159,8 @@ FEATURE CATALOGUE — the only features that exist
 | multi | more than one list in one app | crud |
 | dashboard | a strip of metric cards | crud, multi |
 | relation | a field pointing at a record in another list | crud, multi |
+| balance | a running balance per parent, from its children | crud, multi, relation |
+| timeline | the list grouped by month, newest first | crud |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees

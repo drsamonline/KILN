@@ -1,0 +1,35 @@
+{
+  "id": "timeline",
+  "name": "Timeline",
+  "archetype": 16,
+  "status": "emitted",
+  "descriptor": "The same list, grouped by month with a heading per month, newest first.",
+  "view": "grouped list",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "timeline", "theme"],
+  "requires_fields": ["date"],
+  "requires_keys": ["timeline"],
+  "spec_defaults": {"tier": 1, "features": ["crud", "timeline", "search", "sort", "export", "theme"]},
+  "verify_checks": [
+    "pattern timeline: required features present",
+    "timeline: the grouping is emitted",
+    "timeline: the headings are emitted",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/timeline.md",
+  "screenshot": "docs/gallery/timeline.png",
+  "pros": [
+    "months are how people remember, so the list reads like a history",
+    "a heading per month costs almost nothing and saves a lot of scanning",
+    "it is the same records as the plain list, seen differently",
+    "an empty month simply does not appear"
+  ],
+  "cons": [
+    "no year headings, so a long history is a long scroll",
+    "no counts per month",
+    "records without a date fall into a final group called Undated",
+    "no zoom from month to day"
+  ],
+  "best_for": "a record of things that happened, read backwards",
+  "avoid_if": "the records are tasks rather than events"
+}

@@ -70,6 +70,12 @@
   .spark .axis{stroke:var(--line);stroke-width:1}
   .spark .lbl{fill:var(--muted);font-size:9px}
   /* @end only */
+  /* @only timeline */
+  #timeline{display:none}
+  #timeline.on{display:block}
+  .tlhead{margin:16px 0 6px;font-size:12px;letter-spacing:.4px;text-transform:uppercase;
+    color:var(--muted)}
+  /* @end only */
   /* @only directory */
   #dir{display:none;margin:0 0 14px}
   #dir.on{display:block}
@@ -256,6 +262,9 @@
   <!-- @end only -->
   <!-- @only comparison -->
   <section id="cmp" aria-label="comparison"></section>
+  <!-- @end only -->
+  <!-- @only timeline -->
+  <section id="timeline" aria-label="timeline"></section>
   <!-- @end only -->
   <!-- @only board -->
   <div id="board" role="list"></div>
@@ -812,6 +821,43 @@ function childrenOf(entityName, field, id) {
 /* pointer:end */
 /* @end only */
 
+/* ---------- a balance per parent ---------- */
+/* @only balance */
+/* balance:start */
+function balanceOf(children, field, parentId) {
+  let sum = 0;
+  for (const r of children) {
+    if (r.balance_parent !== undefined && r.balance_parent !== parentId) continue;
+    const raw = r[field];
+    if (raw === null || raw === undefined || raw === "") continue;
+    const v = Number(raw);
+    if (isFinite(v)) sum += v;
+  }
+  return sum;
+}
+/* balance:end */
+/* @end only */
+
+/* ---------- a month grouping ---------- */
+/* @only timeline */
+/* month2:start */
+function groupByMonth(rows, field) {
+  const buckets = {};
+  const undated = [];
+  for (const r of rows) {
+    const d = r[field];
+    if (!d || !/^\d{4}-\d{2}/.test(String(d))) { undated.push(r); continue; }
+    const key = String(d).slice(0, 7);
+    (buckets[key] = buckets[key] || []).push(r);
+  }
+  const out = Object.keys(buckets).sort().reverse()
+    .map((k) => ({key: k, rows: buckets[k]}));
+  if (undated.length) out.push({key: "", rows: undated});
+  return out;
+}
+/* month2:end */
+/* @end only */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -1144,6 +1190,48 @@ function renderComparison() {
 }
 /* @end only */
 
+/* @only timeline */
+function renderTimeline() {
+  const box = $("#timeline");
+  if (!MODEL.timeline) return;
+  const field = MODEL.timeline.field;
+  const groups = groupByMonth(visible(), field);
+  box.innerHTML = "";
+  if (!groups.length) {
+    const p = document.createElement("p");
+    p.className = "hint";
+    p.textContent = "Nothing yet.";
+    box.appendChild(p);
+    return;
+  }
+  for (const g of groups) {
+    const head = document.createElement("h4");
+    head.className = "tlhead";
+    head.textContent = (g.key || "Undated") + " · " + g.rows.length;
+    box.appendChild(head);
+    const list = document.createElement("ul");
+    list.className = "list";
+    for (const r of g.rows) {
+      const li = document.createElement("li");
+      li.className = "item";
+      const body = document.createElement("div");
+      body.className = "body";
+      const tt = document.createElement("div");
+      tt.className = "t";
+      tt.textContent = String(r[FIELDS[0].name] || "(untitled)");
+      body.appendChild(tt);
+      const when = document.createElement("div");
+      when.className = "d";
+      when.textContent = String(r[field] || "");
+      body.appendChild(when);
+      li.appendChild(body);
+      list.appendChild(li);
+    }
+    box.appendChild(list);
+  }
+}
+/* @end only */
+
 /* @only board */
 let view = "board";
 function moveCard(r, delta) {
@@ -1362,6 +1450,16 @@ function renderStrip() {
   const strip = $("#strip");
   const items = visible();
   const bits = [];
+  if (F.has("balance") && MODEL.balance) {
+    const b = MODEL.balance;
+    const kids = DB[b.child] || [];
+    let low = 0;
+    for (const r of DB[b.master] || []) {
+      const bal = balanceOf(kids.filter((k) => k[b.lookup] === r.id), b.field, r.id);
+      if (b.reorder && bal <= Number(r[b.reorder] || 0)) low += 1;
+    }
+    if (low) bits.push('<span class="bad"><b>' + low + "</b> to reorder</span>");
+  }
   if (F.has("totals") && MODEL.totals) {
     const tt = totalsOf(rows, MODEL.totals);
     const shown = MODEL.totals.format === "duration" ? fmtDuration(tt.sum) : String(tt.sum);
@@ -1387,6 +1485,16 @@ function render() {
   const calOn = F.has("calendar") && MODEL.calendar && typeof renderCalendar === "function";
   const dirOn = F.has("directory") && MODEL.directory && typeof renderDirectory === "function";
   const cmpOn = F.has("comparison") && MODEL.comparison && typeof renderComparison === "function";
+  const tlOn = F.has("timeline") && MODEL.timeline && typeof renderTimeline === "function";
+  if (tlOn) {
+    list.hidden = true;
+    list.innerHTML = "";
+    const tl = $("#timeline");
+    if (tl) tl.className = "on";
+    renderTimeline();
+    renderStrip();
+    return;
+  }
   if (dirOn || cmpOn) {
     list.hidden = true;
     list.innerHTML = "";
@@ -1452,6 +1560,15 @@ function render() {
       title.innerHTML = esc(r[FIELDS[0].name] || "(untitled)");
     }
     body.appendChild(title);
+    if (F.has("balance") && MODEL.balance && MODEL.balance.master === ENTITY.name) {
+      const b = MODEL.balance;
+      const kids = (DB[b.child] || []).filter((k) => k[b.lookup] === r.id);
+      const bal = balanceOf(kids, b.field, r.id);
+      const line = el("div", "d");
+      line.textContent = "balance: " + bal + (b.unit ? " " + b.unit : "");
+      if (b.reorder && bal <= Number(r[b.reorder] || 0)) line.className = "d overdue";
+      body.appendChild(line);
+    }
     for (const f of FIELDS.slice(1)) {
       if (f.type === "bool") continue;
       const v = r[f.name];

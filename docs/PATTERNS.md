@@ -552,6 +552,80 @@ children; a child pointing at nothing is shown as an orphan, not hidden.
 
 ---
 
+## inventory
+
+| | |
+|---|---|
+| Archetype | 20 |
+| Status | **emitted** |
+| View | items, with a derived balance and a reorder flag |
+| Requires | `crud`, `multi`, `relation`, `detail`, `balance`, `theme` |
+| Requires fields | a `text`, a `lookup`, a `number` |
+| Spec keys | `pattern`, `master_detail`, `balance.field`, `.lookup`, `.reorder` |
+| Sample | [`specs/gallery/inventory.md`](../specs/gallery/inventory.md) |
+| Screenshot | [`docs/gallery/inventory.png`](gallery/inventory.png) |
+
+**Pros**
+
+- the balance is derived, so it can never disagree with the movements
+- a movement is signed, so receipts and issues are the same kind of record
+- the reorder flag turns the list into a worklist
+- the parent read view shows the history that produced the number
+
+**Cons**
+
+- the balance is recomputed on every render: fine at hundreds of movements, not at hundreds of thousands
+- no valuation: quantities only, no price per movement
+- no lot numbers, no expiry dates, no locations
+- deleting a movement changes history with no audit trail
+
+**Best for:** a small store room where the count must match the movements.
+
+**Avoid if:** you need valuation, lots, or an audit trail.
+
+**The rule:** the balance is the signed sum of the children that point at the parent. It is
+never stored. An item at or below its reorder level is counted in the strip and shown in the
+warning colour.
+
+---
+
+## timeline
+
+| | |
+|---|---|
+| Archetype | 16 |
+| Status | **emitted** |
+| View | the list, grouped by month |
+| Requires | `crud`, `timeline`, `theme` |
+| Requires fields | a `date` |
+| Spec keys | `pattern`, `timeline.field` |
+| Sample | [`specs/gallery/timeline.md`](../specs/gallery/timeline.md) |
+| Screenshot | [`docs/gallery/timeline.png`](gallery/timeline.png) |
+
+**Pros**
+
+- months are how people remember, so the list reads like a history
+- a heading per month costs almost nothing and saves a lot of scanning
+- it is the same records as the plain list, seen differently
+- an empty month simply does not appear
+
+**Cons**
+
+- no year headings, so a long history is a long scroll
+- no counts per month beyond the heading itself
+- records without a date fall into a final group called Undated
+- no zoom from month to day
+
+**Best for:** a record of things that happened, read backwards.
+
+**Avoid if:** the records are tasks rather than events.
+
+**The rule:** the group key is the first seven characters of the date, months sort newest
+first, and a record with no usable date goes into a final group called Undated rather than
+being dropped.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -577,6 +651,8 @@ spec naming it fails verification rather than silently building something else.
 | Grid / Matrix | many dimensions | cramped on mobile | planned |
 | search-directory | scales by search | still linear underneath | **emitted** |
 | log | time and mileage | duration field | **emitted** |
+| inventory | stock accuracy | needs master-detail | **emitted** |
+| timeline | chronology | long scroll | **emitted** |
 | Print / Report | shareable artefact | layout brittle across browsers | planned |
 
 ---

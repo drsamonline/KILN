@@ -86,6 +86,7 @@ NEEDS_KEY = {
     "totals": "totals", "board": "board", "calendar": "calendar",
     "directory": "directory", "comparison": "comparison", "i18n": "i18n",
     "relation": "master_detail",
+    "balance": "balance", "timeline": "timeline",
     "dashboard": "dashboard", "multi": "entities",
 }
 
@@ -191,6 +192,42 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
         p.append("the 'multi' capability needs at least two entities")
     if len(ents) > 1 and "multi" not in (spec.get("features") or []):
         p.append(f"{len(ents)} entities need the 'multi' capability in features")
+
+    if "balance" in spec:
+        bl = spec["balance"]
+        if not isinstance(bl, dict):
+            p.append("balance must be an object")
+        else:
+            names = {e["name"] for e in ents}
+            for k in ("master", "child"):
+                if bl.get(k) not in names:
+                    p.append(f"balance.{k} names an entity that does not exist: {bl.get(k)}")
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            fld = bl.get("field")
+            if fld not in types:
+                p.append(f"balance.field '{fld}' is not a field on any entity")
+            elif types[fld]["type"] not in ("number", "currency_cents", "duration"):
+                p.append("balance.field must be numeric")
+            look = bl.get("lookup")
+            if look not in types:
+                p.append(f"balance.lookup '{look}' is not a field on any entity")
+            elif types[look]["type"] != "lookup":
+                p.append("balance.lookup must be the lookup field on the child")
+            ro = bl.get("reorder")
+            if ro is not None and ro not in types:
+                p.append(f"balance.reorder '{ro}' is not a field on any entity")
+
+    if "timeline" in spec:
+        tl = spec["timeline"]
+        if not isinstance(tl, dict):
+            p.append("timeline must be an object")
+        else:
+            fld = tl.get("field")
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            if fld not in types:
+                p.append(f"timeline.field '{fld}' is not a field on any entity")
+            elif types[fld]["type"] != "date":
+                p.append("timeline.field must be a date field")
 
     if "master_detail" in spec:
         md = spec["master_detail"]

@@ -1,0 +1,35 @@
+{
+  "id": "inventory",
+  "name": "Inventory",
+  "archetype": 20,
+  "status": "emitted",
+  "descriptor": "Items and their movements: a signed quantity per movement, a balance per item, and a reorder flag when it runs low.",
+  "view": "list + detail",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "multi", "relation", "detail", "balance", "theme"],
+  "requires_fields": ["text", "lookup", "number"],
+  "requires_keys": ["master_detail", "balance"],
+  "spec_defaults": {"tier": 3, "features": ["crud", "multi", "relation", "detail", "balance", "search", "export", "theme"]},
+  "verify_checks": [
+    "pattern inventory: required features present",
+    "balance: the balance maths is emitted",
+    "balance: the reorder flag is emitted",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/inventory.md",
+  "screenshot": "docs/gallery/inventory.png",
+  "pros": [
+    "the balance is derived, so it can never disagree with the movements",
+    "a movement is signed, so receipts and issues are the same kind of record",
+    "the reorder flag turns the list into a worklist",
+    "the parent read view shows the history that produced the number"
+  ],
+  "cons": [
+    "the balance is recomputed on every render, which is fine at hundreds of movements and not at hundreds of thousands",
+    "no valuation: quantities only, no price per movement",
+    "no lot numbers, no expiry dates, no locations",
+    "deleting a movement changes history with no audit trail"
+  ],
+  "best_for": "a small store room where the count must match the movements",
+  "avoid_if": "you need valuation, lots, or an audit trail"
+}

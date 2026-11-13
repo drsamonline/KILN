@@ -4,6 +4,20 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.22 — 2026-11-13
+
+Two archetypes in one batch: `inventory` and `timeline`.
+
+| Area | Change |
+|---|---|
+| Archetype | `inventory` — items and signed movements, a **derived** balance per item, and a reorder count in the strip |
+| Archetype | `timeline` — the same list grouped by month, newest first, undated records kept in their own group |
+| Capabilities | `balance` and `timeline` — 36 in total |
+| Registry | `metric-balance` (F7) and `view-timeline` (F4) — 69 entries |
+| Correctness | the balance is never stored: it is the signed sum of the children, so it cannot disagree with the history |
+| Correctness | an undated record is shown under "Undated", not dropped |
+| Counts | 341 tests, 309 guards, 19 specs verifying |
+
 ## v0.21 — 2026-11-13
 
 The first relation, and the `master-detail` archetype.

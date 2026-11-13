@@ -540,6 +540,41 @@
       "kit": "web-kit",
       "emitter": "runtime",
       "assertion": "a visit pointing at a patient shows that patient's name, not an id"
+    },
+    "balance": {
+      "label": "A running balance per parent, from its children",
+      "aliases": [
+        "balance",
+        "stock on hand",
+        "how many left",
+        "running total per item"
+      ],
+      "requires": [
+        "crud",
+        "multi",
+        "relation"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "three movements of +10, -3 and -2 show a balance of 5 on the item"
+    },
+    "timeline": {
+      "label": "The list grouped by month, newest first",
+      "aliases": [
+        "timeline",
+        "by month",
+        "history",
+        "when did it happen",
+        "chronology"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "two records in November and one in October show two month headings"
     }
   }
 }
