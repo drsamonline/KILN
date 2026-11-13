@@ -199,6 +199,16 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "variance" in model["features"]:
+        res.add("L5", "variance: the remaining maths is emitted", "function varianceOf(" in html)
+        res.add("L5", "variance: the bar is emitted", "vfill" in html)
+        res.add("L5", "variance: the config reached the model",
+                bool((model.get("variance") or {}).get("planned")))
+    if "amount" in model["features"]:
+        res.add("L5", "amount: the line amount is emitted", "function amountOf(" in html)
+        res.add("L5", "amount: the total is integer cents", "Math.round(q * r)" in html)
+        res.add("L5", "amount: the config reached the model",
+                bool((model.get("amount") or {}).get("qty")))
     if "quiz" in model["features"]:
         res.add("L5", "quiz: the runner is emitted", "function renderQuiz(" in html)
         res.add("L5", "quiz: the score maths is emitted", "function scoreOf(" in html)

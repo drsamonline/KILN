@@ -88,6 +88,7 @@ NEEDS_KEY = {
     "relation": "master_detail",
     "balance": "balance", "timeline": "timeline",
     "quiz": "quiz", "gallery": "gallery",
+    "variance": "variance", "amount": "amount",
     "dashboard": "dashboard", "multi": "entities",
 }
 
@@ -193,6 +194,20 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
         p.append("the 'multi' capability needs at least two entities")
     if len(ents) > 1 and "multi" not in (spec.get("features") or []):
         p.append(f"{len(ents)} entities need the 'multi' capability in features")
+
+    for cap, keys in (("variance", ("planned", "actual")), ("amount", ("qty", "rate"))):
+        if cap in spec:
+            block = spec[cap]
+            if not isinstance(block, dict):
+                p.append(f"{cap} must be an object")
+                continue
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            for k in keys:
+                fld = block.get(k)
+                if fld not in types:
+                    p.append(f"{cap}.{k} '{fld}' is not a field on any entity")
+                elif types[fld]["type"] not in ("number", "currency_cents"):
+                    p.append(f"{cap}.{k} must be numeric")
 
     if "quiz" in spec:
         qz = spec["quiz"]

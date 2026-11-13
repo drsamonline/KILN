@@ -4,6 +4,21 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.24 — 2026-11-13
+
+Two archetypes in one batch: `budget` and `invoice`. Money across rows.
+
+| Area | Change |
+|---|---|
+| Archetype | `budget` — planned against actual per envelope, what is left, a bar, and an overspend flag |
+| Archetype | `invoice` — quantity × rate per line, the amount shown, and the total |
+| Capabilities | `variance` and `amount` — 40 in total |
+| Registry | `metric-variance` and `metric-amount` (F7) — 74 entries |
+| Correctness | money is integer cents throughout; `amount` rounds **once at the line**, so the total is the sum of what is shown |
+| Correctness | "over" includes the case where nothing was planned but something was spent |
+| Caught | `currency` is a field type, not a capability: two `requires` entries were wrong and the catalogue refused to load |
+| Counts | 377 tests, 350 guards, 23 specs verifying |
+
 ## v0.23 — 2026-11-13
 
 Two archetypes, two field types, and the guard that stops a bug class.

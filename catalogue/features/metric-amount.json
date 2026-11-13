@@ -1,0 +1,11 @@
+{
+  "id": "metric-amount",
+  "family": "F7",
+  "name": "amount",
+  "spec_keys": ["features[]", "amount.qty", "amount.rate"],
+  "emitter_hook": "templates/app/index.html::amountOf",
+  "verify_check": "three lines of 2 x 500, 1 x 1200 and 3 x 250 total 3150",
+  "docs_anchor": "docs/PATTERNS.md#invoice",
+  "status": "emitted",
+  "note": "integer cents throughout: quantity times rate, never a float total"
+}

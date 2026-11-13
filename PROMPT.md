@@ -86,6 +86,10 @@ FIELD RULES
   Include the steps feature.
 - If the work MOVES THROUGH STAGES (new → done), use "pattern": "kanban" with
   "board": {"field": "<select field>"}. The columns are that field's options, in order.
+- If the app is a BUDGET, use "pattern": "budget" with "variance": {"planned", "actual"}
+  over two currency_cents fields.
+- If the app is a BILL, use "pattern": "invoice" with "amount": {"qty", "rate"} over a
+  number and a currency_cents field. Money is integer cents; never a float total.
 - If the app TESTS KNOWLEDGE, use "pattern": "quiz" with "quiz": {"answer", "prompt",
   "explain"}; the options are a tags field and the answer is text.
 - If the app IS A WALL OF PICTURES, use "pattern": "gallery" with
@@ -167,6 +171,8 @@ FEATURE CATALOGUE — the only features that exist
 | timeline | the list grouped by month, newest first | crud |
 | quiz | a question at a time, with a score | crud |
 | gallery | a grid of cards, each with an image | crud |
+| variance | planned against actual, with what is left | crud |
+| amount | quantity times rate, and the total | crud |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees

@@ -70,6 +70,11 @@
   .spark .axis{stroke:var(--line);stroke-width:1}
   .spark .lbl{fill:var(--muted);font-size:9px}
   /* @end only */
+  /* @only variance */
+  .vbar{height:7px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);
+    margin:7px 0 5px;overflow:hidden}
+  .vfill{display:block;height:100%;background:var(--accent)}
+  /* @end only */
   /* @only gallery */
   #gal{display:none;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;
     margin:0 0 14px}
@@ -899,6 +904,32 @@ function scoreOf(questions, picks, answerField) {
 }
 /* score:end */
 
+/* ---------- planned against actual ---------- */
+/* @only variance */
+/* variance:start */
+function varianceOf(planned, actual) {
+  const p = Number(planned) || 0;
+  const a = Number(actual) || 0;
+  const remaining = p - a;
+  const pct = p === 0 ? (a > 0 ? 100 : 0) : Math.round((a / p) * 100);
+  return {planned: p, actual: a, remaining: remaining, pct: pct, over: a > p};
+}
+/* variance:end */
+/* @end only */
+
+/* ---------- quantity times rate, in integer cents ---------- */
+/* @only amount */
+/* amount:start */
+function amountOf(qty, rate) {
+  const q = Number(qty);
+  const r = Number(rate);
+  if (!isFinite(q) || !isFinite(r)) return 0;
+  /* round once, at the line, so a total of lines is the sum of what is shown */
+  return Math.round(q * r);
+}
+/* amount:end */
+/* @end only */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -1616,6 +1647,28 @@ function renderStrip() {
     }
     if (low) bits.push('<span class="bad"><b>' + low + "</b> to reorder</span>");
   }
+  /* @only variance */
+  if (MODEL.variance) {
+    let planned = 0, actual = 0, over = 0;
+    for (const r of rows) {
+      const v = varianceOf(r[MODEL.variance.planned], r[MODEL.variance.actual]);
+      planned += v.planned;
+      actual += v.actual;
+      if (v.over) over += 1;
+    }
+    bits.push("<span><b>" + esc(money(planned - actual)) + "</b> left</span>");
+    bits.push("<span><b>" + esc(money(actual)) + "</b> of " + esc(money(planned)) + "</span>");
+    if (over) bits.push('<span class="bad"><b>' + over + "</b> over</span>");
+  }
+  /* @end only */
+  /* @only amount */
+  if (MODEL.amount) {
+    let total = 0;
+    for (const r of rows) total += amountOf(r[MODEL.amount.qty], r[MODEL.amount.rate]);
+    bits.push("<span><b>" + esc(money(total)) + "</b> total</span>");
+    bits.push("<span><b>" + rows.length + "</b> lines</span>");
+  }
+  /* @end only */
   if (F.has("totals") && MODEL.totals) {
     const tt = totalsOf(rows, MODEL.totals);
     const shown = MODEL.totals.format === "duration" ? fmtDuration(tt.sum) : String(tt.sum);
@@ -1729,6 +1782,27 @@ function render() {
       title.innerHTML = esc(r[FIELDS[0].name] || "(untitled)");
     }
     body.appendChild(title);
+    /* @only variance */
+    if (MODEL.variance) {
+      const v = varianceOf(r[MODEL.variance.planned], r[MODEL.variance.actual]);
+      const wrap = el("div", "vbar");
+      const fill = el("span", "vfill");
+      fill.style.width = Math.min(100, v.pct) + "%";
+      if (v.over) fill.style.background = "var(--danger)";
+      wrap.appendChild(fill);
+      body.appendChild(wrap);
+      const line = el("div", "d" + (v.over ? " overdue" : ""),
+        money(v.remaining) + " left of " + money(v.planned) + " · " + v.pct + "%");
+      body.appendChild(line);
+    }
+    /* @end only */
+    /* @only amount */
+    if (MODEL.amount) {
+      const amt = amountOf(r[MODEL.amount.qty], r[MODEL.amount.rate]);
+      body.appendChild(el("div", "d",
+        r[MODEL.amount.qty] + " × " + money(r[MODEL.amount.rate]) + " = " + money(amt)));
+    }
+    /* @end only */
     if (F.has("balance") && MODEL.balance && MODEL.balance.master === ENTITY.name) {
       const b = MODEL.balance;
       const kids = (DB[b.child] || []).filter((k) => k[b.lookup] === r.id);

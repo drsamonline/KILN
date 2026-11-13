@@ -1,0 +1,11 @@
+{
+  "id": "metric-variance",
+  "family": "F7",
+  "name": "variance",
+  "spec_keys": ["features[]", "variance.planned", "variance.actual"],
+  "emitter_hook": "templates/app/index.html::varianceOf",
+  "verify_check": "planned 5000 and actual 3500 show 1500 remaining",
+  "docs_anchor": "docs/PATTERNS.md#budget",
+  "status": "emitted",
+  "note": "remaining and percent spent, derived per row, with an over-budget flag"
+}

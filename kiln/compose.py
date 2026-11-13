@@ -61,6 +61,8 @@ def plan(spec, catalog, tier="personal", licensee="", with_docs=False) -> list[d
         "timeline": spec.get("timeline"),
         "quiz": spec.get("quiz"),
         "gallery": spec.get("gallery"),
+        "variance": spec.get("variance"),
+        "amount": spec.get("amount"),
         "features": features,
         "entities": spec["entities"],
         "assertions": [catalog["features"][f]["assertion"] for f in features],

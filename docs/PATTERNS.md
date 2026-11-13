@@ -698,6 +698,79 @@ uploaded and nothing is fetched at build time. A card with no image shows a plac
 
 ---
 
+## budget
+
+| | |
+|---|---|
+| Archetype | 21 |
+| Status | **emitted** |
+| View | one row per envelope, with a bar |
+| Requires | `crud`, `variance`, `theme` |
+| Requires fields | a `text`, and two `currency_cents` |
+| Spec keys | `pattern`, `variance.planned`, `variance.actual` |
+| Sample | [`specs/gallery/budget.md`](../specs/gallery/budget.md) |
+| Screenshot | [`docs/gallery/budget.png`](gallery/budget.png) |
+
+**Pros**
+
+- remaining is derived, so it cannot drift from planned and actual
+- the bar answers the question before the number does
+- an overspend is flagged in the warning colour, not buried in a total
+- it is the same rows as any list, so search and export still work
+
+**Cons**
+
+- two numbers per row: no transactions, no running ledger
+- no period: a budget is whatever the rows say it is
+- no rollover between periods
+- the bar is proportional to the row, not to the whole budget
+
+**Best for:** a handful of envelopes you check once a month.
+
+**Avoid if:** you need a ledger of individual transactions.
+
+**The rule:** remaining is `planned − actual`, the percent is rounded, and a row is "over"
+when actual exceeds planned — including the case where nothing was planned but something was
+spent.
+
+---
+
+## invoice
+
+| | |
+|---|---|
+| Archetype | 22 |
+| Status | **emitted** |
+| View | lines with an amount each, and a total |
+| Requires | `crud`, `amount`, `theme` |
+| Requires fields | a `text`, a `number`, a `currency_cents` |
+| Spec keys | `pattern`, `amount.qty`, `amount.rate` |
+| Sample | [`specs/gallery/invoice.md`](../specs/gallery/invoice.md) |
+| Screenshot | [`docs/gallery/invoice.png`](gallery/invoice.png) |
+
+**Pros**
+
+- the line amount is derived from quantity and rate, so it cannot disagree
+- integer cents throughout: no float drift on a total
+- print is a capability, so the invoice prints without a second layout
+- one file you can email, with no service in the middle
+
+**Cons**
+
+- no tax, no discount, no currency conversion
+- no invoice numbering, no due dates, no payment status
+- no client records: the client is a text field on the line
+- it is a record of the lines, not a document generator
+
+**Best for:** a simple bill you type once and print.
+
+**Avoid if:** you need tax rules, numbering or payment tracking.
+
+**The rule:** `amount = round(qty × rate)` in integer cents, rounded once at the line, so the
+total is the sum of the amounts that are shown.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -727,6 +800,8 @@ spec naming it fails verification rather than silently building something else.
 | timeline | chronology | long scroll | **emitted** |
 | quiz | a learning loop | content authoring burden | **emitted** |
 | gallery | visual, scannable | verbose for data-heavy | **emitted** |
+| budget | planned against actual | no ledger | **emitted** |
+| invoice | a printable bill | no tax or numbering | **emitted** |
 | Print / Report | shareable artefact | layout brittle across browsers | planned |
 
 ---

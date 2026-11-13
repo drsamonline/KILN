@@ -609,6 +609,40 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "four records with image urls show four cards, each with an img element"
+    },
+    "variance": {
+      "label": "Planned against actual, with what is left",
+      "aliases": [
+        "budget",
+        "planned vs actual",
+        "envelope",
+        "what is left",
+        "spend against plan"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "planned 5000 and actual 3500 show 1500 remaining and a bar two thirds full"
+    },
+    "amount": {
+      "label": "Quantity times rate, and the invoice total",
+      "aliases": [
+        "invoice",
+        "line amount",
+        "subtotal",
+        "billing",
+        "quantity times rate"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "three lines of 2 x 500, 1 x 1200 and 3 x 250 total 3150"
     }
   }
 }

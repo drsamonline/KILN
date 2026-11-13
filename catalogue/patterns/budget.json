@@ -1,0 +1,35 @@
+{
+  "id": "budget",
+  "name": "Budget",
+  "archetype": 21,
+  "status": "emitted",
+  "descriptor": "One row per envelope: what you planned, what you spent, what is left, and a bar that says it in one glance.",
+  "view": "list + bars",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "variance", "theme"],
+  "requires_fields": ["text", "currency_cents"],
+  "requires_keys": ["variance"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "variance", "totals", "search", "export", "theme"]},
+  "verify_checks": [
+    "pattern budget: required features present",
+    "variance: the remaining maths is emitted",
+    "variance: the bar is emitted",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/budget.md",
+  "screenshot": "docs/gallery/budget.png",
+  "pros": [
+    "remaining is derived, so it cannot drift from planned and actual",
+    "the bar answers the question before the number does",
+    "an overspend is flagged in the warning colour, not buried in a total",
+    "it is the same rows as any list, so search and export still work"
+  ],
+  "cons": [
+    "two numbers per row: no transactions, no running ledger",
+    "no period: a budget is whatever the rows say it is",
+    "no rollover between periods",
+    "the bar is proportional to the row, not to the whole budget"
+  ],
+  "best_for": "a handful of envelopes you check once a month",
+  "avoid_if": "you need a ledger of individual transactions"
+}

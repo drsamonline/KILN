@@ -1,0 +1,35 @@
+{
+  "id": "invoice",
+  "name": "Invoice",
+  "archetype": 22,
+  "status": "emitted",
+  "descriptor": "Lines of quantity times rate, an amount per line, and a total that is the sum of integer cents.",
+  "view": "list + amounts",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "amount", "theme"],
+  "requires_fields": ["text", "number", "currency_cents"],
+  "requires_keys": ["amount"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "amount", "totals", "print", "export", "theme"]},
+  "verify_checks": [
+    "pattern invoice: required features present",
+    "amount: the line amount is emitted",
+    "amount: the total is integer cents",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/invoice.md",
+  "screenshot": "docs/gallery/invoice.png",
+  "pros": [
+    "the line amount is derived from quantity and rate, so it cannot disagree",
+    "integer cents throughout: no float drift on a total",
+    "print is a capability, so the invoice prints without a second layout",
+    "one file you can email, with no service in the middle"
+  ],
+  "cons": [
+    "no tax, no discount, no currency conversion",
+    "no invoice numbering, no due dates, no payment status",
+    "no client records: the client is a text field on the line",
+    "it is a record of the lines, not a document generator"
+  ],
+  "best_for": "a simple bill you type once and print",
+  "avoid_if": "you need tax rules, numbering or payment tracking"
+}
