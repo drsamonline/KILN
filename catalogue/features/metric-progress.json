@@ -1,0 +1,14 @@
+{
+  "id": "metric-progress",
+  "family": "F7",
+  "name": "progress",
+  "spec_keys": [
+    "features[]",
+    "progress"
+  ],
+  "emitter_hook": "templates/app/index.html::progressOf",
+  "verify_check": "two of four rows done shows 2 of 4 and 50%",
+  "docs_anchor": "docs/PATTERNS.md#checklist",
+  "status": "emitted",
+  "note": "done, total, left and percent from one bool field"
+}

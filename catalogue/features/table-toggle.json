@@ -1,0 +1,14 @@
+{
+  "id": "table-toggle",
+  "family": "F5",
+  "name": "row-toggle",
+  "spec_keys": [
+    "features[]",
+    "progress.field"
+  ],
+  "emitter_hook": "templates/app/index.html::render",
+  "verify_check": "ticking the box on a row saves immediately",
+  "docs_anchor": "docs/PATTERNS.md#checklist",
+  "status": "emitted",
+  "note": "a checkbox on the row that writes without opening the form"
+}

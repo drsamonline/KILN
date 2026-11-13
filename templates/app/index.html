@@ -67,6 +67,17 @@
   .spark .bar.empty{opacity:.15}
   .spark .axis{stroke:var(--line);stroke-width:1}
   .spark .lbl{fill:var(--muted);font-size:9px}
+  #progress{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    padding:12px 14px;margin:0 0 14px}
+  #progress .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+    margin:0 0 8px;font-size:13px;color:var(--muted)}
+  #progress .top b{color:var(--ink);font-size:15px}
+  .track{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+  .track > span{display:block;height:100%;background:var(--accent);width:0;
+    transition:width .18s ease}
+  li.item .tick{margin-top:2px;width:20px;height:20px;min-height:0;padding:0;
+    accent-color:var(--accent);flex:0 0 auto;cursor:pointer}
+  li.item.done .t,li.item.done .d{opacity:.55;text-decoration:line-through}
   ul.list{list-style:none; margin:0; padding:0; display:grid; gap:8px}
   li.item{
     background:var(--panel); border:1px solid var(--line); border-radius:var(--r);
@@ -121,6 +132,7 @@
   </div>
   <div class="strip" id="strip" hidden></div>
   <div id="derived" hidden></div>
+  <div id="progress" hidden></div>
   <ul class="list" id="list"></ul>
 </main>
 
@@ -322,6 +334,24 @@ function derive(rows, tracker, todayISO) {
 }
 /* derive:end */
 
+/* ---------- progress ----------
+   Pure: rows plus the config in, three numbers out. */
+/* progress:start */
+function progressOf(rows, cfg) {
+  const field = cfg && cfg.field;
+  const out = {done: 0, total: 0, left: 0, pct: 0};
+  if (!field) return out;
+  for (const r of rows) {
+    if (!r || r[field] === undefined || r[field] === null) continue;
+    out.total += 1;
+    if (r[field] === true || r[field] === "true") out.done += 1;
+  }
+  out.left = out.total - out.done;
+  out.pct = out.total ? Math.round((out.done / out.total) * 100) : 0;
+  return out;
+}
+/* progress:end */
+
 /* ---------- rendering ---------- */
 function paintBanners() {
   const box = $("#banners");
@@ -388,6 +418,17 @@ function sparkSvg(spark, best) {
   parts.push("</svg>");
   return parts.join("");
 }
+function renderProgress() {
+  const box = $("#progress");
+  if (!F.has("progress") || !MODEL.progress) { box.hidden = true; return; }
+  box.hidden = false;
+  const p = progressOf(rows, MODEL.progress);
+  const label = MODEL.progress.label || "done";
+  box.innerHTML = '<div class="top"><span><b>' + p.done + "</b> of " + p.total + " " +
+    esc(label) + '</span><span>' + p.left + " left · " + p.pct + "%</span></div>" +
+    '<div class="track" role="progressbar" aria-valuenow="' + p.pct +
+    '" aria-valuemin="0" aria-valuemax="100"><span style="width:' + p.pct + '%"></span></div>';
+}
 function renderDerived() {
   const box = $("#derived");
   if (!F.has("derived") || !MODEL.tracker) { box.hidden = true; return; }
@@ -414,8 +455,24 @@ function render() {
   if (!items.length) {
     list.appendChild(el("li", "empty", rows.length ? "No match." : LANGS[lang].empty));
   }
+  const tickField = F.has("toggle") && MODEL.progress ? MODEL.progress.field : null;
   for (const r of items) {
     const li = el("li", "item");
+    if (tickField && (r[tickField] === true || r[tickField] === "true")) li.className = "item done";
+    if (tickField) {
+      const tick = document.createElement("input");
+      tick.type = "checkbox";
+      tick.className = "tick";
+      tick.checked = r[tickField] === true || r[tickField] === "true";
+      tick.setAttribute("aria-label", "mark done");
+      tick.onchange = () => {
+        r[tickField] = tick.checked;
+        r.updated = today();
+        save();
+        render();
+      };
+      li.appendChild(tick);
+    }
     const body = el("div", "body");
     const title = el("div", "t");
     title.innerHTML = esc(r[FIELDS[0].name] || "(untitled)");
@@ -449,6 +506,7 @@ function render() {
     li.appendChild(acts);
     list.appendChild(li);
   }
+  renderProgress();
   renderDerived();
   const strip = $("#strip");
   if (F.has("stats")) {

@@ -270,6 +270,41 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "the sparkline is inline svg with one point per day in the window"
+    },
+    "progress": {
+      "label": "Progress: how many are done, as a count and a percentage",
+      "aliases": [
+        "progress",
+        "how many done",
+        "completed",
+        "percentage",
+        "packed",
+        "remaining"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "two of four rows done shows 2 of 4 and 50%"
+    },
+    "toggle": {
+      "label": "Toggle a boolean from the row, without opening the form",
+      "aliases": [
+        "tick",
+        "check off",
+        "toggle",
+        "mark done",
+        "quick complete"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "ticking the box on a row saves immediately and moves the progress bar"
     }
   }
 }

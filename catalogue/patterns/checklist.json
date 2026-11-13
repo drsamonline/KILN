@@ -1,0 +1,37 @@
+{
+  "id": "checklist",
+  "name": "Checklist",
+  "archetype": 19,
+  "status": "emitted",
+  "descriptor": "A list where each row is either done or not, with a bar that says how far along you are. Packing, grocery, chores, a clinic opening routine.",
+  "view": "table",
+  "requires_capabilities": ["crud", "search", "sort", "progress", "toggle", "theme"],
+  "requires_fields": ["bool"],
+  "requires_keys": ["progress"],
+  "spec_defaults": {
+    "tier": 1,
+    "features": ["crud", "search", "sort", "progress", "toggle", "export", "theme"]
+  },
+  "verify_checks": [
+    "pattern checklist: required features present",
+    "progress: a progressOf function is emitted",
+    "toggle: ticking saves immediately",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/checklist.md",
+  "screenshot": "docs/gallery/checklist.png",
+  "pros": [
+    "the bar answers 'am I nearly there' without counting",
+    "one tap per row, no form, so it is usable while packing",
+    "it survives a reload, which a paper list does not",
+    "grouping by category is one select field away"
+  ],
+  "cons": [
+    "one level: no sub-items, so a nested checklist needs a second app",
+    "no assignee, so a shared list is out of scope",
+    "no reminders, so it only helps once you open it",
+    "reordering by hand is not available; sort is by field"
+  ],
+  "best_for": "a finite set of things that each end up done",
+  "avoid_if": "items have sub-items, quantities to reconcile, or owners"
+}

@@ -103,6 +103,48 @@ need tracking together.
 
 ---
 
+## checklist
+
+| | |
+|---|---|
+| Archetype | 19 |
+| Status | **emitted** |
+| View | table, with a progress bar above it |
+| Requires | `crud`, `search`, `sort`, `progress`, `toggle`, `theme` |
+| Requires fields | a `bool` |
+| Spec keys | `pattern`, `progress.field`, `progress.label` |
+| Sample | [`specs/gallery/checklist.md`](../specs/gallery/checklist.md) |
+| Screenshot | [`docs/gallery/checklist.png`](gallery/checklist.png) |
+
+**Pros**
+
+- the bar answers "am I nearly there" without counting
+- one tap per row, no form, so it is usable while packing
+- it survives a reload, which a paper list does not
+- grouping by category is one select field away
+
+**Cons**
+
+- one level: no sub-items, so a nested checklist needs a second app
+- no assignee, so a shared list is out of scope
+- no reminders, so it only helps once you open it
+- reordering by hand is not available; sort is by field
+
+**Best for:** a finite set of things that each end up done.
+
+**Avoid if:** items have sub-items, quantities to reconcile, or owners.
+
+**What is derived**
+
+| Number | Rule |
+|---|---|
+| done / total | rows whose bool field is true, over rows that carry the field |
+| left | total − done |
+| percent | done ÷ total, rounded to the nearest whole number |
+| the bar | the percent, as a width, with `role="progressbar"` and `aria-valuenow` |
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -115,6 +157,7 @@ spec naming it fails verification rather than silently building something else.
 | Kanban | status at a glance | mobile-unfriendly >5 cols | planned |
 | Calendar | time context | overlap, cramped month view | planned |
 | tracker | streaks, motivation | needs discipline | **emitted** |
+| checklist | packing, grocery | one level only | **emitted** |
 | Journal | low friction | no encryption | planned |
 | Dashboard | insight at a glance | charts add weight | planned |
 | Wizard | guided, fewer errors | long specs, slow for pros | planned |

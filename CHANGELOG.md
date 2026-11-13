@@ -4,6 +4,21 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.10 — 2026-11-13
+
+Phase B, second archetype: `checklist`.
+
+| Area | Change |
+|---|---|
+| Archetype | `checklist` — a list of things that get done, with a progress bar: done, left, percent |
+| Capabilities | `progress` (a count and a percentage from one bool) and `toggle` (a row checkbox that saves without the form) |
+| Registry | `metric-progress` (F7) and `table-toggle` (F5) — 47 entries |
+| Spec key | `progress: {field, label}`, validated: the field must exist and be a bool |
+| Sample | Clinic Opening — seven tasks, three done, 36 KB |
+| Tests | 8 progress cases run under node; the bar's ARIA attributes are checked in the emitted HTML |
+| Guards | `B6` caught `PROMPT.md` again (twice now — the guard is doing its job), `C16` caught the test count |
+| Counts | 141 tests, 147 guards |
+
 ## v0.9 — 2026-11-13
 
 Phase B, first archetype: `tracker`.

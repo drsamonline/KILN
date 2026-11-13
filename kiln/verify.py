@@ -186,6 +186,14 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
         res.add("L5", "derived: the panel is emitted", 'id="derived"' in html)
         res.add("L5", "derived: the tracker config reached the model",
                 bool(model.get("tracker", {}).get("field")))
+    if "progress" in model["features"]:
+        res.add("L5", "progress: a progressOf function is emitted", "function progressOf(" in html)
+        res.add("L5", "progress: the bar is emitted", 'id="progress"' in html and 'role="progressbar"' in html)
+        res.add("L5", "progress: the config reached the model",
+                bool(model.get("progress", {}).get("field")))
+    if "toggle" in model["features"]:
+        res.add("L5", "toggle: a row checkbox is emitted", 'className = "tick"' in html)
+        res.add("L5", "toggle: ticking saves immediately", "r[tickField] = tick.checked" in html)
     if "chart" in model["features"]:
         res.add("L5", "chart: inline svg is emitted", "sparkSvg(" in html and "<svg" in html)
         for lib in ("chart.js", "cdn.jsdelivr", "unpkg.com", "d3.min.js"):
