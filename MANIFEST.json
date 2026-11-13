@@ -25,8 +25,8 @@
     "kits": 5
   },
   "verification": {
-    "tests": 480,
-    "guards": 451,
+    "tests": 486,
+    "guards": 452,
     "ci": ".github/workflows/kiln.yml"
   },
   "topics": [
@@ -71,6 +71,14 @@
       "1000 rows": "104 ms",
       "2000 rows": "213 ms",
       "policy": "derived figures are computed once per render (guard C19)"
+    },
+    "measured_kb": {
+      "notes_app": 50,
+      "smallest": 49,
+      "largest": 57,
+      "studio": 208,
+      "demo": 351,
+      "ceiling": 100
     }
   },
   "registry": {

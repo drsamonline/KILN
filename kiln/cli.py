@@ -12,6 +12,7 @@ from pathlib import Path
 from . import adopt as adoptmod
 from . import catalog as cat
 from . import completions as compmod
+from . import sizes as sizesmod
 from . import compose, demo as demomod, emit, explain as explainmod
 from . import guards, guide as guidemod, intent
 from . import licence as lic
@@ -239,6 +240,38 @@ def cmd_completions(args, catalog=None) -> int:
     except ValueError as e:
         print(str(e))
         return 2
+    return 0
+
+
+def cmd_sizes(args, catalog) -> int:
+    """Measure the real sizes, and rewrite every doc that states one."""
+    m = sizesmod.measure(catalog)
+    if args.write:
+        changed = []
+        for rel in sizesmod.CLAIMS:
+            p = Path(rel)
+            if not p.exists():
+                continue
+            before = p.read_text(encoding="utf-8")
+            after = sizesmod.rewrite(before, m)
+            if after != before:
+                p.write_text(after)
+                changed.append(rel)
+        print(sizesmod.table(m))
+        print()
+        print("rewrote: " + (", ".join(changed) if changed else "nothing, already current"))
+        return 0
+    bad = sizesmod.check(catalog)
+    print(sizesmod.table(m))
+    if bad:
+        print()
+        for rel, why in bad:
+            print(f"  STALE {rel}: {why}")
+        print()
+        print("run: python3 -m kiln sizes --write")
+        return 1
+    print()
+    print("every stated size matches the build")
     return 0
 
 
@@ -534,6 +567,10 @@ def main(argv=None) -> int:
     p = sub.add_parser("completions", help="shell completions for bash, zsh or fish")
     p.add_argument("shell", choices=sorted(compmod.SHELLS))
     p.set_defaults(fn=cmd_completions)
+
+    p = sub.add_parser("sizes", help="measure the real sizes and rewrite the docs")
+    p.add_argument("--write", action="store_true")
+    p.set_defaults(fn=cmd_sizes)
 
     p = sub.add_parser("guide", help="regenerate the generated guides")
     p.add_argument("--check", action="store_true", help="fail if a guide is stale")

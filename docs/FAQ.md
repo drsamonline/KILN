@@ -75,4 +75,4 @@ No. There is no analytics code in the repository. `RUNS.jsonl` is a local file o
 results, written on your own disk, and it is gitignored.
 
 **How big is a generated app?**
-About 21 KB. Under 60 KB is the enforced budget.
+About 50 KB. Under 100 KB is the enforced budget.

@@ -52,9 +52,9 @@ There is no `pip install`, no virtualenv requirement, no PATH change, no service
 ## Verify the install
 
 ```bash
-python3 -m unittest discover -s tests     # 480 tests
+python3 -m unittest discover -s tests     # 486 tests
 python3 -m kiln verify --all              # every spec builds
-python3 -m kiln audit                     # 451 guards
+python3 -m kiln audit                     # 452 guards
 ```
 
 All three should pass on a clean checkout. If `node` is absent, one check reports `SKIP`
@@ -76,7 +76,7 @@ rather than passing — that is deliberate, and it does not fail the run.
 
 | Step | Detail |
 |---|---|
-| 1 | copy `studio.html` (50 KB) to the phone — email, AirDrop, USB, a local server |
+| 1 | copy `studio.html` (208 KB) to the phone — email, AirDrop, USB, a local server |
 | 2 | open it from local storage in the browser |
 | 3 | fill the form, tap **Build app** |
 | 4 | open the downloaded file, then *Add to Home Screen* |

@@ -4,6 +4,18 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.4 — 2026-11-14
+
+A docs audit found eleven false size claims. They can no longer drift.
+
+| Area | Change |
+|---|---|
+| **Fixed** | the README called a generated app **21 KB** (it is 50), the studio **50 KB** (it is 208), and the budget "under 60 KB" (it is 100). The same numbers were wrong in `index.html`, `INSTALL.md`, `docs/FAQ.md` and `docs/PORTABILITY.md` |
+| Command | `kiln sizes` measures every spec and every page, then reports; `--write` rewrites the claims in place |
+| Guard | **C20** fails the audit when any stated size disagrees with the build — 10 claims across 5 files |
+| Tests | 6 new, including idempotence of the rewrite and a check that the old numbers are gone |
+| Counts | 486 tests, 452 guards |
+
 ## v1.0.3 — 2026-11-14
 
 A skills-driven audit found the page was quadratic. Fixed, measured, and guarded.

@@ -479,6 +479,16 @@ def check_row_loop_is_linear(catalog) -> list[Row]:
     return out
 
 
+def check_sizes(catalog) -> list[Row]:
+    """A stated size that disagrees with the build is a false claim, not a typo."""
+    from . import sizes as sizesmod
+    bad = sizesmod.check(catalog)
+    if not bad:
+        return [Row("C20 every stated size matches the build", True,
+                    f"{sum(len(v) for v in sizesmod.CLAIMS.values())} claims checked")]
+    return [Row(f"C20 stale size in {rel}", False, why) for rel, why in bad]
+
+
 def check_patterns(catalog) -> list[Row]:
     """§2: every archetype ships a descriptor, a sample, a screenshot and a pros/cons block."""
     from . import catalog as cat
@@ -722,6 +732,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_patterns(catalog)
     rows += check_block_ownership(catalog)
     rows += check_row_loop_is_linear(catalog)
+    rows += check_sizes(catalog)
     rows += check_counts()
     rows += check_guides(catalog)
     rows += check_licensing()
