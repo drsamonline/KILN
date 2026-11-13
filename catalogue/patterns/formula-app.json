@@ -1,0 +1,35 @@
+{
+  "id": "formula-app",
+  "name": "Formula app",
+  "archetype": 8,
+  "status": "emitted",
+  "descriptor": "Records with their own numbers, and a formula evaluated over each one — the calculator that remembers.",
+  "view": "list + computed column",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "formula", "compute", "theme"],
+  "requires_fields": ["text", "number"],
+  "requires_keys": ["compute"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "formula", "compute", "totals", "export", "theme"]},
+  "verify_checks": [
+    "pattern formula-app: required features present",
+    "compute: the formula is evaluated per row",
+    "compute: the total is the sum of the computed values",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/formula-app.md",
+  "screenshot": "docs/gallery/formula-app.png",
+  "pros": [
+    "the formula is written once and applied to every row",
+    "it uses the same parser as the calculator, so there is no eval and no second dialect",
+    "change an input and the result is right on the next render",
+    "the total is the sum of what is shown, not a separate calculation"
+  ],
+  "cons": [
+    "one formula per app, over named fields",
+    "no row-to-row references, no lookups, no conditionals",
+    "no units checking: the formula is arithmetic, nothing more",
+    "a typo in the formula is refused, but a wrong formula is not"
+  ],
+  "best_for": "a table where one column is always computed from the others",
+  "avoid_if": "the calculation needs branches or references to other rows"
+}

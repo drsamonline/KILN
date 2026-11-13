@@ -745,6 +745,39 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "four records over two kinds and two months fill four cells and two totals"
+    },
+    "compute": {
+      "label": "A formula evaluated over each row's own fields",
+      "aliases": [
+        "formula app",
+        "computed column",
+        "calculate per row",
+        "derived value"
+      ],
+      "requires": [
+        "crud",
+        "formula"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "two rows of 3 x 4 and 5 x 6 show 12 and 30, and 42 as the total"
+    },
+    "running": {
+      "label": "A running balance in date order",
+      "aliases": [
+        "register",
+        "statement",
+        "running total",
+        "balance after each entry"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "three entries of 500, -200 and -100 show 500, 300 and 200 as balances"
     }
   }
 }

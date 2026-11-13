@@ -1,0 +1,35 @@
+{
+  "id": "register",
+  "name": "Register",
+  "archetype": 5,
+  "status": "emitted",
+  "descriptor": "Dated entries with a signed amount, and the balance after each one.",
+  "view": "list + running balance",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "running", "theme"],
+  "requires_fields": ["text", "date", "currency_cents"],
+  "requires_keys": ["running"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "running", "totals", "print", "export", "theme"]},
+  "verify_checks": [
+    "pattern register: required features present",
+    "running: the balance maths is emitted",
+    "running: the closing balance is in the strip",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/register.md",
+  "screenshot": "docs/gallery/register.png",
+  "pros": [
+    "the balance after each entry is derived, so it cannot drift",
+    "a signed amount makes a payment and a receipt the same kind of record",
+    "the order is date then id, so the same entries give the same balances everywhere",
+    "it prints like a statement, because it is one"
+  ],
+  "cons": [
+    "no reconciliation, no categories, no running total per category",
+    "no opening balance field: the register starts at zero",
+    "entries are edited in place, so history can be rewritten",
+    "one currency, no conversion"
+  ],
+  "best_for": "a small account you want to see add up",
+  "avoid_if": "you need reconciliation or categories"
+}

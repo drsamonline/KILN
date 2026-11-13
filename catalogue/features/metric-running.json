@@ -1,0 +1,11 @@
+{
+  "id": "metric-running",
+  "family": "F7",
+  "name": "running",
+  "spec_keys": ["features[]", "running.field", "running.date"],
+  "emitter_hook": "templates/app/index.html::runningTotal",
+  "verify_check": "three entries of 500, -200 and -100 show 500, 300 and 200 as balances",
+  "docs_anchor": "docs/PATTERNS.md#register",
+  "status": "emitted",
+  "note": "entries sorted by date then id, so the balance is the same on every device"
+}

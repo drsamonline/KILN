@@ -4,6 +4,21 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.28 — 2026-11-13
+
+Two archetypes in one batch: `formula-app` and `register`.
+
+| Area | Change |
+|---|---|
+| Archetype | `formula-app` — a formula written once, evaluated over every row's own fields, with a total |
+| Archetype | `register` — a signed amount, date order, and the balance after each entry |
+| Capabilities | `compute` and `running` — 48 in total |
+| Registry | `metric-compute` and `metric-running` (F7) — 82 entries |
+| Reuse | `compute` uses the calculator's recursive-descent parser: no `eval`, no second dialect |
+| Correctness | the register sorts by date **then id**, so the same entries give the same balances on every device |
+| **Caught** | a strip figure written into the row loop renders nothing. Two archetypes had it — `playlist` since v0.25 — and a new test now checks every archetype's strip figure is inside `renderStrip` |
+| Counts | 444 tests, 430 guards, 31 specs verifying |
+
 ## v0.27 — 2026-11-13
 
 Two archetypes in one batch: `voting` and `grid`.

@@ -70,14 +70,6 @@
   .spark .axis{stroke:var(--line);stroke-width:1}
   .spark .lbl{fill:var(--muted);font-size:9px}
   /* @end only */
-  /* @only sequence */
-  if (MODEL.sequence) {
-    let total = 0;
-    for (const r of rows) total += Number(r[MODEL.sequence.duration]) || 0;
-    bits.push("<span><b>" + esc(fmtDuration(total)) + "</b> total</span>");
-    bits.push("<span><b>" + rows.length + "</b> items</span>");
-  }
-  /* @end only */
   /* a bar, shared by the variance view and the tally view */
   .vbar{height:7px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);
     margin:7px 0 5px;overflow:hidden}
@@ -1085,6 +1077,27 @@ function crosstabOf(rows, rowField, colField) {
 }
 /* cross:end */
 
+/* ---------- a running balance ----------
+   Pure: rows, an amount field and a date field; each row with the balance after it. run:start */
+function runningTotal(rows, field, dateField) {
+  const out = rows.slice();
+  out.sort((a, b) => {
+    const x = String(a[dateField] || "");
+    const y = String(b[dateField] || "");
+    if (x !== y) return x < y ? -1 : 1;
+    return String(a.id) < String(b.id) ? -1 : 1;
+  });
+  let balance = 0;
+  const marks = {};
+  for (const r of out) {
+    const v = Number(r[field]);
+    balance += isFinite(v) ? v : 0;
+    marks[r.id] = balance;
+  }
+  return {order: out, marks: marks, closing: balance};
+}
+/* run:end */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -1909,6 +1922,38 @@ function renderStrip() {
   const strip = $("#strip");
   const items = visible();
   const bits = [];
+  /* @only sequence */
+  if (MODEL.sequence) {
+    let total = 0;
+    for (const r of rows) total += Number(r[MODEL.sequence.duration]) || 0;
+    bits.push("<span><b>" + esc(fmtDuration(total)) + "</b> total</span>");
+    bits.push("<span><b>" + rows.length + "</b> items</span>");
+  }
+  /* @end only */
+
+  /* @only compute */
+  if (MODEL.compute) {
+    let total = 0, bad = 0;
+    for (const r of rows) {
+      const vars = {};
+      for (const name of MODEL.compute.inputs || []) vars[name] = Number(r[name]) || 0;
+      try {
+        const v = evalFormula(MODEL.compute.formula, vars);
+        if (isFinite(v)) total += v; else bad += 1;
+      } catch (e) { bad += 1; }
+    }
+    bits.push("<span><b>" + esc(String(Math.round(total * 1000) / 1000)) + "</b> total</span>");
+    if (bad) bits.push('<span class="bad"><b>' + bad + "</b> bad rows</span>");
+  }
+  /* @end only */
+  /* @only running */
+  if (MODEL.running) {
+    const rt = runningTotal(rows, MODEL.running.field, MODEL.running.date);
+    bits.push("<span><b>" + esc(money(rt.closing)) + "</b> closing</span>");
+    bits.push("<span><b>" + rows.length + "</b> entries</span>");
+  }
+  /* @end only */
+
   /* @only tally */
   if (MODEL.tally) {
     const t2 = tallyOf(rows, MODEL.tally.field);
@@ -2009,6 +2054,9 @@ function render() {
   /* @only sequence */
   if (MODEL.sequence) items = sequenceOf(items, MODEL.sequence.order);
   /* @end only */
+  /* @only running */
+  if (MODEL.running) items = runningTotal(items, MODEL.running.field, MODEL.running.date).order;
+  /* @end only */
   const boardOn = F.has("board") && MODEL.board && typeof renderBoard === "function";
   const calOn = F.has("calendar") && MODEL.calendar && typeof renderCalendar === "function";
   const dirOn = F.has("directory") && MODEL.directory && typeof renderDirectory === "function";
@@ -2101,6 +2149,28 @@ function render() {
       title.innerHTML = esc(r[FIELDS[0].name] || "(untitled)");
     }
     body.appendChild(title);
+    /* @only compute */
+    if (MODEL.compute) {
+      const vars = {};
+      for (const name of MODEL.compute.inputs || []) vars[name] = Number(r[name]) || 0;
+      let shown = "";
+      try {
+        const v = evalFormula(MODEL.compute.formula, vars);
+        shown = isFinite(v) ? String(Math.round(v * 1000) / 1000) : "—";
+      } catch (e) {
+        shown = "formula error";
+      }
+      body.appendChild(el("div", "d", MODEL.compute.formula + " = " + shown));
+    }
+    /* @end only */
+    /* @only running */
+    if (MODEL.running) {
+      const rt = runningTotal(rows, MODEL.running.field, MODEL.running.date);
+      const bal = rt.marks[r.id];
+      body.appendChild(el("div", "d" + (bal < 0 ? " overdue" : ""),
+        "balance " + money(bal === undefined ? 0 : bal)));
+    }
+    /* @end only */
     /* @only tally */
     if (MODEL.tally) {
       const t2 = tallyOf(rows, MODEL.tally.field);

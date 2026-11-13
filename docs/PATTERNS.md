@@ -987,6 +987,79 @@ empty cell shows a dot, not a blank; the corner holds the grand total.
 
 ---
 
+## formula-app
+
+| | |
+|---|---|
+| Archetype | 8 |
+| Status | **emitted** |
+| View | the list, with a computed column on every row |
+| Requires | `crud`, `formula`, `compute`, `theme` |
+| Requires fields | a `text`, and the numeric inputs |
+| Spec keys | `pattern`, `compute.formula`, `compute.inputs` |
+| Sample | [`specs/gallery/formula-app.md`](../specs/gallery/formula-app.md) |
+| Screenshot | [`docs/gallery/formula-app.png`](gallery/formula-app.png) |
+
+**Pros**
+
+- the formula is written once and applied to every row
+- it uses the same parser as the calculator, so there is no `eval` and no second dialect
+- change an input and the result is right on the next render
+- the total is the sum of what is shown, not a separate calculation
+
+**Cons**
+
+- one formula per app, over named fields
+- no row-to-row references, no lookups, no conditionals
+- no units checking: the formula is arithmetic, nothing more
+- a typo in the formula is refused, but a wrong formula is not
+
+**Best for:** a table where one column is always computed from the others.
+
+**Avoid if:** the calculation needs branches or references to other rows.
+
+**The rule:** the formula may only name its declared inputs and the eight maths functions. A
+row with a missing input computes as zero; a formula that throws shows "formula error" on that
+row and is counted as a bad row in the strip.
+
+---
+
+## register
+
+| | |
+|---|---|
+| Archetype | 5 |
+| Status | **emitted** |
+| View | the list in date order, with the balance after each entry |
+| Requires | `crud`, `running`, `theme` |
+| Requires fields | a `text`, a `date`, a `currency_cents` |
+| Spec keys | `pattern`, `running.field`, `running.date` |
+| Sample | [`specs/gallery/register.md`](../specs/gallery/register.md) |
+| Screenshot | [`docs/gallery/register.png`](gallery/register.png) |
+
+**Pros**
+
+- the balance after each entry is derived, so it cannot drift
+- a signed amount makes a payment and a receipt the same kind of record
+- the order is date then id, so the same entries give the same balances everywhere
+- it prints like a statement, because it is one
+
+**Cons**
+
+- no reconciliation, no categories, no running total per category
+- no opening balance field: the register starts at zero
+- entries are edited in place, so history can be rewritten
+- one currency, no conversion
+
+**Best for:** a small account you want to see add up.
+
+**Avoid if:** you need reconciliation or categories.
+
+**The rule:** entries sort by date, then by id, and the balance is the running sum of a signed
+amount. A missing amount leaves the balance where it was.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -1024,6 +1097,8 @@ spec naming it fails verification rather than silently building something else.
 | decision-log | the reason is kept | no voting | **emitted** |
 | voting | a tally at a glance | one device only | **emitted** |
 | grid | two dimensions | cramped past eight columns | **emitted** |
+| formula-app | a computed column | one formula per app | **emitted** |
+| register | a statement that adds up | no reconciliation | **emitted** |
 | Print / Report | shareable artefact | layout brittle across browsers | planned |
 
 ---

@@ -92,6 +92,7 @@ NEEDS_KEY = {
     "recur": "recur", "sequence": "sequence",
     "report": "report", "decide": "decide",
     "tally": "tally", "crosstab": "crosstab",
+    "compute": "compute", "running": "running",
     "dashboard": "dashboard", "multi": "entities",
 }
 
@@ -197,6 +198,49 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
         p.append("the 'multi' capability needs at least two entities")
     if len(ents) > 1 and "multi" not in (spec.get("features") or []):
         p.append(f"{len(ents)} entities need the 'multi' capability in features")
+
+    if "compute" in spec:
+        cp2 = spec["compute"]
+        if not isinstance(cp2, dict):
+            p.append("compute must be an object")
+        else:
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            ins = cp2.get("inputs")
+            if not isinstance(ins, list) or not ins:
+                p.append("compute.inputs must name at least one field")
+                ins = []
+            for name in ins:
+                if name not in types:
+                    p.append(f"compute.inputs names a field that does not exist: {name}")
+                elif types[name]["type"] not in ("number", "currency_cents", "duration"):
+                    p.append(f"compute.inputs field '{name}' is not numeric")
+            f0 = cp2.get("formula")
+            if not isinstance(f0, str) or not f0.strip():
+                p.append("compute.formula must be a non-empty string")
+            else:
+                allowed = set(ins) | {"min", "max", "abs", "round", "floor", "ceil",
+                                      "sqrt", "pow"}
+                used = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", f0))
+                stray = sorted(used - allowed)
+                if stray:
+                    p.append(f"compute.formula uses names that are not inputs: {', '.join(stray)}")
+
+    if "running" in spec:
+        rn = spec["running"]
+        if not isinstance(rn, dict):
+            p.append("running must be an object")
+        else:
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            fld = rn.get("field")
+            if fld not in types:
+                p.append(f"running.field '{fld}' is not a field on any entity")
+            elif types[fld]["type"] not in ("number", "currency_cents"):
+                p.append("running.field must be numeric")
+            dt = rn.get("date")
+            if dt not in types:
+                p.append(f"running.date '{dt}' is not a field on any entity")
+            elif types[dt]["type"] != "date":
+                p.append("running.date must be a date field")
 
     if "tally" in spec:
         tl2 = spec["tally"]

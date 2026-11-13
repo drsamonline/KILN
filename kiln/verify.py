@@ -199,6 +199,16 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "compute" in model["features"]:
+        res.add("L5", "compute: the formula is evaluated per row", "evalFormula(MODEL.compute.formula" in html)
+        res.add("L5", "compute: the parser is emitted", "function evalFormula(" in html)
+        res.add("L5", "compute: the config reached the model",
+                bool((model.get("compute") or {}).get("formula")))
+    if "running" in model["features"]:
+        res.add("L5", "running: the balance maths is emitted", "function runningTotal(" in html)
+        res.add("L5", "running: the closing balance is in the strip", "closing" in html)
+        res.add("L5", "running: the config reached the model",
+                bool((model.get("running") or {}).get("field")))
     if "tally" in model["features"]:
         res.add("L5", "tally: the share maths is emitted", "function tallyOf(" in html)
         res.add("L5", "tally: the leader is marked", "· leading" in html)

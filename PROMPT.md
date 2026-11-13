@@ -86,6 +86,10 @@ FIELD RULES
   Include the steps feature.
 - If the work MOVES THROUGH STAGES (new → done), use "pattern": "kanban" with
   "board": {"field": "<select field>"}. The columns are that field's options, in order.
+- If a column is COMPUTED from other columns, use "pattern": "formula-app" with
+  "compute": {"inputs": ["a", "b"], "formula": "a * b"}. Include formula and compute.
+- If the app is a STATEMENT that adds up, use "pattern": "register" with
+  "running": {"field": "<signed currency field>", "date": "<date field>"}.
 - If the app TALLIES VOTES, use "pattern": "voting" with "tally": {"field": "<number field>"}.
 - If the app needs TWO DIMENSIONS at once, use "pattern": "grid" with
   "crosstab": {"row": "<select field>", "column": "<select field>"}.
@@ -190,6 +194,8 @@ FEATURE CATALOGUE — the only features that exist
 | decide | a choice, its options and the reason | crud |
 | tally | a per-row count with the leader marked | crud |
 | crosstab | two dimensions at once, with counts | crud |
+| compute | a formula evaluated over each row's own fields | crud, formula |
+| running | a running balance in date order | crud |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees
