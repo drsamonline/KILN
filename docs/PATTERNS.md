@@ -843,6 +843,78 @@ tie is broken by id, so the sort is stable and the same rows always appear in th
 
 ---
 
+## report
+
+| | |
+|---|---|
+| Archetype | 15 |
+| Status | **emitted** |
+| View | a summary table above the list |
+| Requires | `crud`, `report`, `theme` |
+| Requires fields | a `text`, a `select` |
+| Spec keys | `pattern`, `report.group`, `report.sum` |
+| Sample | [`specs/gallery/report.md`](../specs/gallery/report.md) |
+| Screenshot | [`docs/gallery/report.png`](gallery/report.png) |
+
+**Pros**
+
+- the summary is derived from the rows, so it cannot disagree with them
+- one group field and one sum field is enough for most questions
+- it prints, because a summary is what people want on paper
+- the grand total is a row, not a footnote
+
+**Cons**
+
+- one grouping level: no cross-tab
+- groups are ordered by their sum, not by the spec
+- no date ranges or period filters
+- an empty group does not appear
+
+**Best for:** a monthly summary of records you already keep.
+
+**Avoid if:** you need two dimensions at once.
+
+**The rule:** groups sort by sum, then count, then key — a stable order, so the same rows always
+print the same way. A record with no group is its own row, not a silent omission.
+
+---
+
+## decision-log
+
+| | |
+|---|---|
+| Archetype | 23 |
+| Status | **emitted** |
+| View | the list, with the choice and the reason on the row |
+| Requires | `crud`, `decide`, `theme` |
+| Requires fields | a `text`, a `tags` |
+| Spec keys | `pattern`, `decide.choice`, `decide.why` |
+| Sample | [`specs/gallery/decision-log.md`](../specs/gallery/decision-log.md) |
+| Screenshot | [`docs/gallery/decision-log.png`](gallery/decision-log.png) |
+
+**Pros**
+
+- the reason sits next to the decision, which is the only place it is ever read
+- open decisions are counted, so the log doubles as a to-decide list
+- the options are kept even after the choice, so you can see what was rejected
+- it is a plain list: search, sort and export all still work
+
+**Cons**
+
+- no voting: the options are text, not tallies
+- no linking a decision to the record it affected
+- no superseding: a changed decision is a second record
+- one choice per decision
+
+**Best for:** a small team's record of why things are the way they are.
+
+**Avoid if:** the decision needs votes or approval steps.
+
+**The rule:** an empty choice is "still open" and is counted in the strip; the options stay
+visible after the choice is made.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -876,6 +948,8 @@ spec naming it fails verification rather than silently building something else.
 | invoice | a printable bill | no tax or numbering | **emitted** |
 | scheduler | maintenance cycles | days only | **emitted** |
 | playlist | an explicit order | no drag and drop | **emitted** |
+| report | a summary on paper | one dimension only | **emitted** |
+| decision-log | the reason is kept | no voting | **emitted** |
 | Print / Report | shareable artefact | layout brittle across browsers | planned |
 
 ---

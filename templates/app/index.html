@@ -78,6 +78,15 @@
     bits.push("<span><b>" + rows.length + "</b> items</span>");
   }
   /* @end only */
+  /* @only report */
+  #report{margin:0 0 14px;overflow-x:auto}
+  #report table{border-collapse:collapse;width:100%;font-size:13px}
+  #report th,#report td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left}
+  #report th{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+  #report td:nth-child(2),#report td:nth-child(3){text-align:right;
+    font-variant-numeric:tabular-nums}
+  #report tr.grand td{font-weight:700;border-top:2px solid var(--line)}
+  /* @end only */
   /* @only variance */
   .vbar{height:7px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);
     margin:7px 0 5px;overflow:hidden}
@@ -312,6 +321,9 @@
   <!-- @end only -->
   <!-- @only calendar -->
   <section id="cal" aria-label="calendar"></section>
+  <!-- @end only -->
+  <!-- @only report -->
+  <section id="report" aria-label="summary"></section>
   <!-- @end only -->
   <ul class="list" id="list"></ul>
 </main>
@@ -971,6 +983,34 @@ function sequenceOf(rows, orderField) {
 }
 /* seq:end */
 
+/* ---------- a grouped summary ---------- */
+/* @only report */
+/* sum:start */
+function summarise(rows, groupField, sumField) {
+  const byKey = {};
+  const order = [];
+  for (const r of rows) {
+    const raw = r[groupField];
+    const key = (raw === null || raw === undefined || raw === "") ? "" : String(raw);
+    if (!(key in byKey)) {
+      byKey[key] = {key: key, count: 0, sum: 0};
+      order.push(key);
+    }
+    byKey[key].count += 1;
+    if (sumField) {
+      const v = Number(r[sumField]);
+      if (isFinite(v)) byKey[key].sum += v;
+    }
+  }
+  const out = order.map((k) => byKey[k]);
+  /* biggest first, and a stable tie so the same rows always print in the same order */
+  out.sort((a, b) => (b.sum - a.sum) || (b.count - a.count) ||
+    (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+  return out;
+}
+/* sum:end */
+/* @end only */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -1298,6 +1338,61 @@ function renderComparison() {
     }
     table.appendChild(tr);
   }
+  box.innerHTML = "";
+  box.appendChild(table);
+}
+/* @end only */
+
+/* @only report */
+function renderReport() {
+  const box = $("#report");
+  if (!MODEL.report) return;
+  box.hidden = false;
+  const groupField = MODEL.report.group;
+  const sumField = MODEL.report.sum;
+  const groups = summarise(visible(), groupField, sumField);
+  const label = (FIELDS.find((f) => f.name === groupField) || {}).label || groupField;
+  let grand = 0, count = 0;
+  for (const g of groups) { grand += g.sum; count += g.count; }
+  const table = document.createElement("table");
+  const head = document.createElement("tr");
+  const heads = [label, "records"];
+  if (sumField) heads.push("sum");
+  for (const h of heads) {
+    const th = document.createElement("th");
+    th.textContent = h;
+    head.appendChild(th);
+  }
+  table.appendChild(head);
+  for (const g of groups) {
+    const tr = document.createElement("tr");
+    const k = document.createElement("td");
+    k.textContent = g.key || "—";
+    tr.appendChild(k);
+    const c = document.createElement("td");
+    c.textContent = String(g.count);
+    tr.appendChild(c);
+    if (sumField) {
+      const s = document.createElement("td");
+      s.textContent = money(g.sum);
+      tr.appendChild(s);
+    }
+    table.appendChild(tr);
+  }
+  const foot = document.createElement("tr");
+  foot.className = "grand";
+  const f1 = document.createElement("td");
+  f1.textContent = "all";
+  const f2 = document.createElement("td");
+  f2.textContent = String(count);
+  foot.appendChild(f1);
+  foot.appendChild(f2);
+  if (sumField) {
+    const f3 = document.createElement("td");
+    f3.textContent = money(grand);
+    foot.appendChild(f3);
+  }
+  table.appendChild(foot);
   box.innerHTML = "";
   box.appendChild(table);
 }
@@ -1678,6 +1773,14 @@ function renderStrip() {
   const strip = $("#strip");
   const items = visible();
   const bits = [];
+  /* @only decide */
+  if (MODEL.decide) {
+    let open = 0;
+    for (const r of rows) if (!r[MODEL.decide.choice]) open += 1;
+    bits.push("<span><b>" + (rows.length - open) + "</b> decided</span>");
+    if (open) bits.push('<span class="bad"><b>' + open + "</b> open</span>");
+  }
+  /* @end only */
   /* @only recur */
   if (MODEL.recur) {
     let due = 0, soon = 0;
@@ -1748,6 +1851,9 @@ function render() {
   paintBanners();
   const list = $("#list");
   let items = visible();
+  /* @only report */
+  if (MODEL.report && typeof renderReport === "function") renderReport();
+  /* @end only */
   /* @only sequence */
   if (MODEL.sequence) items = sequenceOf(items, MODEL.sequence.order);
   /* @end only */
@@ -1843,6 +1949,16 @@ function render() {
       title.innerHTML = esc(r[FIELDS[0].name] || "(untitled)");
     }
     body.appendChild(title);
+    /* @only decide */
+    if (MODEL.decide) {
+      const choice = r[MODEL.decide.choice];
+      body.appendChild(el("div", "d" + (choice ? "" : " overdue"),
+        choice ? "chose " + String(choice) : "still open"));
+      if (MODEL.decide.why && r[MODEL.decide.why]) {
+        body.appendChild(el("p", "b", String(r[MODEL.decide.why]).slice(0, 220)));
+      }
+    }
+    /* @end only */
     /* @only recur */
     if (MODEL.recur) {
       const nd = nextDue(r[MODEL.recur.last], r[MODEL.recur.every]);

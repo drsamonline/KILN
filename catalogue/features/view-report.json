@@ -1,0 +1,11 @@
+{
+  "id": "view-report",
+  "family": "F4",
+  "name": "report",
+  "spec_keys": ["features[]", "report.group", "report.sum"],
+  "emitter_hook": "templates/app/index.html::summarise",
+  "verify_check": "three records in two categories show two summary rows and a grand total",
+  "docs_anchor": "docs/PATTERNS.md#report",
+  "status": "emitted",
+  "note": "group, count and sum, sorted by sum, with a grand total and a print view"
+}

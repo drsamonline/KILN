@@ -65,6 +65,8 @@ def plan(spec, catalog, tier="personal", licensee="", with_docs=False) -> list[d
         "amount": spec.get("amount"),
         "recur": spec.get("recur"),
         "sequence": spec.get("sequence"),
+        "report": spec.get("report"),
+        "decide": spec.get("decide"),
         "features": features,
         "entities": spec["entities"],
         "assertions": [catalog["features"][f]["assertion"] for f in features],

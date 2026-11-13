@@ -1,0 +1,35 @@
+{
+  "id": "decision-log",
+  "name": "Decision log",
+  "archetype": 23,
+  "status": "emitted",
+  "descriptor": "What was decided, from which options, and why — with the ones still open counted in the strip.",
+  "view": "list + rationale",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "decide", "theme"],
+  "requires_fields": ["text", "tags"],
+  "requires_keys": ["decide"],
+  "spec_defaults": {"tier": 1, "features": ["crud", "decide", "search", "export", "theme"]},
+  "verify_checks": [
+    "pattern decision-log: required features present",
+    "decide: the choice is shown on the row",
+    "decide: open decisions are counted",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/decision-log.md",
+  "screenshot": "docs/gallery/decision-log.png",
+  "pros": [
+    "the reason sits next to the decision, which is the only place it is ever read",
+    "open decisions are counted, so the log doubles as a to-decide list",
+    "the options are kept even after the choice, so you can see what was rejected",
+    "it is a plain list: search, sort and export all still work"
+  ],
+  "cons": [
+    "no voting: the options are text, not tallies",
+    "no linking a decision to the record it affected",
+    "no superseding: a changed decision is a second record",
+    "one choice per decision"
+  ],
+  "best_for": "a small team's record of why things are the way they are",
+  "avoid_if": "the decision needs votes or approval steps"
+}

@@ -1,0 +1,35 @@
+{
+  "id": "report",
+  "name": "Report",
+  "archetype": 15,
+  "status": "emitted",
+  "descriptor": "The rows you have, summarised by one field: a count and a sum per group, a grand total, and a print button.",
+  "view": "summary table",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "report", "theme"],
+  "requires_fields": ["text", "select"],
+  "requires_keys": ["report"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "report", "search", "print", "export", "theme"]},
+  "verify_checks": [
+    "pattern report: required features present",
+    "report: the grouping is emitted",
+    "report: the grand total is emitted",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/report.md",
+  "screenshot": "docs/gallery/report.png",
+  "pros": [
+    "the summary is derived from the rows, so it cannot disagree with them",
+    "one group field and one sum field is enough for most questions",
+    "it prints, because a summary is what people want on paper",
+    "the grand total is a row, not a footnote"
+  ],
+  "cons": [
+    "one grouping level: no cross-tab",
+    "groups are not ordered by the spec, they are ordered by their sum",
+    "no date ranges or period filters",
+    "an empty group does not appear"
+  ],
+  "best_for": "a monthly summary of records you already keep",
+  "avoid_if": "you need two dimensions at once"
+}

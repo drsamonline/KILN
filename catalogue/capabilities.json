@@ -677,6 +677,40 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "three tracks of 3, 4 and 5 minutes show 3 of 3 and 12 minutes in total"
+    },
+    "report": {
+      "label": "A grouped summary: one line per group, with a count and a sum",
+      "aliases": [
+        "report",
+        "summary",
+        "by category",
+        "totals per group",
+        "printable summary"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "three records in two categories show two summary rows and a grand total"
+    },
+    "decide": {
+      "label": "A decision, the options it was made from, and the reason",
+      "aliases": [
+        "decision log",
+        "chose",
+        "why we picked",
+        "options and choice",
+        "rationale"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "a decision with a choice shows what was chosen and why; one without shows open"
     }
   }
 }

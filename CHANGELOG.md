@@ -4,6 +4,21 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.26 — 2026-11-13
+
+Two archetypes in one batch: `report` and `decision-log`. Both are views over rows that
+already exist.
+
+| Area | Change |
+|---|---|
+| Archetype | `report` — a summary table above the list: one row per group, a count, a sum, and a grand total |
+| Archetype | `decision-log` — the choice and the reason on the row, with open decisions counted in the strip |
+| Capabilities | `report` and `decide` — 44 in total |
+| Registry | `view-report` and `view-decide` (F4) — 78 entries |
+| Correctness | the summary sorts by sum, then count, then key: a stable order, so the same rows always print the same way |
+| Correctness | a record with no group is its own row, not a silent omission |
+| Counts | 411 tests, 390 guards, 27 specs verifying |
+
 ## v0.25 — 2026-11-13
 
 Two archetypes in one batch: `scheduler` and `playlist`. Both are ordered by something other

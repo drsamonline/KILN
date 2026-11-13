@@ -1,0 +1,11 @@
+{
+  "id": "view-decide",
+  "family": "F4",
+  "name": "decide",
+  "spec_keys": ["features[]", "decide.choice", "decide.why"],
+  "emitter_hook": "templates/app/index.html::renderDecide",
+  "verify_check": "a decision with a choice shows what was chosen and why",
+  "docs_anchor": "docs/PATTERNS.md#decision-log",
+  "status": "emitted",
+  "note": "the choice and the reason on the row, with open decisions counted in the strip"
+}

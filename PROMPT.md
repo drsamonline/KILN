@@ -86,6 +86,10 @@ FIELD RULES
   Include the steps feature.
 - If the work MOVES THROUGH STAGES (new → done), use "pattern": "kanban" with
   "board": {"field": "<select field>"}. The columns are that field's options, in order.
+- If the app is a SUMMARY you print, use "pattern": "report" with
+  "report": {"group": "<select field>", "sum": "<numeric field>"}.
+- If the app records WHY THINGS ARE THE WAY THEY ARE, use "pattern": "decision-log" with
+  "decide": {"choice": "<text field>", "why": "<longtext field>"}.
 - If the app REPEATS (maintenance, servicing, renewals), use "pattern": "scheduler" with
   "recur": {"last": "<date field>", "every": "<number field, days>"}.
 - If the app is a QUEUE or PLAYLIST, use "pattern": "playlist" with
@@ -179,6 +183,8 @@ FEATURE CATALOGUE — the only features that exist
 | amount | quantity times rate, and the total | crud |
 | recur | a next-due date from a last date and an interval | crud |
 | sequence | an explicit order, with position and running time | crud |
+| report | a grouped summary with counts and sums | crud |
+| decide | a choice, its options and the reason | crud |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees

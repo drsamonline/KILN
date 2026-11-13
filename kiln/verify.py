@@ -199,6 +199,16 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "report" in model["features"]:
+        res.add("L5", "report: the grouping is emitted", "function summarise(" in html)
+        res.add("L5", "report: the grand total is emitted", 'className = "grand"' in html)
+        res.add("L5", "report: the config reached the model",
+                bool((model.get("report") or {}).get("group")))
+    if "decide" in model["features"]:
+        res.add("L5", "decide: the choice is shown on the row", "chose " in html)
+        res.add("L5", "decide: open decisions are counted", " open</span>" in html or '"</b> open' in html)
+        res.add("L5", "decide: the config reached the model",
+                bool((model.get("decide") or {}).get("choice")))
     if "recur" in model["features"]:
         res.add("L5", "recur: the next-due maths is emitted", "function nextDue(" in html)
         res.add("L5", "recur: date arithmetic is UTC", "Date.UTC(" in html)

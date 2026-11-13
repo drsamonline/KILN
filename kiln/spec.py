@@ -90,6 +90,7 @@ NEEDS_KEY = {
     "quiz": "quiz", "gallery": "gallery",
     "variance": "variance", "amount": "amount",
     "recur": "recur", "sequence": "sequence",
+    "report": "report", "decide": "decide",
     "dashboard": "dashboard", "multi": "entities",
 }
 
@@ -195,6 +196,38 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
         p.append("the 'multi' capability needs at least two entities")
     if len(ents) > 1 and "multi" not in (spec.get("features") or []):
         p.append(f"{len(ents)} entities need the 'multi' capability in features")
+
+    if "report" in spec:
+        rp = spec["report"]
+        if not isinstance(rp, dict):
+            p.append("report must be an object")
+        else:
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            g = rp.get("group")
+            if g not in types:
+                p.append(f"report.group '{g}' is not a field on any entity")
+            elif types[g]["type"] not in ("select", "text", "tags"):
+                p.append("report.group must be a select, text or tags field")
+            s0 = rp.get("sum")
+            if s0 is not None:
+                if s0 not in types:
+                    p.append(f"report.sum '{s0}' is not a field on any entity")
+                elif types[s0]["type"] not in ("number", "currency_cents", "duration"):
+                    p.append("report.sum must be numeric")
+
+    if "decide" in spec:
+        dc = spec["decide"]
+        if not isinstance(dc, dict):
+            p.append("decide must be an object")
+        else:
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            ch = dc.get("choice")
+            if ch not in types:
+                p.append(f"decide.choice '{ch}' is not a field on any entity")
+            elif types[ch]["type"] not in ("text", "select"):
+                p.append("decide.choice must be a text or select field")
+            if "why" in dc and dc["why"] not in types:
+                p.append(f"decide.why '{dc['why']}' is not a field on any entity")
 
     if "recur" in spec:
         rc = spec["recur"]
