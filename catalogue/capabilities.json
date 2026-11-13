@@ -459,10 +459,10 @@
       "label": "A search-first directory: one box, cards, no toolbar",
       "aliases": [
         "directory",
-        "search first",
         "lookup",
-        "find someone",
-        "cards"
+        "cards",
+        "reference list",
+        "phone book"
       ],
       "requires": [
         "crud",
@@ -479,8 +479,7 @@
         "comparison",
         "compare",
         "matrix",
-        "side by side",
-        "which is better"
+        "side by side"
       ],
       "requires": [
         "crud"

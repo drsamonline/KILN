@@ -79,6 +79,15 @@ def load(path, catalog=None) -> dict:
     return spec
 
 
+# a capability that cannot work without a block of its own
+NEEDS_KEY = {
+    "tracker": "tracker", "progress": "progress", "calculator": "calculator",
+    "converter": "converter", "wizard": "wizard", "detail": "detail",
+    "totals": "totals", "board": "board", "calendar": "calendar",
+    "directory": "directory", "comparison": "comparison", "i18n": "i18n",
+}
+
+
 def validate(spec, catalog=None, path="<spec>") -> list[str]:
     p: list[str] = []
     if not isinstance(spec, dict):
@@ -172,6 +181,10 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
                 p.append("tracker.window must be a whole number from 1 to 90")
 
     field_names = {f["name"] for e in ents for f in (e.get("fields") or [])}
+
+    for cap, key in NEEDS_KEY.items():
+        if cap in (spec.get("features") or []) and key not in spec:
+            p.append(f"the '{cap}' capability needs a '{key}' block: it cannot work without one")
 
     if "directory" in spec:
         dr = spec["directory"]
