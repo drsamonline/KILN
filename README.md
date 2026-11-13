@@ -8,7 +8,7 @@ A deterministic compiler that turns a small specification into a complete, worki
 offline application — one HTML file. No model in the loop, no network, nothing to install.
 
 [![CI](https://github.com/drsamonline/KILN/actions/workflows/kiln.yml/badge.svg)](https://github.com/drsamonline/KILN/actions/workflows/kiln.yml)
-[![tests](https://img.shields.io/badge/tests-252%20passing-brightgreen)](#verification)
+[![tests](https://img.shields.io/badge/tests-265%20passing-brightgreen)](#verification)
 [![guards](https://img.shields.io/badge/guards-200%20passing-brightgreen)](#verification)
 [![dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)](#self-contained)
 [![network](https://img.shields.io/badge/network-not%20required-brightgreen)](#self-contained)
@@ -126,6 +126,8 @@ then a passing verification.
 | `kiln licence list` | keys issued from this machine, and their expiry | no |
 | `kiln studio` | rebuild `studio.html` | no |
 | `kiln guide` / `--check` | regenerate the two generated guides, or fail if stale | no |
+| `kiln explain <spec>` / `--json` | what a spec will produce: pattern, capabilities, fields, size, checks | no |
+| `kiln completions bash\|zsh\|fish` | shell completions, generated from the parser | no |
 | `kiln demo` | rebuild `demo.html` | no |
 | `kiln catalog` | features, kits, assertions | no |
 | `kiln audit` | 200 guards over this repository | no |
@@ -137,7 +139,7 @@ then a passing verification.
 
 | Part | Detail |
 |---|---|
-| `index.html` | the whole app, 34–42 KB: embedded model, runtime, styles. **The output is one file** |
+| `index.html` | the whole app, typically 38–43 KB: embedded model, runtime, styles. **The output is one file** |
 | Storage | namespaced `localStorage`, versioned, quota-aware, corrupt-state recovery |
 | CRUD | list, create, edit, delete — generated from the entity schema |
 | Search | field scan, `Ctrl-K` to focus |
@@ -184,8 +186,8 @@ Nothing here is claimed without a command and its output.
 
 | Check | What it proves |
 |---|---|
-| `python3 -m unittest discover -s tests` | 252 tests, Python 3.9 → 3.13 |
-| `python3 -m kiln verify --all` | every spec builds; 700 checks across thirteen specs |
+| `python3 -m unittest discover -s tests` | 265 tests, Python 3.9 → 3.13 |
+| `python3 -m kiln verify --all` | every spec builds; 700+ checks across thirteen specs |
 | `python3 -m kiln audit` | 85 guards: wiring, drift, licences, workflows, studio, prompt, site, links, support |
 | `kiln verify --at <sha>` | the artifact is read at the commit, not the working tree |
 
@@ -248,7 +250,7 @@ the usual shapes are below — and the first one costs nothing.
 
 | Path | Contents |
 |---|---|
-| `GUIDE-*.md` | six guides: quickstart, spec reference, features, cookbook, patterns, contribute |
+| `GUIDE-*.md` | eight guides: quickstart, spec reference, features, cookbook, patterns, contribute |
 | `PROMPT.md` | the prompt bridge, with the catalogue in it |
 | `index.html` | the landing page |
 | `demo.html` | a real generated app, inlined and running |
@@ -260,7 +262,7 @@ the usual shapes are below — and the first one costs nothing.
 | `kiln/` | the compiler, including `guide.py`, which writes two of the guides |
 | `templates/` | the runtime, the studio, the demo |
 | `specs/` | one spec per app; `specs/gallery/` holds one per archetype |
-| `tests/` | 252 tests: the Ed25519 RFC vector, determinism, the registry, the archetypes, and the tracker maths run under node |
+| `tests/` | 265 tests: the Ed25519 RFC vector, determinism, the registry, the archetypes, and the tracker maths run under node |
 | `docs/` | architecture, portability, workflow, self-containment, spec reference, FAQ, [patterns](docs/PATTERNS.md) — start at [`docs/README.md`](docs/README.md) |
 | `INDEX.md` | generated list of every spec |
 | `CITATION.cff` | how to cite it |

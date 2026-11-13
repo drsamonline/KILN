@@ -422,7 +422,8 @@ def check_counts() -> list[Row]:
 
 # --------------------------------------------------- C17 the guides are current
 GUIDES = ["GUIDE-QUICKSTART.md", "GUIDE-SPEC-REF.md", "GUIDE-COOKBOOK.md",
-          "GUIDE-PATTERNS.md", "GUIDE-FEATURES.md", "GUIDE-CONTRIBUTE.md"]
+          "GUIDE-PATTERNS.md", "GUIDE-FEATURES.md", "GUIDE-CONTRIBUTE.md",
+          "GUIDE-LIMITS.md", "GUIDE-LICENSING.md"]
 
 
 def check_guides(catalog) -> list[Row]:

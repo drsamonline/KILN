@@ -25,8 +25,8 @@
     "kits": 5
   },
   "verification": {
-    "tests": 252,
-    "guards": 240,
+    "tests": 265,
+    "guards": 248,
     "ci": ".github/workflows/kiln.yml"
   },
   "topics": [
@@ -63,9 +63,9 @@
     "layout": "single file",
     "file": "index.html",
     "docs_flag": "--with-docs",
-    "size_target_kb": 40,
-    "size_ceiling_kb": 44,
-    "justification": "the tracker archetype needs derived + chart + stats + search + sort + theme"
+    "size_typical_kb": "38-43",
+    "size_ceiling_kb": 100,
+    "policy": "lenient: the ceiling is a backstop, not a target"
   },
   "registry": {
     "path": "catalogue/features/",
@@ -95,7 +95,7 @@
     ]
   },
   "guides": {
-    "count": 6,
+    "count": 8,
     "generated": [
       "GUIDE-SPEC-REF.md",
       "GUIDE-FEATURES.md"

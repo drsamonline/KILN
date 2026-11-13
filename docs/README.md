@@ -8,6 +8,8 @@
 | [GUIDE-COOKBOOK.md](../GUIDE-COOKBOOK.md) | one recipe per archetype |
 | [GUIDE-PATTERNS.md](../GUIDE-PATTERNS.md) | choosing an archetype |
 | [GUIDE-CONTRIBUTE.md](../GUIDE-CONTRIBUTE.md) | the five touches for a capability |
+| [GUIDE-LIMITS.md](../GUIDE-LIMITS.md) | what it will not do, in one page |
+| [GUIDE-LICENSING.md](../GUIDE-LICENSING.md) | the two editions |
 | [USAGE.md](../USAGE.md) | how do I build an app, start to finish |
 | [INSTALL.md](../INSTALL.md) | what do I need, on this machine or a phone |
 | [SPEC-REFERENCE.md](SPEC-REFERENCE.md) | every key, type, feature and rule in a spec |

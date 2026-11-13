@@ -19,7 +19,7 @@ from kiln import guards          # noqa: E402
 from kiln import spec as specmod  # noqa: E402
 from kiln import verify          # noqa: E402
 
-CEILING = 44 * 1024
+CEILING = 100 * 1024
 BOARD = ROOT / "specs" / "gallery" / "kanban.md"
 CAL = ROOT / "specs" / "gallery" / "calendar.md"
 

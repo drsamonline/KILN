@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.17 — 2026-11-13
+
+The size policy relaxed, and the Phase C tooling.
+
+| Area | Change |
+|---|---|
+| Size | **one lenient ceiling: 100 KB.** The 40/44 KB rule is gone. Typical builds are 38–43 KB, and the ceiling is a backstop rather than a target. Per-capability stripping stays, because a calculator still should not carry a month grid |
+| Command | `kiln explain <spec>` — pattern, capabilities, fields, real measured size, checks. `--json` for machines. Never raises on a bad spec; it explains the failure |
+| Command | `kiln completions bash\|zsh\|fish` — generated from the argument parser that just ran, so it cannot describe a stale CLI |
+| Guides | `GUIDE-LIMITS.md` and `GUIDE-LICENSING.md` — §7's eight guides are now all present |
+| Guard | `C17` covers all eight |
+| Counts | 265 tests, 248 guards |
+
 ## v0.16 — 2026-11-13
 
 Two archetypes in one batch: `kanban` and `calendar`. The first alternative views.

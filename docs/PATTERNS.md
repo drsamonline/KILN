@@ -434,15 +434,20 @@ spec naming it fails verification rather than silently building something else.
 
 ---
 
-## Size, and the ceiling
+## Size
 
-The target is 40 KB per generated app. The enforced ceiling is 44 KB.
+**Target: under 100 KB. The ceiling is 100 KB, and it is a backstop, not a target.**
 
-A capability that a spec does not declare is stripped at emit time, including its CSS and
-its markup, so most apps sit between 34 and 40 KB. The tracker archetype is the exception:
-`derived` + `chart` + `stats` + `search` + `sort` + `theme` together do not fit in 40 KB, and
-dropping one would break the pattern's own contract. That is the written justification §5
-asks for.
+Most apps build at 38–43 KB. A capability a spec does not declare is stripped at emit time —
+its code, its CSS and its markup — so a calculator does not carry the board, and a journal
+does not carry the month grid. That is why the numbers stay where they are without anyone
+rationing features.
+
+The board and the calendar are the largest because the view is the point: a five-column board
+and a forty-two cell grid emit more markup than a list.
+
+If an app does pass 100 KB, that is a signal worth reading: either the spec asked for a great
+many capabilities at once, or something is no longer being stripped.
 
 ## Adding an archetype
 

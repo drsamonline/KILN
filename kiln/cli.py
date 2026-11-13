@@ -11,7 +11,9 @@ from pathlib import Path
 
 from . import adopt as adoptmod
 from . import catalog as cat
-from . import compose, demo as demomod, emit, guards, guide as guidemod, intent
+from . import completions as compmod
+from . import compose, demo as demomod, emit, explain as explainmod
+from . import guards, guide as guidemod, intent
 from . import licence as lic
 from . import prose
 from . import prompt as promptmod
@@ -213,6 +215,30 @@ def cmd_adopt(args, catalog) -> int:
         _, out, ok = _build(dest, catalog, args.out_dir or ROOT / "out")
         return 0 if ok else 1
     print("next: python3 -m kiln build " + str(dest))
+    return 0
+
+
+def cmd_explain(args, catalog) -> int:
+    """What this spec will produce, measured on a real build."""
+    e = explainmod.explain(args.spec, catalog, tier=getattr(args, "tier", "personal"))
+    if args.json:
+        print(json.dumps(e, indent=2))
+    else:
+        print(explainmod.render(e))
+    return 0 if e.get("ok") else 1
+
+
+def cmd_completions(args, catalog=None) -> int:
+    """Generated from the parser that just ran, so it cannot describe a stale CLI."""
+    parser = getattr(args, "_parser", None)
+    if parser is None:
+        print("completions needs the parser; run it from the command line")
+        return 2
+    try:
+        print(compmod.build(args.shell, parser), end="")
+    except ValueError as e:
+        print(str(e))
+        return 2
     return 0
 
 
@@ -499,6 +525,16 @@ def main(argv=None) -> int:
     p.add_argument("-o", "--out")
     p.set_defaults(fn=cmd_demo)
 
+    p = sub.add_parser("explain", help="what a spec will produce, before you trust it")
+    p.add_argument("spec")
+    p.add_argument("--tier", choices=["personal", "commercial"], default="personal")
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(fn=cmd_explain)
+
+    p = sub.add_parser("completions", help="shell completions for bash, zsh or fish")
+    p.add_argument("shell", choices=sorted(compmod.SHELLS))
+    p.set_defaults(fn=cmd_completions)
+
     p = sub.add_parser("guide", help="regenerate the generated guides")
     p.add_argument("--check", action="store_true", help="fail if a guide is stale")
     p.set_defaults(fn=cmd_guide)
@@ -544,6 +580,7 @@ def main(argv=None) -> int:
     p.set_defaults(fn=cmd_llm)
 
     args = ap.parse_args(argv)
+    args._parser = ap
     try:
         catalog = cat.load()
     except cat.CatalogError as e:

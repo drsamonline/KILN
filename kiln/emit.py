@@ -18,6 +18,9 @@ class EmitError(Exception):
 def strip_unused(text: str, features) -> tuple[str, list[str]]:
     """Remove the blocks for capabilities this app does not have.
 
+    Not a size diet: a calculator should not carry a month grid it cannot show. The
+    100 KB ceiling is a backstop; this keeps the output honest about what it is.
+
     A line scanner, not a regex over the whole file: a regular expression cannot
     pair markers reliably when one block follows another, and a mis-paired block
     silently deletes the wrong code. The stack makes nesting impossible to get
