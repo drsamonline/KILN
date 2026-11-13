@@ -4,6 +4,22 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.16 — 2026-11-13
+
+Two archetypes in one batch: `kanban` and `calendar`. The first alternative views.
+
+| Area | Change |
+|---|---|
+| Archetype | `kanban` — a board of columns from one select field, a card per record, two move buttons |
+| Archetype | `calendar` — a six by seven month grid, Monday first, computed in UTC, a cell per day |
+| Capabilities | `board` and `calendar` — 29 in total |
+| Registry | `view-board` and `view-calendar` (F4) — 59 entries |
+| Render | the board and the calendar replace the list; both read the same filtered rows, so search still works |
+| Refactor | the strip is now `renderStrip()`, so three views share one summary |
+| Emit | `groupBy`, the month maths and `openEditorFor` are gated to their capability; the view CSS is gated too |
+| Size | kanban 41.8 KB and calendar 42.1 KB, both above the 40 KB target and under the 44 KB ceiling — a board of five columns and a 42-cell grid are the most markup any archetype emits |
+| Counts | 252 tests, 240 guards |
+
 ## v0.15 — 2026-11-13
 
 Two archetypes in one batch: `journal` and `log`.

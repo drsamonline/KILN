@@ -1,0 +1,11 @@
+{
+  "id": "view-calendar",
+  "family": "F4",
+  "name": "calendar",
+  "spec_keys": ["features[]", "calendar.field"],
+  "emitter_hook": "templates/app/index.html::renderCalendar",
+  "verify_check": "a record dated the 13th appears in the cell for the 13th of that month",
+  "docs_anchor": "docs/PATTERNS.md#calendar",
+  "status": "emitted",
+  "note": "a six by seven month grid, Monday first, computed in UTC so it cannot drift"
+}

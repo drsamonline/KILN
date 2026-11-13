@@ -52,7 +52,7 @@ There is no `pip install`, no virtualenv requirement, no PATH change, no service
 ## Verify the install
 
 ```bash
-python3 -m unittest discover -s tests     # 231 tests
+python3 -m unittest discover -s tests     # 252 tests
 python3 -m kiln verify --all              # every spec builds
 python3 -m kiln audit                     # 200 guards
 ```

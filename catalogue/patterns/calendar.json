@@ -1,0 +1,35 @@
+{
+  "id": "calendar",
+  "name": "Calendar",
+  "archetype": 4,
+  "status": "emitted",
+  "descriptor": "A month grid over one date field. Six rows, seven columns, Monday first, and a cell per day.",
+  "view": "calendar",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "calendar", "theme"],
+  "requires_fields": ["date"],
+  "requires_keys": ["calendar"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "calendar", "search", "sort", "export", "theme"]},
+  "verify_checks": [
+    "pattern calendar: required features present",
+    "calendar: the grid is emitted",
+    "calendar: the month maths is emitted",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/calendar.md",
+  "screenshot": "docs/gallery/calendar.png",
+  "pros": [
+    "time is the axis people already think in",
+    "an empty day is a fact you can see, not one you have to compute",
+    "clicking a day opens the form with the date filled in",
+    "the grid is computed in UTC, so it cannot drift across a timezone"
+  ],
+  "cons": [
+    "no times of day: one date field, one cell",
+    "no recurring entries, no multi-day spans",
+    "two entries a day is the most a cell shows before it says '+N more'",
+    "a phone gets a cramped month; the list is the better view there"
+  ],
+  "best_for": "one thing per day, seen across a month",
+  "avoid_if": "entries have times, durations, or spans across days"
+}

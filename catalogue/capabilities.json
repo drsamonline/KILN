@@ -419,6 +419,41 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "two entries of 30 and 90 minutes show a total of 2h"
+    },
+    "board": {
+      "label": "A board of columns from one select field",
+      "aliases": [
+        "board",
+        "kanban",
+        "columns",
+        "pipeline",
+        "stages",
+        "move between"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "three records in two stages show two columns, with the counts on the headers"
+    },
+    "calendar": {
+      "label": "A month grid over one date field",
+      "aliases": [
+        "calendar",
+        "month",
+        "by day",
+        "schedule",
+        "appointments"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "a record dated the 13th appears in the cell for the 13th of that month"
     }
   }
 }

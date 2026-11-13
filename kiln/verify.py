@@ -199,6 +199,18 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "board" in model["features"]:
+        res.add("L5", "board: the board is emitted", "function renderBoard(" in html)
+        res.add("L5", "board: the grouping is emitted", "function groupBy(" in html)
+        res.add("L5", "board: the markup exists", 'id="board"' in html)
+        res.add("L5", "board: the config reached the model",
+                bool((model.get("board") or {}).get("field")))
+    if "calendar" in model["features"]:
+        res.add("L5", "calendar: the grid is emitted", "function renderCalendar(" in html)
+        res.add("L5", "calendar: the month maths is emitted", "function monthGrid(" in html)
+        res.add("L5", "calendar: the markup exists", 'id="cal"' in html)
+        res.add("L5", "calendar: the config reached the model",
+                bool((model.get("calendar") or {}).get("field")))
     if "detail" in model["features"]:
         res.add("L5", "detail: the read view is emitted", "function openDetail(" in html)
         res.add("L5", "detail: the dialog exists", 'id="detail"' in html)

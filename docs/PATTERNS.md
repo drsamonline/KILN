@@ -332,6 +332,79 @@ is the sum of one field, recomputed on every render and never stored.
 
 ---
 
+## kanban
+
+| | |
+|---|---|
+| Archetype | 3 |
+| Status | **emitted** |
+| View | a board of columns |
+| Requires | `crud`, `board`, `theme` |
+| Requires fields | a `select` with at least two options |
+| Spec keys | `pattern`, `board.field` |
+| Sample | [`specs/gallery/kanban.md`](../specs/gallery/kanban.md) |
+| Screenshot | [`docs/gallery/kanban.png`](gallery/kanban.png) |
+
+**Pros**
+
+- the state of everything is visible at once, without reading rows
+- moving a card is one button, not an edit form
+- the column counts are the summary, so no separate stats are needed
+- it degrades to a scrolling row of columns on a phone
+
+**Cons**
+
+- no drag and drop: two buttons per card instead
+- columns come from a select field, so adding a stage means editing the spec
+- no work-in-progress limits, no swimlanes
+- past four or five columns it wants a wide screen
+
+**Best for:** work that moves through a handful of named stages.
+
+**Avoid if:** the order within a column matters, or stages need rules.
+
+**The rule:** the columns are the options of one select field, in the order the spec lists
+them. A value outside that list lands in a column called Unplaced, and `verify` refuses a
+board on anything but a select with two or more options.
+
+---
+
+## calendar
+
+| | |
+|---|---|
+| Archetype | 4 |
+| Status | **emitted** |
+| View | a month grid |
+| Requires | `crud`, `calendar`, `theme` |
+| Requires fields | a `date` |
+| Spec keys | `pattern`, `calendar.field` |
+| Sample | [`specs/gallery/calendar.md`](../specs/gallery/calendar.md) |
+| Screenshot | [`docs/gallery/calendar.png`](gallery/calendar.png) |
+
+**Pros**
+
+- time is the axis people already think in
+- an empty day is a fact you can see, not one you have to compute
+- clicking a day opens the form with the date filled in
+- the grid is computed in UTC, so it cannot drift across a timezone
+
+**Cons**
+
+- no times of day: one date field, one cell
+- no recurring entries, no multi-day spans
+- two entries a day is the most a cell shows before it says "+N more"
+- a phone gets a cramped month; the list is the better view there
+
+**Best for:** one thing per day, seen across a month.
+
+**Avoid if:** entries have times, durations, or spans across days.
+
+**The rule:** six rows of seven, Monday first, 42 cells always, computed in UTC from
+`YYYY-MM`. A day is a string, so grouping is a comparison and never a timezone.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -341,8 +414,8 @@ spec naming it fails verification rather than silently building something else.
 |---|---|---|---|
 | crud-list | fast, familiar | linear search >5k rows | **emitted** |
 | Master-detail | shows relations | more spec surface | planned |
-| Kanban | status at a glance | mobile-unfriendly >5 cols | planned |
-| Calendar | time context | overlap, cramped month view | planned |
+| kanban | status at a glance | mobile-unfriendly >5 cols | **emitted** |
+| calendar | time context | overlap, cramped month view | **emitted** |
 | tracker | streaks, motivation | needs discipline | **emitted** |
 | checklist | packing, grocery | one level only | **emitted** |
 | journal | low friction | no encryption | **emitted** |

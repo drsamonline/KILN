@@ -1,0 +1,11 @@
+{
+  "id": "view-board",
+  "family": "F4",
+  "name": "board",
+  "spec_keys": ["features[]", "board.field"],
+  "emitter_hook": "templates/app/index.html::renderBoard",
+  "verify_check": "three records in two stages show two columns, with the counts on the headers",
+  "docs_anchor": "docs/PATTERNS.md#kanban",
+  "status": "emitted",
+  "note": "columns from the options of one select field, a card per record, move with two buttons"
+}

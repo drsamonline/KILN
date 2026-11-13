@@ -1,0 +1,35 @@
+{
+  "id": "kanban",
+  "name": "Kanban",
+  "archetype": 3,
+  "status": "emitted",
+  "descriptor": "A board of columns from one select field. Status at a glance, and one move per card.",
+  "view": "board",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "board", "theme"],
+  "requires_fields": ["select"],
+  "requires_keys": ["board"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "board", "search", "export", "theme"]},
+  "verify_checks": [
+    "pattern kanban: required features present",
+    "board: the board is emitted",
+    "board: the grouping is emitted",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/kanban.md",
+  "screenshot": "docs/gallery/kanban.png",
+  "pros": [
+    "the state of everything is visible at once, without reading rows",
+    "moving a card is one button, not an edit form",
+    "the column counts are the summary, so no separate stats are needed",
+    "it degrades to a scrolling row of columns on a phone"
+  ],
+  "cons": [
+    "no drag and drop: two buttons per card instead",
+    "columns come from a select field, so adding a stage means editing the spec",
+    "no work-in-progress limits, no swimlanes",
+    "past four or five columns it wants a wide screen"
+  ],
+  "best_for": "work that moves through a handful of named stages",
+  "avoid_if": "the order within a column matters, or stages need rules"
+}

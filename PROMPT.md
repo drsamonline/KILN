@@ -84,6 +84,10 @@ FIELD RULES
 - If the form is too long for one screen, use "pattern": "wizard" with
   "wizard": {"steps": [{"title", "fields": [...]}]}. A field belongs to exactly one step.
   Include the steps feature.
+- If the work MOVES THROUGH STAGES (new → done), use "pattern": "kanban" with
+  "board": {"field": "<select field>"}. The columns are that field's options, in order.
+- If the app is ABOUT DAYS (appointments, a diary of dates), use "pattern": "calendar"
+  with "calendar": {"field": "<date field>"}.
 - If the app is ONE CALCULATION with no list (a converter, a rate, a dose), use
   "pattern": "calculator" with "entities": [] and a "calculator" object:
   {"inputs": [{"name","label","default","min","max"}], "formula": "<expression>",
@@ -130,6 +134,8 @@ FEATURE CATALOGUE — the only features that exist
 | steps | a form split into steps, validated one at a time | crud |
 | detail | read one record in full, read-only | crud |
 | totals | a running total of one numeric or duration field | crud |
+| board | a board of columns from one select field | crud |
+| calendar | a month grid over one date field | crud |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees

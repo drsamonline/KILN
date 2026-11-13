@@ -14,7 +14,8 @@ FIELD_TYPES = {"text", "longtext", "number", "date", "bool", "select", "tags",
 REQUIRED_KEYS = ["id", "name", "tier", "category", "pitch", "features",
                  "entities", "storage", "done_means", "not"]
 OPTIONAL_KEYS = ["pattern", "accent", "currency", "tracker", "progress",
-                 "calculator", "i18n", "converter", "wizard", "detail", "totals"]
+                 "calculator", "i18n", "converter", "wizard", "detail", "totals",
+                 "board", "calendar"]
 KNOWN_LANGS = {"en", "hi", "gu"}
 
 # A done-means must name something a person can watch happen.
@@ -159,6 +160,40 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
                 p.append("tracker.window must be a whole number from 1 to 90")
 
     field_names = {f["name"] for e in ents for f in (e.get("fields") or [])}
+
+    if "board" in spec:
+        bd = spec["board"]
+        if not isinstance(bd, dict):
+            p.append("board must be an object")
+        else:
+            fld = bd.get("field")
+            if fld not in field_names:
+                p.append(f"board.field '{fld}' is not a field on any entity")
+            else:
+                types = {f["name"]: f["type"] for e in ents for f in (e.get("fields") or [])}
+                if types[fld] != "select":
+                    p.append("board.field must be a select field, because its options are the columns")
+                else:
+                    opts = [f for e in ents for f in (e.get("fields") or []) if f["name"] == fld][0].get("options") or []
+                    if len(opts) < 2:
+                        p.append("board.field needs at least two options, one per column")
+        if "board" not in spec.get("features", []):
+            p.append("a board block needs the 'board' capability in features")
+
+    if "calendar" in spec:
+        cd = spec["calendar"]
+        if not isinstance(cd, dict):
+            p.append("calendar must be an object")
+        else:
+            fld = cd.get("field")
+            if fld not in field_names:
+                p.append(f"calendar.field '{fld}' is not a field on any entity")
+            else:
+                types = {f["name"]: f["type"] for e in ents for f in (e.get("fields") or [])}
+                if types[fld] != "date":
+                    p.append("calendar.field must be a date field")
+        if "calendar" not in spec.get("features", []):
+            p.append("a calendar block needs the 'calendar' capability in features")
 
     if "detail" in spec:
         dt = spec["detail"]

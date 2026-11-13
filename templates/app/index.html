@@ -69,6 +69,38 @@
   .spark .axis{stroke:var(--line);stroke-width:1}
   .spark .lbl{fill:var(--muted);font-size:9px}
   /* @end only */
+  /* @only board */
+  #board{display:none;gap:12px;overflow-x:auto;padding:0 0 8px;margin:0 0 14px}
+  #board.on{display:flex}
+  .col{flex:1 0 200px;background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--r);padding:10px;min-height:120px}
+  .col h4{margin:0 0 8px;font-size:12px;letter-spacing:.4px;text-transform:uppercase;
+    color:var(--muted);display:flex;justify-content:space-between}
+  .col h4 b{color:var(--ink)}
+  .card{background:var(--panel2);border:1px solid var(--line);border-radius:9px;
+    padding:9px;margin:0 0 8px;font-size:13px}
+  .card .t{font-weight:600;margin:0 0 4px}
+  .card .m{color:var(--muted);font-size:12px}
+  .card .mv{display:flex;gap:6px;margin:6px 0 0}
+  .card .mv button{padding:2px 8px;min-height:0;font-size:12px}
+  /* @end only */
+  /* @only calendar */
+  #cal{display:none;margin:0 0 14px}
+  #cal.on{display:block}
+  .calhead{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+  .calhead b{font-size:15px;min-width:140px}
+  .grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .dow{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;
+    padding:0 0 4px;text-align:center}
+  .day{background:var(--panel);border:1px solid var(--line);border-radius:8px;min-height:74px;
+    padding:6px;font-size:12px;text-align:left;cursor:pointer;color:var(--ink)}
+  .day.out{opacity:.4}
+  .day.today{border-color:var(--accent)}
+  .day .n{color:var(--muted);font-size:11px}
+  .day .e{display:block;margin:3px 0 0;font-size:11.5px;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .day .more{color:var(--muted);font-size:11px}
+  /* @end only */
   /* @only convert */
   #convert{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
     padding:18px;margin:0 0 14px}
@@ -191,6 +223,12 @@
   <!-- @end only -->
   <!-- @only convert -->
   <section id="convert" hidden></section>
+  <!-- @end only -->
+  <!-- @only board -->
+  <div id="board" role="list"></div>
+  <!-- @end only -->
+  <!-- @only calendar -->
+  <section id="cal" aria-label="calendar"></section>
   <!-- @end only -->
   <ul class="list" id="list"></ul>
 </main>
@@ -600,6 +638,55 @@ function totalsOf(rows, cfg) {
 }
 /* totals:end */
 
+/* ---------- grouping ----------
+   Pure: rows in, columns out. Used by the board. */
+/* @only board */
+/* group:start */
+function groupBy(rows, field, columns) {
+  const out = [];
+  const known = {};
+  for (const c of columns) {
+    const col = {key: c, items: []};
+    out.push(col);
+    known[c] = col;
+  }
+  const loose = {key: "", items: []};
+  for (const r of rows) {
+    const v = r[field];
+    if (v !== undefined && v !== null && known[v]) known[v].items.push(r);
+    else loose.items.push(r);
+  }
+  if (loose.items.length) out.push(loose);
+  return out;
+}
+/* group:end */
+/* @end only */
+
+/* ---------- the month grid ----------
+   Pure: "YYYY-MM" in, 42 cells out, Monday first, all in UTC so it cannot drift. */
+/* @only calendar */
+/* month:start */
+function monthGrid(ym) {
+  const parts = String(ym).split("-");
+  const y = Number(parts[0]), m = Number(parts[1]);
+  if (!y || !m) throw new Error("a month is YYYY-MM");
+  const firstDow = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7;
+  const cells = [];
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(Date.UTC(y, m - 1, 1 - firstDow + i));
+    const iso = d.toISOString().slice(0, 10);
+    cells.push({date: iso, inMonth: d.getUTCMonth() === m - 1, day: d.getUTCDate()});
+  }
+  return cells;
+}
+function addMonths(ym, n) {
+  const parts = String(ym).split("-");
+  const d = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1 + n, 1));
+  return d.toISOString().slice(0, 7);
+}
+/* month:end */
+/* @end only */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -804,6 +891,139 @@ function renderProgress() {
     '" aria-valuemin="0" aria-valuemax="100"><span style="width:' + p.pct + '%"></span></div>';
 }
 /* @end only */
+/* @only board */
+let view = "board";
+function moveCard(r, delta) {
+  const field = MODEL.board.field;
+  const opts = (FIELDS.find((f) => f.name === field) || {}).options || [];
+  const i = opts.indexOf(r[field]);
+  const j = Math.min(opts.length - 1, Math.max(0, (i < 0 ? 0 : i) + delta));
+  if (j === i) return;
+  r[field] = opts[j];
+  r.updated = today();
+  save();
+  render();
+}
+function renderBoard() {
+  const box = $("#board");
+  if (!MODEL.board) return;
+  const field = MODEL.board.field;
+  const def = FIELDS.find((f) => f.name === field) || {};
+  const cols = MODEL.board.columns || def.options || [];
+  const groups = groupBy(visible(), field, cols);
+  box.innerHTML = "";
+  for (const g of groups) {
+    const col = document.createElement("div");
+    col.className = "col";
+    col.setAttribute("role", "listitem");
+    const head = document.createElement("h4");
+    head.innerHTML = "<span>" + esc(g.key || "Unplaced") + "</span><b>" + g.items.length + "</b>";
+    col.appendChild(head);
+    for (const r of g.items) {
+      const card = document.createElement("div");
+      card.className = "card";
+      const tt = document.createElement("div");
+      tt.className = "t";
+      tt.textContent = String(r[FIELDS[0].name] || "(untitled)");
+      card.appendChild(tt);
+      for (const f of FIELDS.slice(1)) {
+        if (f.name === field) continue;
+        const v = r[f.name];
+        if (v === undefined || v === null || v === "" || f.type === "bool") continue;
+        const m = document.createElement("div");
+        m.className = "m";
+        m.textContent = f.type === "duration" ? fmtDuration(v)
+          : f.type === "currency_cents" ? money(v)
+          : Array.isArray(v) ? v.join(", ") : String(v);
+        card.appendChild(m);
+        break;
+      }
+      const mv = document.createElement("div");
+      mv.className = "mv";
+      const left = document.createElement("button");
+      left.className = "ghost";
+      left.textContent = "\u2190";
+      left.setAttribute("aria-label", "move " + tt.textContent + " back");
+      left.onclick = () => moveCard(r, -1);
+      const right = document.createElement("button");
+      right.className = "ghost";
+      right.textContent = "\u2192";
+      right.setAttribute("aria-label", "move " + tt.textContent + " on");
+      right.onclick = () => moveCard(r, 1);
+      mv.appendChild(left); mv.appendChild(right);
+      card.appendChild(mv);
+      col.appendChild(card);
+    }
+    box.appendChild(col);
+  }
+}
+/* @end only */
+
+/* @only calendar */
+let calMonth = null;
+function renderCalendar() {
+  const box = $("#cal");
+  if (!MODEL.calendar) return;
+  const field = MODEL.calendar.field;
+  if (!calMonth) calMonth = today().slice(0, 7);
+  const cells = monthGrid(calMonth);
+  const byDay = {};
+  for (const r of visible()) {
+    const d = r[field];
+    if (!d) continue;
+    (byDay[d] = byDay[d] || []).push(r);
+  }
+  const t = today();
+  box.innerHTML = "";
+  const head = document.createElement("div");
+  head.className = "calhead";
+  const prev = document.createElement("button");
+  prev.className = "ghost"; prev.textContent = "\u2039";
+  prev.setAttribute("aria-label", "previous month");
+  prev.onclick = () => { calMonth = addMonths(calMonth, -1); render(); };
+  const next = document.createElement("button");
+  next.className = "ghost"; next.textContent = "\u203a";
+  next.setAttribute("aria-label", "next month");
+  next.onclick = () => { calMonth = addMonths(calMonth, 1); render(); };
+  const label = document.createElement("b");
+  label.textContent = calMonth;
+  head.appendChild(prev); head.appendChild(label); head.appendChild(next);
+  box.appendChild(head);
+
+  const grid = document.createElement("div");
+  grid.className = "grid7";
+  for (const d of ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]) {
+    const h = document.createElement("div");
+    h.className = "dow"; h.textContent = d;
+    grid.appendChild(h);
+  }
+  for (const c of cells) {
+    const cell = document.createElement("button");
+    cell.type = "button";
+    cell.className = "day" + (c.inMonth ? "" : " out") + (c.date === t ? " today" : "");
+    cell.setAttribute("aria-label", c.date + (byDay[c.date] ? ", " + byDay[c.date].length + " entries" : ", empty"));
+    const n = document.createElement("span");
+    n.className = "n"; n.textContent = String(c.day);
+    cell.appendChild(n);
+    const list = byDay[c.date] || [];
+    for (const r of list.slice(0, 2)) {
+      const e = document.createElement("span");
+      e.className = "e";
+      e.textContent = String(r[FIELDS[0].name] || "(untitled)");
+      cell.appendChild(e);
+    }
+    if (list.length > 2) {
+      const more = document.createElement("span");
+      more.className = "more"; more.textContent = "+" + (list.length - 2) + " more";
+      cell.appendChild(more);
+    }
+    cell.onclick = () => openEditorFor(c.date);
+    grid.appendChild(cell);
+  }
+  box.appendChild(grid);
+}
+/* @end only */
+
 /* @only detail */
 function openDetail(r) {
   if (!r) return;
@@ -858,10 +1078,46 @@ function renderDerived() {
 }
 /* @end only */
 
+/* one place builds the strip, so a total and a count cannot overwrite each other */
+function renderStrip() {
+  const strip = $("#strip");
+  const items = visible();
+  const bits = [];
+  if (F.has("totals") && MODEL.totals) {
+    const tt = totalsOf(rows, MODEL.totals);
+    const shown = MODEL.totals.format === "duration" ? fmtDuration(tt.sum) : String(tt.sum);
+    bits.push("<span><b>" + esc(shown) + "</b> " + esc(MODEL.totals.label || "total") + "</span>");
+  }
+  if (F.has("stats")) {
+    bits.push("<span><b>" + rows.length + "</b> " + T("total") + "</span>");
+    bits.push("<span><b>" + items.length + "</b> " + T("shown") + "</span>");
+  }
+  if (F.has("reminder")) {
+    const over = rows.filter(isOverdue).length;
+    if (over) bits.push('<span class="bad"><b>' + over + "</b> overdue</span>");
+  }
+  strip.hidden = !bits.length;
+  strip.innerHTML = bits.join("");
+}
+
 function render() {
   paintBanners();
   const list = $("#list");
   const items = visible();
+  const boardOn = F.has("board") && MODEL.board && typeof renderBoard === "function";
+  const calOn = F.has("calendar") && MODEL.calendar && typeof renderCalendar === "function";
+  if (boardOn || calOn) {
+    list.hidden = true;
+    list.innerHTML = "";
+    const b = $("#board"), c = $("#cal");
+    if (b) b.className = boardOn ? "on" : "";
+    if (c) c.className = calOn ? "on" : "";
+    if (boardOn) renderBoard();
+    if (calOn) renderCalendar();
+    renderStrip();
+    return;
+  }
+  list.hidden = false;
   list.innerHTML = "";
   if (!items.length) {
     list.appendChild(el("li", "empty", rows.length ? "No match." : T("empty")));
@@ -938,24 +1194,7 @@ function render() {
   if (CALC && F.has("formula")) { return; }
   if (F.has("progress")) renderProgress();
   if (F.has("derived")) renderDerived();
-  /* one place builds the strip, so a total and a count cannot overwrite each other */
-  const strip = $("#strip");
-  const bits = [];
-  if (F.has("totals") && MODEL.totals) {
-    const tt = totalsOf(rows, MODEL.totals);
-    const shown = MODEL.totals.format === "duration" ? fmtDuration(tt.sum) : String(tt.sum);
-    bits.push("<span><b>" + esc(shown) + "</b> " + esc(MODEL.totals.label || "total") + "</span>");
-  }
-  if (F.has("stats")) {
-    bits.push("<span><b>" + rows.length + "</b> " + T("total") + "</span>");
-    bits.push("<span><b>" + items.length + "</b> " + T("shown") + "</span>");
-  }
-  if (F.has("reminder")) {
-    const over = rows.filter(isOverdue).length;
-    if (over) bits.push('<span class="bad"><b>' + over + "</b> overdue</span>");
-  }
-  strip.hidden = !bits.length;
-  strip.innerHTML = bits.join("");
+  renderStrip();
 }
 
 /* ---------- form ---------- */
@@ -1062,6 +1301,15 @@ function collectStep() {
   const {out, errs} = readForm(STEPS[stepIndex].fields);
   for (const k of Object.keys(out)) draft[k] = out[k];
   return errs;
+}
+/* @end only */
+
+/* @only calendar */
+function openEditorFor(dateISO) {
+  openEditor(null);
+  const f = FIELDS.find((x) => x.type === "date");
+  const input = f ? $("#f_" + f.name) : null;
+  if (input) input.value = dateISO;
 }
 /* @end only */
 
