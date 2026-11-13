@@ -488,6 +488,40 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "the cheapest price shows a mark, and a row that is not cheapest shows none"
+    },
+    "multi": {
+      "label": "More than one list in one app, with a switcher",
+      "aliases": [
+        "two lists",
+        "multi",
+        "several entities",
+        "projects and tasks"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "web-kit",
+      "emitter": "runtime",
+      "assertion": "two entities show a switcher, and switching keeps each list's own rows"
+    },
+    "dashboard": {
+      "label": "A strip of metric cards across one or more entities",
+      "aliases": [
+        "dashboard",
+        "metrics",
+        "overview",
+        "at a glance",
+        "kpi"
+      ],
+      "requires": [
+        "crud",
+        "multi"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "two tasks and one note show 2 and 1 on two cards"
     }
   }
 }

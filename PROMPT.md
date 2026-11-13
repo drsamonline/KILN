@@ -86,6 +86,10 @@ FIELD RULES
   Include the steps feature.
 - If the work MOVES THROUGH STAGES (new → done), use "pattern": "kanban" with
   "board": {"field": "<select field>"}. The columns are that field's options, in order.
+- If the app needs TWO LISTS (patients and visits, projects and tasks), use
+  "pattern": "dashboard" with two entities, "dashboard": {"cards": [{"label", "entity",
+  "metric": "count"|"sum"|"avg"|"max"|"min"|"latest", "field", "format"}]} and the multi
+  and dashboard features. The lists are independent: they cannot reference each other.
 - If the app is a LOOKUP (a directory, a reference you search), use
   "pattern": "search-directory" with "directory": {"subtitle": "<field>", "body": "<field>"}.
   Include search and directory.
@@ -143,6 +147,8 @@ FEATURE CATALOGUE — the only features that exist
 | calendar | a month grid over one date field | crud |
 | directory | a search-first lookup with cards | crud, search |
 | comparison | a fixed-column table with the best value marked | crud |
+| multi | more than one list in one app | crud |
+| dashboard | a strip of metric cards | crud, multi |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees

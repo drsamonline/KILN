@@ -1,0 +1,11 @@
+{
+  "id": "metric-card",
+  "family": "F7",
+  "name": "metric-card",
+  "spec_keys": ["features[]", "dashboard.cards[]"],
+  "emitter_hook": "templates/app/index.html::metricOf",
+  "verify_check": "two tasks and one note show 2 and 1 on two cards",
+  "docs_anchor": "docs/PATTERNS.md#dashboard",
+  "status": "emitted",
+  "note": "count, sum, average or latest, over any declared entity"
+}

@@ -54,15 +54,16 @@
   #search{flex:1 1 220px; min-width:160px}
   .strip{display:flex; gap:14px; margin:0 0 12px; color:var(--muted); font-size:13px}
   .strip b{color:var(--ink)}
-  /* @only derived */
-  #derived{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
-    padding:14px;margin:0 0 14px}
   .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:12px;
     margin:0 0 10px}
   .metric{min-width:0}
-  .metric .k{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
-  .metric .v{font-size:20px;font-weight:700;line-height:1.2}
-  .metric .u{font-size:12px;color:var(--muted);margin-left:2px}
+  .metric b{display:block;font-size:22px;font-weight:800;line-height:1.15}
+  .metric span{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+  .metric .u{font-size:12px;color:var(--muted);margin-left:2px;text-transform:none;
+    letter-spacing:0}
+  /* @only derived */
+  #derived{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    padding:14px;margin:0 0 14px}
   .spark{display:block;width:100%;height:64px}
   .spark .bar{fill:var(--accent);opacity:.85}
   .spark .bar.empty{opacity:.15}
@@ -238,6 +239,9 @@
   <!-- @only derived -->
   <div id="derived" hidden></div>
   <!-- @end only -->
+  <!-- @only dashboard -->
+  <section id="dash" aria-label="dashboard"></section>
+  <!-- @end only -->
   <!-- @only progress -->
   <div id="progress" hidden></div>
   <!-- @end only -->
@@ -332,8 +336,23 @@ function fnv(str) {
 function tampered() {
   try { return fnv(canon(MODEL)) !== BUILD.fp; } catch (e) { return true; }
 }
-const ENTITY = MODEL.entities[0] || {name: "item", label: "Item", fields: []};
-const FIELDS = ENTITY.fields || [];
+const MULTI = MODEL.entities.length > 1 && F.has("multi");
+let ENTITY = MODEL.entities[0] || {name: "item", label: "Item", fields: []};
+let FIELDS = ENTITY.fields || [];
+const DB = {};                       /* entity name -> rows */
+for (const e of MODEL.entities) DB[e.name] = [];
+/* @only multi */
+function setEntity(name) {
+  const e = MODEL.entities.find((x) => x.name === name);
+  if (!e) return;
+  ENTITY = e;
+  FIELDS = e.fields || [];
+  rows = DB[name] || [];
+  bootSort();
+  render();
+}
+/* @end only */
+
 const KEY = "kiln:" + MODEL.namespace;
 const THEME_KEY = "kiln:" + MODEL.namespace + ":theme";
 const LANG_KEY = "kiln:" + MODEL.namespace + ":lang";
@@ -358,7 +377,7 @@ const LANGLIST = (MODEL.i18n && MODEL.i18n.languages) || ["en"];
 /* T falls back to English, then to the key itself */
 const T = (k) => (typeof LANGS !== "undefined" && LANGS[lang] && LANGS[lang][k]) || EN[k] || k;
 
-let rows = [];
+let rows = DB[(MODEL.entities[0] || {}).name] || [];
 let query = "";
 let sortBy = "created";
 let sortDir = -1;
@@ -426,6 +445,12 @@ function load() {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
+    if (parsed && parsed.data && typeof parsed.data === "object") {
+      for (const name of Object.keys(DB)) {
+        DB[name] = Array.isArray(parsed.data[name]) ? parsed.data[name] : [];
+      }
+      return DB[(MODEL.entities[0] || {}).name] || [];
+    }
     if (!parsed || !Array.isArray(parsed.rows)) throw new Error("shape");
     return parsed.rows;
   } catch (e) {
@@ -436,7 +461,8 @@ function load() {
 }
 function save() {
   try {
-    localStorage.setItem(KEY, JSON.stringify({v: MODEL.version, rows: rows}));
+    const payload = MULTI ? {v: MODEL.version, data: DB} : {v: MODEL.version, rows: rows};
+    localStorage.setItem(KEY, JSON.stringify(payload));
     return true;
   } catch (e) {
     banner = {kind: "bad", text: "Storage is full. This change is in memory only and will be lost on reload. Export now to keep it."};
@@ -732,6 +758,40 @@ function columnBest(rows, field, mode) {
 }
 /* best:end */
 
+/* ---------- a metric over one list ----------
+   Pure: rows and a card in, one number out. metric:start */
+function metricOf(rows, card) {
+  const kind = card.metric || "count";
+  if (kind === "count") return rows.length;
+  const field = card.field;
+  if (!field) return 0;
+  const vals = [];
+  for (const r of rows) {
+    const raw = r[field];
+    if (raw === null || raw === undefined || raw === "") continue;
+    const v = Number(raw);
+    if (isFinite(v)) vals.push(v);
+  }
+  if (!vals.length) return 0;
+  const sum = vals.reduce((a, b) => a + b, 0);
+  if (kind === "sum") return sum;
+  if (kind === "avg") return sum / vals.length;
+  if (kind === "max") return Math.max.apply(null, vals);
+  if (kind === "min") return Math.min.apply(null, vals);
+  if (kind === "latest") {
+    let best = null, stamp = "";
+    for (const r of rows) {
+      const raw = r[field];
+      if (raw === null || raw === undefined || raw === "") continue;
+      const when = String(r.date || r.created || r.updated || "");
+      if (best === null || when >= stamp) { best = Number(raw); stamp = when; }
+    }
+    return best === null ? 0 : best;
+  }
+  return 0;
+}
+/* metric:end */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -920,6 +980,32 @@ function renderConvert() {
   };
   ["cvIn", "cvFrom", "cvTo"].forEach((id) => { const elx = $("#" + id); if (elx) elx.oninput = update; });
   update();
+}
+/* @end only */
+
+/* @only dashboard */
+function renderDash() {
+  const box = $("#dash");
+  if (!MODEL.dashboard) return;
+  box.hidden = false;
+  box.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "metrics";
+  for (const card of MODEL.dashboard.cards || []) {
+    const list = DB[card.entity] || [];
+    const v = metricOf(list, card);
+    const shown = card.format === "duration" ? fmtDuration(v)
+      : card.format === "money" ? money(v)
+      : card.decimals !== undefined ? Number(v).toFixed(card.decimals)
+      : String(Math.round(v * 10) / 10);
+    const cell = document.createElement("div");
+    cell.className = "metric";
+    cell.innerHTML = "<b>" + esc(shown) +
+      (card.unit ? '<span class="u">' + esc(card.unit) + "</span>" : "") +
+      "</b><span>" + esc(card.label || card.metric) + "</span>";
+    wrap.appendChild(cell);
+  }
+  box.appendChild(wrap);
 }
 /* @end only */
 
@@ -1352,6 +1438,7 @@ function render() {
     list.appendChild(li);
   }
   if (CALC && F.has("formula")) { return; }
+  if (F.has("dashboard")) renderDash();
   if (F.has("progress")) renderProgress();
   if (F.has("derived")) renderDerived();
   renderStrip();
@@ -1687,6 +1774,23 @@ function boot() {
   bootTheme();
   bootPWA();
   bootAbout();
+  if (MULTI) {
+    const bar = document.createElement("div");
+    bar.className = "row";
+    bar.style.margin = "0 0 10px";
+    bar.setAttribute("role", "tablist");
+    for (const e of MODEL.entities) {
+      const b = document.createElement("button");
+      b.className = e.name === ENTITY.name ? "primary" : "ghost";
+      b.textContent = e.label + "s";
+      b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", e.name === ENTITY.name ? "true" : "false");
+      b.onclick = () => setEntity(e.name);
+      bar.appendChild(b);
+    }
+    const main = document.querySelector("main");
+    if (main) main.insertBefore(bar, main.firstChild);
+  }
   if (F.has("directory")) {
     const s0 = $("#search");
     if (s0) { s0.classList.add("big"); s0.focus(); }

@@ -4,6 +4,22 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.20 — 2026-11-13
+
+Multi-entity, and the `dashboard` archetype that needed it.
+
+| Area | Change |
+|---|---|
+| Multi-entity | a spec may declare two or more entities; a switcher changes which list is being edited, and storage becomes `{v, data: {entity: rows}}` |
+| Backwards | a single-entity app keeps the older `{v, rows}` shape, so every existing spec builds as before |
+| Archetype | `dashboard` — a strip of metric cards over one or more entities, above the list |
+| Metric | `count`, `sum`, `avg`, `max`, `min`, `latest`, computed over the whole list on every render |
+| Capabilities | `multi` and `dashboard` — 33 in total |
+| Registry | `view-multi` (F1) and `metric-card` (F7) — 63 entries |
+| CSS | the metric strip moved out of the `derived` block into the base stylesheet: it is shared by two capabilities, so it is not optional |
+| Guard | `C16` caught the counts, again |
+| Counts | 308 tests, 279 guards, 16 specs verifying |
+
 ## v0.19 — 2026-11-13
 
 Two archetypes in one batch: `search-directory` and `comparison`.

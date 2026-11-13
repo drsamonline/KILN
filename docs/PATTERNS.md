@@ -477,6 +477,44 @@ numeric column to `max` or `min`; the best value in each mapped column gets a ma
 
 ---
 
+## dashboard
+
+| | |
+|---|---|
+| Archetype | 7 |
+| Status | **emitted** |
+| View | a strip of metric cards, a switcher, and one list at a time |
+| Requires | `crud`, `multi`, `dashboard`, `theme` |
+| Requires fields | a `text` on each entity |
+| Spec keys | `pattern`, `dashboard.cards[]`, and **two or more entities** |
+| Sample | [`specs/gallery/dashboard.md`](../specs/gallery/dashboard.md) |
+| Screenshot | [`docs/gallery/dashboard.png`](gallery/dashboard.png) |
+
+**Pros**
+
+- two lists in one file, which most small tools actually need
+- the cards answer the first question before any list is read
+- each list keeps its own fields and its own form
+- one storage key, one export, one backup
+
+**Cons**
+
+- no relation between the lists: a visit cannot point at a patient
+- the cards are computed over every row, not over a chosen period
+- four metrics is the sensible maximum before the strip wraps
+- one list is visible at a time; there is no combined view
+
+**Best for:** two related lists and a question about their totals.
+
+**Avoid if:** the lists need to reference each other.
+
+**The rule:** more than one entity requires the `multi` capability, and `multi` requires at
+least two entities. A card names an entity, a metric (`count`, `sum`, `avg`, `max`, `min`,
+`latest`), and a field for everything except `count`. Storage becomes `{v, data: {entity:
+rows}}`; a single-entity app keeps the older `{v, rows}` shape.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -491,7 +529,7 @@ spec naming it fails verification rather than silently building something else.
 | tracker | streaks, motivation | needs discipline | **emitted** |
 | checklist | packing, grocery | one level only | **emitted** |
 | journal | low friction | no encryption | **emitted** |
-| Dashboard | insight at a glance | charts add weight | planned |
+| dashboard | insight at a glance | charts add weight | **emitted** |
 | wizard | guided, fewer errors | long specs, slow for pros | **emitted** |
 | Quiz / Flashcard | a learning loop | content authoring burden | planned |
 | calculator | tiny, instant | no persistence by default | **emitted** |

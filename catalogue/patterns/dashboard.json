@@ -1,0 +1,35 @@
+{
+  "id": "dashboard",
+  "name": "Dashboard",
+  "archetype": 7,
+  "status": "emitted",
+  "descriptor": "Two or more lists, a switcher between them, and a strip of metric cards over all of them.",
+  "view": "metrics + list",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "multi", "dashboard", "theme"],
+  "requires_fields": ["text"],
+  "requires_keys": ["dashboard"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "multi", "dashboard", "search", "export", "theme"]},
+  "verify_checks": [
+    "pattern dashboard: required features present",
+    "multi: the switcher is emitted",
+    "dashboard: the metric maths is emitted",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/dashboard.md",
+  "screenshot": "docs/gallery/dashboard.png",
+  "pros": [
+    "two lists in one file, which most small tools actually need",
+    "the cards answer the first question before any list is read",
+    "each list keeps its own fields and its own form",
+    "one storage key, one export, one backup"
+  ],
+  "cons": [
+    "no relation between the lists: a task cannot point at a project",
+    "the cards are computed over every row, not over a chosen period",
+    "four metrics is the sensible maximum before the strip wraps",
+    "one list is visible at a time; there is no combined view"
+  ],
+  "best_for": "two related lists and a question about their totals",
+  "avoid_if": "the lists need to reference each other"
+}

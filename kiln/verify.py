@@ -199,6 +199,16 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "multi" in model["features"]:
+        res.add("L5", "multi: more than one entity reached the model",
+                len(model.get("entities", [])) >= 2)
+        res.add("L5", "multi: the switcher is emitted", "function setEntity(" in html)
+        res.add("L5", "multi: storage carries a set of lists", "data: DB" in html)
+    if "dashboard" in model["features"]:
+        res.add("L5", "dashboard: the metric maths is emitted", "function metricOf(" in html)
+        res.add("L5", "dashboard: the panel is emitted", 'id="dash"' in html)
+        res.add("L5", "dashboard: the cards reached the model",
+                len((model.get("dashboard") or {}).get("cards", [])) >= 1)
     if "directory" in model["features"]:
         res.add("L5", "directory: the view is emitted", "function renderDirectory(" in html)
         res.add("L5", "directory: match highlighting is emitted", "function highlight(" in html)

@@ -15,7 +15,7 @@ REQUIRED_KEYS = ["id", "name", "tier", "category", "pitch", "features",
                  "entities", "storage", "done_means", "not"]
 OPTIONAL_KEYS = ["pattern", "accent", "currency", "tracker", "progress",
                  "calculator", "i18n", "converter", "wizard", "detail", "totals",
-                 "board", "calendar", "directory", "comparison"]
+                 "board", "calendar", "directory", "comparison", "dashboard"]
 KNOWN_LANGS = {"en", "hi", "gu"}
 
 # A done-means must name something a person can watch happen.
@@ -85,6 +85,7 @@ NEEDS_KEY = {
     "converter": "converter", "wizard": "wizard", "detail": "detail",
     "totals": "totals", "board": "board", "calendar": "calendar",
     "directory": "directory", "comparison": "comparison", "i18n": "i18n",
+    "dashboard": "dashboard", "multi": "entities",
 }
 
 
@@ -185,6 +186,38 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
     for cap, key in NEEDS_KEY.items():
         if cap in (spec.get("features") or []) and key not in spec:
             p.append(f"the '{cap}' capability needs a '{key}' block: it cannot work without one")
+    if "multi" in (spec.get("features") or []) and len(ents) < 2:
+        p.append("the 'multi' capability needs at least two entities")
+    if len(ents) > 1 and "multi" not in (spec.get("features") or []):
+        p.append(f"{len(ents)} entities need the 'multi' capability in features")
+
+    if "dashboard" in spec:
+        db = spec["dashboard"]
+        if not isinstance(db, dict):
+            p.append("dashboard must be an object")
+        else:
+            cards = db.get("cards")
+            if not isinstance(cards, list) or not cards:
+                p.append("dashboard.cards must be a non-empty list")
+                cards = []
+            names = {e["name"] for e in ents}
+            for i, card in enumerate(cards):
+                if not isinstance(card, dict):
+                    p.append(f"dashboard card {i + 1} must be an object")
+                    continue
+                if card.get("entity") not in names:
+                    p.append(f"dashboard card {i + 1} names an entity that does not exist: {card.get('entity')}")
+                m = card.get("metric", "count")
+                if m not in ("count", "sum", "avg", "max", "min", "latest"):
+                    p.append(f"dashboard card {i + 1} metric '{m}' is not count, sum, avg, max, min or latest")
+                if m != "count" and not card.get("field"):
+                    p.append(f"dashboard card {i + 1} needs a field for the '{m}' metric")
+                elif m != "count":
+                    types = {f["name"]: f["type"] for e in ents for f in (e.get("fields") or [])}
+                    if card["field"] not in types:
+                        p.append(f"dashboard card {i + 1} names a field that does not exist: {card['field']}")
+                    elif types[card["field"]] not in ("number", "duration", "currency_cents"):
+                        p.append(f"dashboard card {i + 1} field '{card['field']}' is not numeric")
 
     if "directory" in spec:
         dr = spec["directory"]

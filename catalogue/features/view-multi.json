@@ -1,0 +1,11 @@
+{
+  "id": "view-multi",
+  "family": "F1",
+  "name": "multi-entity",
+  "spec_keys": ["features[]", "entities[]"],
+  "emitter_hook": "templates/app/index.html::setEntity",
+  "verify_check": "two entities show a switcher, and switching keeps each list's own rows",
+  "docs_anchor": "docs/PATTERNS.md#dashboard",
+  "status": "emitted",
+  "note": "one storage key, one object of lists, a switcher in the header"
+}
