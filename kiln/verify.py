@@ -186,6 +186,48 @@ def read_at(sha, path, repo="."):
     return p.stdout
 
 
+# ------------------------------------------------------------------- golden
+def golden_path(app_dir) -> Path:
+    d = Path(app_dir)
+    return d.parent / (d.name + ".golden.json")
+
+
+def snapshot(app_dir) -> dict:
+    import hashlib
+    out = {}
+    for f in sorted(Path(app_dir).rglob("*")):
+        if f.is_file():
+            out[str(f.relative_to(app_dir))] = hashlib.sha256(f.read_bytes()).hexdigest()
+    return out
+
+
+def golden(app_dir, update=False) -> Result:
+    """Compare this build with the last one that was accepted."""
+    res = Result()
+    p = golden_path(app_dir)
+    now = snapshot(app_dir)
+    if update or not p.exists():
+        p.write_text(json.dumps(now, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        res.add("L6", "golden baseline written", True, f"{len(now)} files, {p.name}")
+        return res
+    try:
+        was = json.loads(p.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        res.add("L6", "golden baseline is readable", False, str(p))
+        return res
+
+    added = sorted(set(now) - set(was))
+    removed = sorted(set(was) - set(now))
+    changed = sorted(k for k in set(now) & set(was) if now[k] != was[k])
+    res.add("L6", "no file added", not added, ", ".join(added))
+    res.add("L6", "no file removed", not removed, ", ".join(removed))
+    res.add("L6", "no file changed", not changed, ", ".join(changed))
+    if changed:
+        res.add("L6", "accept with --update-golden", True,
+                f"{len(changed)} changed: {', '.join(changed[:4])}")
+    return res
+
+
 def record(entry, path="RUNS.jsonl"):
     """A completion is a command and its output. Nothing else counts."""
     import datetime

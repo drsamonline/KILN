@@ -77,6 +77,8 @@ Full field-by-field reference: [`docs/SPEC-REFERENCE.md`](docs/SPEC-REFERENCE.md
 | build every spec | `python3 -m kiln build --all -o out` |
 | see what will be written | `python3 -m kiln compose specs/app-x.md` |
 | prove an app is offline | `python3 -m kiln verify out/app-x` |
+| see what changed since the last accepted build | `python3 -m kiln verify out/app-x --golden` |
+| accept this build as the new baseline | `python3 -m kiln verify out/app-x --golden --update-golden` |
 | package it | `python3 -m kiln pipeline "…" --zip` |
 
 ---
@@ -111,6 +113,7 @@ is the backup.
 | build with the edition my key names | `python3 -m kiln build specs/app-x.md` |
 | force a Personal build | `python3 -m kiln build specs/app-x.md --tier personal` |
 | check a key without activating it | `python3 -m kiln licence verify KILN1.…` |
+| see every key issued from this machine | `python3 -m kiln licence list` |
 
 Owner-only, once per machine: `python3 -m kiln licence keygen` writes the private key to
 `~/.kiln/private.key` and pins the public half in `catalog/licence-key.json`. Then

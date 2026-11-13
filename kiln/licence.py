@@ -28,6 +28,7 @@ STORE = HOME / "licence.json"
 PRIVATE = HOME / "private.key"
 
 PREFIX = "KILN1"
+LEDGER = "issued.jsonl"
 TIERS = ("personal", "commercial")
 PAID = ("commercial",)
 ALIASES = {"free": "personal", "personal": "personal", "commercial": "commercial"}
@@ -90,6 +91,46 @@ def keygen(pin: bool = True) -> dict:
     return {"private": str(PRIVATE), "public": pub.hex(), "pinned": str(PIN) if pin else None}
 
 
+def ledger_path() -> Path:
+    """Follows KILN_HOME, so a test or a second machine keeps its own list."""
+    return HOME / LEDGER
+
+
+def _append_ledger(payload: dict, key: str) -> None:
+    """The owner's record of what was issued. Never in the repository."""
+    try:
+        HOME.mkdir(parents=True, exist_ok=True)
+        with ledger_path().open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(dict(payload, key=key)) + "\n")
+        ledger_path().chmod(0o600)
+    except OSError:
+        pass          # a licence that was issued is still issued
+
+
+def ledger() -> list[dict]:
+    path = ledger_path()
+    if not path.exists():
+        return []
+    out = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            out.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    return out
+
+
+def status_of(payload: dict) -> str:
+    try:
+        expires = datetime.date.fromisoformat(payload.get("expires", ""))
+    except ValueError:
+        return "unknown"
+    return "expired" if expires < datetime.date.today() else "valid"
+
+
 def issue(tier: str, licensee: str, days: int = 365, note: str = "") -> str:
     if tier not in PAID:
         raise LicenceError([f"cannot issue a '{tier}' key; choose one of {', '.join(PAID)}"])
@@ -108,7 +149,9 @@ def issue(tier: str, licensee: str, days: int = 365, note: str = "") -> str:
         payload["note"] = note[:80]
     raw = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     sig = ed25519.sign(raw, PRIVATE.read_bytes())
-    return f"{PREFIX}.{_b64e(raw)}.{_b64e(sig)}"
+    key = f"{PREFIX}.{_b64e(raw)}.{_b64e(sig)}"
+    _append_ledger(payload, key)
+    return key
 
 
 def decode(key: str) -> dict:

@@ -8,7 +8,7 @@ A deterministic compiler that turns a small specification into a complete, worki
 offline application — one HTML file. No model in the loop, no network, nothing to install.
 
 [![CI](https://github.com/drsamonline/KILN/actions/workflows/kiln.yml/badge.svg)](https://github.com/drsamonline/KILN/actions/workflows/kiln.yml)
-[![tests](https://img.shields.io/badge/tests-81%20passing-brightgreen)](#verification)
+[![tests](https://img.shields.io/badge/tests-90%20passing-brightgreen)](#verification)
 [![guards](https://img.shields.io/badge/guards-107%20passing-brightgreen)](#verification)
 [![dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)](#self-contained)
 [![network](https://img.shields.io/badge/network-not%20required-brightgreen)](#self-contained)
@@ -51,7 +51,7 @@ docs, tests — is written once, in the template, and every generated app inheri
 |---|---|---|---|
 | **Phrase** | one sentence | `python3 -m kiln new "a tea log with tags"` | a spec |
 | **Prompt** | any chat model, or none | `kiln prompt` → paste → `kiln adopt reply.md` | a spec |
-| **Form** | a phone or a browser | open `studio.html`, tap Build | an app, immediately |
+| **Form** | a phone or a browser | open `studio.html`, tap Build — or open an existing spec file | an app, immediately |
 
 <div align="center">
 <img src="assets/screenshot-studio.png" alt="KILN Studio: pick features, describe the record, build" width="880">
@@ -122,6 +122,8 @@ then a passing verification.
 | `kiln compose <spec>` | show the file plan, write nothing | no |
 | `kiln build <spec>` / `--all` | emit the app, then verify it | no |
 | `kiln verify <dir>` / `--all` | read the artifact, print evidence | no |
+| `kiln verify <dir> --golden` | compare with the build you last accepted | no |
+| `kiln licence list` | keys issued from this machine, and their expiry | no |
 | `kiln studio` | rebuild `studio.html` | no |
 | `kiln demo` | rebuild `demo.html` | no |
 | `kiln catalog` | features, kits, assertions | no |
@@ -181,7 +183,7 @@ Nothing here is claimed without a command and its output.
 
 | Check | What it proves |
 |---|---|
-| `python3 -m unittest discover -s tests` | 81 tests, Python 3.9 → 3.13 |
+| `python3 -m unittest discover -s tests` | 90 tests, Python 3.9 → 3.13 |
 | `python3 -m kiln verify --all` | every spec builds; 136 checks across three apps |
 | `python3 -m kiln audit` | 85 guards: wiring, drift, licences, workflows, studio, prompt, site, links, support |
 | `kiln verify --at <sha>` | the artifact is read at the commit, not the working tree |
@@ -256,7 +258,7 @@ the usual shapes are below — and the first one costs nothing.
 | `kiln/` | the compiler |
 | `templates/` | the runtime, the studio, the demo |
 | `specs/` | one spec per app |
-| `tests/` | 81 tests, including a deliberately sloppy model reply and the RFC's Ed25519 vector |
+| `tests/` | 90 tests, including a deliberately sloppy model reply and the RFC's Ed25519 vector |
 | `docs/` | architecture, portability, workflow, self-containment, spec reference, FAQ — start at [`docs/README.md`](docs/README.md) |
 | `INDEX.md` | generated list of every spec |
 | `CITATION.cff` | how to cite it |

@@ -139,6 +139,9 @@ def cmd_verify(args, catalog) -> int:
         print(f"\n{len(list((ROOT / 'specs').glob('app-*.md')))} specs, {bad} failing")
         return 1 if bad else 0
     res = verify.check_app(args.dir, catalog)
+    if getattr(args, "golden", False) or getattr(args, "update_golden", False):
+        g = verify.golden(args.dir, update=getattr(args, "update_golden", False))
+        res.rows.extend(g.rows)
     res.print(verbose=True)
     if res.failed:
         print(f"\n{len(res.failed)} of {len(res.rows)} checks failed")
@@ -257,6 +260,22 @@ def cmd_licence(args, catalog) -> int:
             print(f"{t_:<12} {('yes' if d['sponsor'] else 'no'):<9} {d['attribution']}")
         d = lic.describe("demo")
         print(f"{'(demo)':<12} {'yes':<9} {d['attribution']} — online demo only, not an edition")
+        return 0
+
+    if action == "list":
+        rows = lic.ledger()
+        if not rows:
+            print("no keys have been issued from this machine")
+            print(f"ledger: {lic.ledger_path()}")
+            return 0
+        if args.json:
+            print(json.dumps(rows, indent=2))
+            return 0
+        print(f"{'id':<10} {'edition':<11} {'licensee':<26} {'issued':<11} {'expires':<11} status")
+        for r in rows:
+            print(f"{r.get('id',''):<10} {r.get('tier',''):<11} {str(r.get('licensee',''))[:25]:<26} "
+                  f"{r.get('issued',''):<11} {r.get('expires',''):<11} {lic.status_of(r)}")
+        print(f"\n{len(rows)} key(s), ledger {lic.ledger_path()}")
         return 0
 
     if action == "keygen":
@@ -410,6 +429,8 @@ def main(argv=None) -> int:
     p = sub.add_parser("verify", help="check an emitted app")
     p.add_argument("dir", nargs="?")
     p.add_argument("--all", action="store_true")
+    p.add_argument("--golden", action="store_true", help="compare with the accepted build")
+    p.add_argument("--update-golden", action="store_true", help="accept this build as the baseline")
     p.set_defaults(fn=cmd_verify)
 
     p = sub.add_parser("demo", help="build demo.html, a real app inlined in a page")
@@ -422,7 +443,8 @@ def main(argv=None) -> int:
 
     p = sub.add_parser("licence", help="tiers, keys, and what a build carries")
     p.add_argument("action", nargs="?",
-                   choices=["status", "tiers", "keygen", "issue", "verify", "activate"])
+                   choices=["status", "tiers", "keygen", "issue", "list", "verify", "activate"])
+    p.add_argument("--json", action="store_true", help="machine-readable output")
     p.add_argument("key", nargs="?")
     p.add_argument("--to", help="licensee name, for issue")
     p.add_argument("--tier", default="commercial", choices=["commercial"], help="the only edition that needs a key")

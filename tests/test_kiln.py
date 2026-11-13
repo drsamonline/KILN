@@ -143,6 +143,58 @@ class TestBuildAndVerify(unittest.TestCase):
                 self.assertEqual([], res.failed, f"{f.name}: {[r['name'] for r in res.failed]}")
 
 
+class TestGolden(unittest.TestCase):
+    """L6: a build is compared with the one that was accepted."""
+
+    def setUp(self):
+        self.c = cat.load()
+
+    def _build(self, td):
+        out = Path(td) / "app-notes"
+        verify.build_and_check(ROOT / "specs" / "app-notes.md", self.c, out)
+        return out
+
+    def test_first_run_writes_a_baseline(self):
+        with tempfile.TemporaryDirectory() as td:
+            out = self._build(td)
+            res = verify.golden(out)
+            self.assertEqual([], res.failed)
+            self.assertTrue(verify.golden_path(out).exists())
+
+    def test_an_unchanged_build_passes(self):
+        with tempfile.TemporaryDirectory() as td:
+            out = self._build(td)
+            verify.golden(out)
+            self.assertEqual([], verify.golden(out).failed)
+
+    def test_a_changed_file_fails(self):
+        with tempfile.TemporaryDirectory() as td:
+            out = self._build(td)
+            verify.golden(out)
+            f = out / "index.html"
+            f.write_text(f.read_text(encoding="utf-8") + "\n<!-- edited -->\n", encoding="utf-8")
+            res = verify.golden(out)
+            self.assertTrue(res.failed)
+            self.assertTrue(any("no file changed" in r["name"] for r in res.failed))
+
+    def test_a_removed_file_fails(self):
+        with tempfile.TemporaryDirectory() as td:
+            out = self._build(td)
+            verify.golden(out)
+            (out / "CHANGELOG.md").unlink()
+            res = verify.golden(out)
+            self.assertTrue(any("no file removed" in r["name"] for r in res.failed))
+
+    def test_update_accepts_the_change(self):
+        with tempfile.TemporaryDirectory() as td:
+            out = self._build(td)
+            verify.golden(out)
+            (out / "index.html").write_text("changed", encoding="utf-8")
+            self.assertTrue(verify.golden(out).failed)
+            verify.golden(out, update=True)
+            self.assertEqual([], verify.golden(out).failed)
+
+
 class TestIntent(unittest.TestCase):
     def setUp(self):
         self.c = cat.load()

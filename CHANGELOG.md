@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.7 — 2026-11-13
+
+Golden builds, a key ledger, and a studio that can open a spec.
+
+| Area | Change |
+|---|---|
+| Golden | `verify --golden` compares a build with the one you last accepted; `--update-golden` accepts |
+| Ledger | `kiln licence list` — every key issued from this machine, with expiry, from `~/.kiln/issued.jsonl` |
+| Studio | "Open a spec file" reads a `.md` from `specs/` or a saved reply straight into the form |
+| Studio | says which edition it builds: Personal, with the author block |
+| Licensing | prices are on request, with the factors that set them, and what money never changes |
+| Counts | 90 tests, 106 guards |
+
 ## v0.6 — 2026-11-13
 
 Two editions, and no releases.

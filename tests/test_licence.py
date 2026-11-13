@@ -131,6 +131,48 @@ class TestLicenceKeys(unittest.TestCase):
         self.assertEqual(("commercial", "Acme"), (tier, licensee))
 
 
+class TestLedger(unittest.TestCase):
+    """The owner's record of what was issued, kept outside the repository."""
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.home = Path(self.td.name)
+        self._saved = (lic.HOME, lic.STORE, lic.PRIVATE, lic.PIN)
+        lic.HOME = self.home
+        lic.STORE = self.home / "licence.json"
+        lic.PRIVATE = self.home / "private.key"
+        lic.PIN = self.home / "pin.json"
+        lic.keygen()
+
+    def tearDown(self):
+        lic.HOME, lic.STORE, lic.PRIVATE, lic.PIN = self._saved
+        self.td.cleanup()
+
+    def test_issue_appends_to_the_ledger(self):
+        lic.issue("commercial", "Acme", days=30)
+        lic.issue("commercial", "BigCo", days=365)
+        rows = lic.ledger()
+        self.assertEqual(2, len(rows))
+        self.assertEqual(["Acme", "BigCo"], [r["licensee"] for r in rows])
+
+    def test_the_ledger_holds_the_key_it_issued(self):
+        key = lic.issue("commercial", "Acme", days=30)
+        self.assertEqual(key, lic.ledger()[0]["key"])
+        self.assertEqual("commercial", lic.decode(lic.ledger()[0]["key"])["tier"])
+
+    def test_the_ledger_lives_outside_the_repository(self):
+        lic.issue("commercial", "Acme", days=30)
+        self.assertFalse(str(lic.ledger_path()).startswith(str(ROOT)))
+
+    def test_status_reports_expiry(self):
+        self.assertEqual("valid", lic.status_of({"expires": "2999-01-01"}))
+        self.assertEqual("expired", lic.status_of({"expires": "2000-01-01"}))
+        self.assertEqual("unknown", lic.status_of({"expires": "not-a-date"}))
+
+    def test_no_ledger_means_no_rows(self):
+        self.assertEqual([], lic.ledger())
+
+
 class TestAttribution(unittest.TestCase):
     def setUp(self):
         self.c = cat.load()

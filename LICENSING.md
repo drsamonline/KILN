@@ -94,9 +94,28 @@ hash in the head comment can be checked against the spec it names.
 
 ## Buying a licence
 
-Email **sohilmomin2000@gmail.com** with the subject `KILN commercial`. See
-[`COMMERCIAL.md`](COMMERCIAL.md) for what to include. There is no price list: the terms
-depend on whether the compiler ships to your customers or only the generated apps.
+**On request.** There is no price list, and no checkout. Email
+**sohilmomin2000@gmail.com** with the subject `KILN commercial`.
+
+| What you tell me | What it changes |
+|---|---|
+| What you are building | the scope |
+| Whether the compiler ships to your customers, or only the generated apps | redistribution terms |
+| How many people would run it | seat count, if any |
+| Whether it is a one-off project or an ongoing product | perpetual vs annual |
+| Whether you need the author block gone, or just a licence to sell | which edition |
+
+You get a written answer with a number in it, or an honest "this is not a fit". No sales
+call, no trial that expires, no invoice before you have agreed a scope.
+
+### What never changes with money
+
+| Stays the same | Why |
+|---|---|
+| The compiler is the same code | there is no "pro" build with features held back |
+| Generated apps are yours | the licence covers the compiler, not your work |
+| The tests, the guards and the source stay visible | a licensed edition that you cannot inspect is a worse product |
+| Personal use stays free | that is the point of the free edition |
 
 ---
 

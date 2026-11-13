@@ -35,6 +35,9 @@
   .feat input{min-height:auto;width:18px;height:18px}
   .feat.on{border-color:var(--accent)}
   .hint{color:var(--muted);font-size:12px}
+  .pill{font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);
+    color:var(--muted);background:var(--panel);white-space:nowrap}
+  .pill b{color:var(--accent)}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin:10px 0}
   table{width:100%;border-collapse:collapse;font-size:13px}
   th{text-align:left;color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;padding:4px 6px}
@@ -52,6 +55,7 @@
 <body>
 <header>
   <h1>KILN Studio<small>one file in, one app out — offline</small></h1>
+  <span class="pill">Personal edition</span>
   <div class="row" role="tablist">
     <button class="tab" role="tab" id="tab-build" aria-selected="true">Build</button>
     <button class="tab" role="tab" id="tab-prompt" aria-selected="false">Prompt</button>
@@ -66,6 +70,11 @@
       <label class="f">What is it for? <span class="hint">(one sentence, becomes the pitch)</span>
         <input id="idea" placeholder="a tea log with tags and search" autocomplete="off">
       </label>
+      <div class="row" style="margin-top:10px">
+        <button id="loadspec" class="tab">Open a spec file</button>
+        <span class="hint">reads a <code>.md</code> from <code>specs/</code>, or a pasted reply saved as a file</span>
+        <input id="specfile" type="file" accept=".md,.json,.txt" hidden>
+      </div>
       <div class="row">
         <label class="f" style="flex:1 1 220px">App name
           <input id="name" placeholder="Tea Log">
@@ -102,6 +111,7 @@
     <div class="card">
       <div class="row">
         <button id="build" class="primary">Build app</button>
+        <span class="pill">builds the <b>Personal</b> edition — the author block is included</span>
         <button id="specbtn">Download spec</button>
         <span class="spacer"></span>
         <span id="status" class="hint"></span>
@@ -332,7 +342,7 @@ function buildApp(spec) {
   const ent = spec.entities[0];
   const canonModel = canon(model);
   const build = {
-    tier: "free", version: "0.6.0", fp: fnv(canonModel), spec: spec.id,
+    tier: "free", version: "0.7.0", fp: fnv(canonModel), spec: spec.id,
     licensee: "", licence: LICENCE,
     licence_url: "https://polyformproject.org/licenses/noncommercial/1.0.0/",
     home: "https://github.com/drsamonline/KILN",
@@ -353,7 +363,7 @@ function buildApp(spec) {
     NOT: spec.not.map((n) => "- " + n).join("\n"),
     LICENCE: LICENCE, LICENCE_ID: "PolyForm-Noncommercial-1.0.0",
     SPEC_PATH: spec.id + ".md",
-    KILN_VERSION: "0.6.0", TIER: "free", FINGERPRINT: build.fp,
+    KILN_VERSION: "0.7.0", TIER: "free", FINGERPRINT: build.fp,
     YEAR: String(new Date().getFullYear()), OWNER: "Dr Sohil Momin",
     LICENCE_URL: build.licence_url,
     BUILD_JSON: JSON.stringify(build, null, 2),
@@ -510,16 +520,7 @@ function matchFeature(word) {
   });
   return best;
 }
-function adoptPasted() {
-  const text = $("#pasted").value || "";
-  const log = [];
-  const found = findSpec(text);
-  if (!found) {
-    $("#adoptstatus").innerHTML = '<span class="bad">no spec found in that text</span>';
-    return;
-  }
-  const o = found.spec;
-  log.push.apply(log, found.repairs);
+function applySpec(o, log) {
 
   const name = String(o.name || "Untitled").slice(0, 40);
   $("#name").value = name;
@@ -560,11 +561,38 @@ function adoptPasted() {
   S.entity.label = String(e.label || "Item").slice(0, 40);
 
   drawFeatures(); drawFields();
+  return log;
+}
+
+function adoptPasted() {
+  const text = $("#pasted").value || "";
+  const found = findSpec(text);
+  if (!found) {
+    $("#adoptstatus").innerHTML = '<span class="bad">no spec found in that text</span>';
+    return;
+  }
+  const log = found.repairs.slice();
+  applySpec(found.spec, log);
   $("#adoptlog").hidden = false;
   $("#adoptlog").textContent = (log.length ? log.join("\n") : "no repairs needed") +
     "\n\nloaded into the Build tab.";
   $("#adoptstatus").innerHTML = '<span class="ok">loaded</span>';
   showTab("build");
+}
+
+function loadSpecFile(file) {
+  const fr = new FileReader();
+  fr.onload = () => {
+    const text = String(fr.result || "");
+    const found = findSpec(text);
+    if (!found) {
+      $("#status").innerHTML = '<span class="bad">no spec found in that file</span>';
+      return;
+    }
+    applySpec(found.spec, found.repairs.slice());
+    $("#status").innerHTML = '<span class="ok">opened ' + esc(file.name) + "</span>";
+  };
+  fr.readAsText(file);
 }
 
 /* ------------------------------ tabs ------------------------------- */
@@ -582,6 +610,11 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#tab-prompt").onclick = () => showTab("prompt");
   $("#tab-paste").onclick = () => showTab("paste");
   $("#addfield").onclick = () => { S.entity.fields.push({name: "field" + (S.entity.fields.length + 1), label: "Field", type: "text"}); drawFields(); };
+  $("#loadspec").onclick = () => $("#specfile").click();
+  $("#specfile").onchange = () => {
+    const f = $("#specfile").files && $("#specfile").files[0];
+    if (f) loadSpecFile(f);
+  };
   $("#copyprompt").onclick = copyPrompt;
   $("#adopt").onclick = adoptPasted;
   $("#idea").oninput = () => {

@@ -37,6 +37,7 @@ python3 -m kiln pipeline "a reading log with tags and a rating" --zip
 | 4. Compose | `kiln compose specs/app-x.md` | the file plan, before anything is written |
 | 5. Build | `kiln build specs/app-x.md -o out/` | the app, plus a verify pass |
 | 6. Verify | `kiln verify out/app-x` | the evidence, printed |
+| 6b. Compare | `kiln verify out/app-x --golden` | nothing changed since the build you accepted |
 | 7. Package | tag the app repo | EXE and APK through your `app-builder` |
 
 ---
