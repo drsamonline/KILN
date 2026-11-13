@@ -522,6 +522,24 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "two tasks and one note show 2 and 1 on two cards"
+    },
+    "relation": {
+      "label": "A field that points at a record in another list",
+      "aliases": [
+        "relation",
+        "link to",
+        "belongs to",
+        "parent",
+        "lookup"
+      ],
+      "requires": [
+        "crud",
+        "multi"
+      ],
+      "conflicts": [],
+      "kit": "web-kit",
+      "emitter": "runtime",
+      "assertion": "a visit pointing at a patient shows that patient's name, not an id"
     }
   }
 }

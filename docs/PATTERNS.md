@@ -515,6 +515,43 @@ rows}}`; a single-entity app keeps the older `{v, rows}` shape.
 
 ---
 
+## master-detail
+
+| | |
+|---|---|
+| Archetype | 2 |
+| Status | **emitted** |
+| View | two lists, and a read view that lists a parent's children |
+| Requires | `crud`, `multi`, `relation`, `detail`, `theme` |
+| Requires fields | a `text`, and a `lookup` pointing at the master |
+| Spec keys | `pattern`, `master_detail.master`, `.child`, `.field` |
+| Sample | [`specs/gallery/master-detail.md`](../specs/gallery/master-detail.md) |
+| Screenshot | [`docs/gallery/master-detail.png`](gallery/master-detail.png) |
+
+**Pros**
+
+- the parent read view becomes the place you work, not a list to scroll
+- the pointer is stored as an id, so renaming a parent does not break it
+- each list keeps its own fields, its own form and its own search
+- one file, one export, both lists
+
+**Cons**
+
+- one level only: a child cannot have children
+- no cascade: deleting a parent leaves its children pointing at nothing
+- a lookup is a select, so it does not scale past a few hundred parents
+- no cross-list search
+
+**Best for:** a parent and its children, read and edited together.
+
+**Avoid if:** the nesting is deeper than one level, or parents number in the thousands.
+
+**The rule:** a `lookup` field stores an id and shows a title. `master_detail.field` must be
+that lookup, and it must point at `master_detail.master`. Opening a master lists its
+children; a child pointing at nothing is shown as an orphan, not hidden.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -523,7 +560,7 @@ spec naming it fails verification rather than silently building something else.
 | Archetype | Pros | Cons | Status |
 |---|---|---|---|
 | crud-list | fast, familiar | linear search >5k rows | **emitted** |
-| Master-detail | shows relations | more spec surface | planned |
+| master-detail | shows relations | more spec surface | **emitted** |
 | kanban | status at a glance | mobile-unfriendly >5 cols | **emitted** |
 | calendar | time context | overlap, cramped month view | **emitted** |
 | tracker | streaks, motivation | needs discipline | **emitted** |

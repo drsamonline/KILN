@@ -4,6 +4,20 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.21 — 2026-11-13
+
+The first relation, and the `master-detail` archetype.
+
+| Area | Change |
+|---|---|
+| Field type | `lookup` — a select of another entity's rows; the **id** is stored, the **title** is shown |
+| Archetype | `master-detail` — a parent's read view lists its children, and only its children |
+| Capability | `relation` — 34 in total |
+| Registry | `field-lookup` (F2) and `view-children` (F4) — 66 entries |
+| Validation | a lookup must point at a declared entity that is not itself; `master_detail.field` must be that lookup, pointing at the master |
+| Honesty | an orphan child is shown as an orphan, not hidden; deleting a parent leaves its children pointing at nothing, and the pattern's cons say so |
+| Counts | 322 tests, 289 guards, 17 specs verifying |
+
 ## v0.20 — 2026-11-13
 
 Multi-entity, and the `dashboard` archetype that needed it.

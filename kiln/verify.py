@@ -199,6 +199,15 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "relation" in model["features"]:
+        res.add("L5", "relation: the lookup select is emitted",
+                'f.type === "lookup"' in html)
+        res.add("L5", "relation: a pointer resolves to a title",
+                "function labelOf(" in html)
+        res.add("L5", "relation: children can be listed", "function childrenOf(" in html)
+        res.add("L5", "relation: the lookup reached the model",
+                any(f.get("type") == "lookup"
+                    for e in model.get("entities", []) for f in e.get("fields", [])))
     if "multi" in model["features"]:
         res.add("L5", "multi: more than one entity reached the model",
                 len(model.get("entities", [])) >= 2)

@@ -56,6 +56,7 @@ def plan(spec, catalog, tier="personal", licensee="", with_docs=False) -> list[d
         "directory": spec.get("directory"),
         "comparison": spec.get("comparison"),
         "dashboard": spec.get("dashboard"),
+        "master_detail": spec.get("master_detail"),
         "features": features,
         "entities": spec["entities"],
         "assertions": [catalog["features"][f]["assertion"] for f in features],

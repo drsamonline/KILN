@@ -792,6 +792,26 @@ function metricOf(rows, card) {
 }
 /* metric:end */
 
+/* ---------- a pointer between two lists ---------- */
+/* @only relation */
+/* pointer:start */
+function titleFieldOf(entityName) {
+  const e = MODEL.entities.find((x) => x.name === entityName);
+  return (e && e.fields && e.fields[0]) ? e.fields[0].name : "title";
+}
+function labelOf(entityName, id) {
+  if (!id) return "";
+  const e = MODEL.entities.find((x) => x.name === entityName);
+  const row = (DB[entityName] || []).find((r) => r.id === id);
+  if (!row) return "";
+  return String(row[titleFieldOf(entityName)] || row.id);
+}
+function childrenOf(entityName, field, id) {
+  return (DB[entityName] || []).filter((r) => r[field] === id);
+}
+/* pointer:end */
+/* @end only */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -1285,6 +1305,32 @@ function openDetail(r) {
       : Array.isArray(v) ? v.join(", ") : String(v));
     box.appendChild(row);
   }
+  if (MODEL.master_detail && MODEL.master_detail.master === ENTITY.name) {
+    const md = MODEL.master_detail;
+    const kids = childrenOf(md.child, md.field, r.id);
+    const head = document.createElement("h4");
+    head.style.margin = "16px 0 6px";
+    head.style.fontSize = "12px";
+    head.style.letterSpacing = ".4px";
+    head.style.textTransform = "uppercase";
+    head.style.color = "var(--muted)";
+    head.textContent = (MODEL.entities.find((x) => x.name === md.child) || {}).label +
+      "s (" + kids.length + ")";
+    box.appendChild(head);
+    if (!kids.length) {
+      const none = document.createElement("p");
+      none.className = "hint";
+      none.textContent = "none yet";
+      box.appendChild(none);
+    }
+    for (const kid of kids) {
+      const line = document.createElement("div");
+      line.style.margin = "4px 0";
+      line.textContent = String(kid[titleFieldOf(md.child)] || kid.id) +
+        (kid.date ? " · " + kid.date : "");
+      box.appendChild(line);
+    }
+  }
   $("#detailEdit").onclick = () => { $("#detail").close(); openEditor(r.id); };
   $("#detailClose").onclick = () => $("#detail").close();
   $("#detail").showModal();
@@ -1416,6 +1462,8 @@ function render() {
         body.appendChild(chips);
       } else if (f.type === "currency_cents") {
         body.appendChild(el("div", "d", (f.label + ": " + money(v))));
+      } else if (f.type === "lookup") {
+        body.appendChild(el("div", "d", (f.label + ": " + (labelOf(f.entity, v) || "—"))));
       } else if (f.type === "duration") {
         body.appendChild(el("div", "d", (f.label + ": " + fmtDuration(v))));
       } else {
@@ -1468,6 +1516,18 @@ function fieldInput(f, value) {
     input = document.createElement("input");
     input.type = "number";
     input.step = "any";
+  } else if (f.type === "lookup") {
+    input = document.createElement("select");
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = "—";
+    input.appendChild(blank);
+    for (const other of DB[f.entity] || []) {
+      const o = document.createElement("option");
+      o.value = other.id;
+      o.textContent = String(other[titleFieldOf(f.entity)] || other.id);
+      input.appendChild(o);
+    }
   } else if (f.type === "duration") {
     input = document.createElement("input");
     input.type = "number";

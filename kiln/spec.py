@@ -10,7 +10,7 @@ from pathlib import Path
 
 BLOCK = re.compile(r"```json\s+kiln\s*\n(.*?)\n```", re.S)
 FIELD_TYPES = {"text", "longtext", "number", "date", "bool", "select", "tags",
-               "currency_cents", "duration"}
+               "currency_cents", "duration", "lookup"}
 REQUIRED_KEYS = ["id", "name", "tier", "category", "pitch", "features",
                  "entities", "storage", "done_means", "not"]
 OPTIONAL_KEYS = ["pattern", "accent", "currency", "tracker", "progress",
@@ -85,6 +85,7 @@ NEEDS_KEY = {
     "converter": "converter", "wizard": "wizard", "detail": "detail",
     "totals": "totals", "board": "board", "calendar": "calendar",
     "directory": "directory", "comparison": "comparison", "i18n": "i18n",
+    "relation": "master_detail",
     "dashboard": "dashboard", "multi": "entities",
 }
 
@@ -190,6 +191,34 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
         p.append("the 'multi' capability needs at least two entities")
     if len(ents) > 1 and "multi" not in (spec.get("features") or []):
         p.append(f"{len(ents)} entities need the 'multi' capability in features")
+
+    if "master_detail" in spec:
+        md = spec["master_detail"]
+        if not isinstance(md, dict):
+            p.append("master_detail must be an object")
+        else:
+            names = {e["name"] for e in ents}
+            for k in ("master", "child"):
+                if md.get(k) not in names:
+                    p.append(f"master_detail.{k} names an entity that does not exist: {md.get(k)}")
+            fld = md.get("field")
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            if fld not in types:
+                p.append(f"master_detail.field '{fld}' is not a field on any entity")
+            elif types[fld]["type"] != "lookup":
+                p.append("master_detail.field must be a lookup field")
+            elif types[fld].get("entity") != md.get("master"):
+                p.append("master_detail.field must point at the master entity")
+
+    # a lookup must point at another declared entity
+    for e in ents:
+        for f in (e.get("fields") or []):
+            if f.get("type") == "lookup":
+                target = f.get("entity")
+                if target not in {x["name"] for x in ents}:
+                    p.append(f"lookup field '{f['name']}' points at an entity that does not exist: {target}")
+                elif target == e["name"]:
+                    p.append(f"lookup field '{f['name']}' points at its own entity")
 
     if "dashboard" in spec:
         db = spec["dashboard"]

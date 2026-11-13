@@ -86,6 +86,10 @@ FIELD RULES
   Include the steps feature.
 - If the work MOVES THROUGH STAGES (new → done), use "pattern": "kanban" with
   "board": {"field": "<select field>"}. The columns are that field's options, in order.
+- If a child BELONGS TO a parent (a visit belongs to a patient), use
+  "pattern": "master-detail" with a field of type "lookup" carrying "entity": "<parent>",
+  and "master_detail": {"master": "patient", "child": "visit", "field": "patient"}.
+  Include multi, relation and detail. One level only.
 - If the app needs TWO LISTS (patients and visits, projects and tasks), use
   "pattern": "dashboard" with two entities, "dashboard": {"cards": [{"label", "entity",
   "metric": "count"|"sum"|"avg"|"max"|"min"|"latest", "field", "format"}]} and the multi
@@ -149,6 +153,7 @@ FEATURE CATALOGUE — the only features that exist
 | comparison | a fixed-column table with the best value marked | crud |
 | multi | more than one list in one app | crud |
 | dashboard | a strip of metric cards | crud, multi |
+| relation | a field pointing at a record in another list | crud, multi |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees

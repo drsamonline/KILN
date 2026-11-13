@@ -1,0 +1,35 @@
+{
+  "id": "master-detail",
+  "name": "Master and detail",
+  "archetype": 2,
+  "status": "emitted",
+  "descriptor": "Two lists with a pointer: a parent record, and the children that name it. The read view of a parent lists its children.",
+  "view": "list + detail",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "multi", "relation", "detail", "theme"],
+  "requires_fields": ["text", "lookup"],
+  "requires_keys": ["master_detail"],
+  "spec_defaults": {"tier": 3, "features": ["crud", "multi", "relation", "detail", "search", "export", "theme"]},
+  "verify_checks": [
+    "pattern master-detail: required features present",
+    "relation: the lookup select is emitted",
+    "relation: a child is listed under its parent",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/master-detail.md",
+  "screenshot": "docs/gallery/master-detail.png",
+  "pros": [
+    "the parent read view becomes the place you work, not a list to scroll",
+    "the pointer is stored as an id, so renaming a parent does not break it",
+    "each list keeps its own fields, its own form and its own search",
+    "one file, one export, both lists"
+  ],
+  "cons": [
+    "one level only: a child cannot have children",
+    "no cascade: deleting a parent leaves its children pointing at nothing",
+    "a lookup is a select, so it does not scale past a few hundred parents",
+    "no cross-list search"
+  ],
+  "best_for": "a parent and its children, read and edited together",
+  "avoid_if": "the nesting is deeper than one level, or parents number in the thousands"
+}

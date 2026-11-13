@@ -1,0 +1,11 @@
+{
+  "id": "view-children",
+  "family": "F4",
+  "name": "children",
+  "spec_keys": ["features[]", "master_detail"],
+  "emitter_hook": "templates/app/index.html::openDetail",
+  "verify_check": "opening a patient lists the visits that point at that patient",
+  "docs_anchor": "docs/PATTERNS.md#master-detail",
+  "status": "emitted",
+  "note": "the read view of a master record lists its children"
+}
