@@ -7,6 +7,14 @@ from pathlib import Path
 
 from . import __version__, catalog as cat, licence as lic
 
+COMMERCIAL_URL = "https://github.com/drsamonline/KILN/blob/main/COMMERCIAL.md"
+CREDIT_FREE = ("Built with KILN, the deterministic app compiler: "
+               "https://github.com/drsamonline/KILN")
+CREDIT_PERSONAL = (
+    "Copyright (c) {year} {owner}. The attribution in this file is part of the\n"
+    "  licence terms under which it was built. Removing it does not relicense the\n"
+    "  app. Terms: {url}")
+
 ROOT = Path(__file__).resolve().parent.parent
 TPL = ROOT / "templates" / "app"
 
@@ -86,8 +94,12 @@ def plan(spec, catalog, tier="personal", licensee="", with_docs=False) -> list[d
         "fp": fnv1a64(canon),
         "spec": spec["id"],
         "licensee": licensee or "",
-        "licence": catalog["licence"]["badge"],
-        "licence_url": "https://polyformproject.org/licenses/noncommercial/1.0.0/",
+        # a commercial build is not under PolyForm: saying so in the file would be
+        # a false statement about the customer's own app
+        "licence": (catalog["licence"]["badge"] if tier != "commercial"
+                    else "Commercial licence"),
+        "licence_url": ("https://polyformproject.org/licenses/noncommercial/1.0.0/"
+                        if tier != "commercial" else COMMERCIAL_URL),
         "home": "https://github.com/drsamonline/KILN",
         "sponsor": dict(lic.SPONSOR) if tier in ("personal", "demo") else {},
     }
@@ -115,6 +127,10 @@ def plan(spec, catalog, tier="personal", licensee="", with_docs=False) -> list[d
         "YEAR": today[:4],
         "OWNER": "Dr Sohil Momin",
         "LICENCE_URL": build["licence_url"],
+        "CREDIT": (CREDIT_FREE if tier == "commercial" else
+                   CREDIT_PERSONAL.format(year=__import__("datetime").date.today().year,
+                                          owner="Dr Sohil Momin",
+                                          url=build["licence_url"])),
         "BUILD_JSON": json.dumps(build, indent=2),
         "MODEL_CANON": json.dumps(canon).replace("</", "<\\/"),
     }

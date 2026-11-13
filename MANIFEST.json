@@ -25,7 +25,7 @@
     "kits": 5
   },
   "verification": {
-    "tests": 486,
+    "tests": 492,
     "guards": 452,
     "ci": ".github/workflows/kiln.yml"
   },
@@ -152,5 +152,18 @@
     "lists": "every spec on disk",
     "runs_live": 4,
     "policy": "all listed, a capped few run, the page says the ratio"
+  },
+  "editions": {
+    "personal": {
+      "licence": "PolyForm Noncommercial 1.0.0",
+      "sponsor_block": true,
+      "about": "author block, sponsor links, fingerprint"
+    },
+    "commercial": {
+      "licence": "commercial",
+      "sponsor_block": false,
+      "about": "one line: Built with KILN"
+    },
+    "flow": "keygen -> issue -> activate -> build"
   }
 }

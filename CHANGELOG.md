@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.5 — 2026-11-14
+
+The commercial edition, exercised end to end for the first time.
+
+| Area | Found | Fixed |
+|---|---|---|
+| Header comment | a **commercial** build still carried `Copyright (c) 2026 Dr Sohil Momin` and PolyForm terms | the header is tier-aware: commercial gets one credit line |
+| Build model | a commercial build said `"licence": "PolyForm Noncommercial 1.0.0"` — a false statement about the customer's own app | `"Commercial licence"` and the commercial URL |
+| Runtime | the About panel hard-coded the string "PolyForm Noncommercial 1.0.0", so a commercial file still contained it | reads `BUILD.licence`, so the string is absent entirely |
+| Flow | `keygen` → `issue` → `activate` → `build` works, and was never tested | **6 end-to-end tests** in a temporary `HOME`: the happy path, the personal build, a build with no key, a tampered key, the payload, and `status` |
+| Docs | `GUIDE-LICENSING.md` described commands that do not exist | rewritten against the real CLI, including that an active key makes `build` commercial by default |
+| Counts | 492 tests, 452 guards |
+
 ## v1.0.4 — 2026-11-14
 
 A docs audit found eleven false size claims. They can no longer drift.

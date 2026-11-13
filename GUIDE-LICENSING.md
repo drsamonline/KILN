@@ -38,10 +38,22 @@ build fingerprint. That is the trade: the app is free, and it says who made the 
 The owner issues a key; you activate it once:
 
 ```bash
+# the owner, once: a signing key, and the public half pinned in the repo
+python3 -m kiln licence keygen
+
+# the owner, per customer: a key for a named licensee and a term
+python3 -m kiln licence issue --to "Test Clinic" --days 365
+
+# the customer, once
 python3 -m kiln licence activate KILN1.eyJleHBpcmVzIjoi…
-python3 -m kiln licence            # edition  commercial  (licence)
+
+# then every build is commercial
+python3 -m kiln licence status     # edition  commercial  (licence)
 python3 -m kiln build specs/app-notes.md -o out
 ```
+
+Once a key is active, `build` is commercial **by default**. Pass
+`--tier personal` to build the free edition again without deactivating.
 
 `build --tier commercial` without a valid key is refused, and says why.
 
@@ -71,7 +83,8 @@ python3 -m kiln licence tiers                       # the table above, from code
 | `a commercial build needs a licence` | `kiln licence activate <key>`, or build `--tier personal` |
 | `no key pinned` | the owner runs `kiln licence keygen` once and commits `catalogue/licence-key.json` |
 | `key is expired` | ask for a new key; the expiry is in the payload |
-| the About panel is missing | the build is commercial, and that is deliberate |
+| the About panel is missing | the build is commercial: its About panel is one line, deliberately |
+| `build` is suddenly commercial | a key is active. `kiln licence status` says so; `--tier personal` overrides it |
 
 ## Links
 
