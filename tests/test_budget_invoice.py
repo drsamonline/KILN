@@ -168,7 +168,8 @@ class TestInvoiceSpec(unittest.TestCase):
             verify.build_and_check(INVOICE, self.c, out)
             html = (out / "index.html").read_text(encoding="utf-8")
             self.assertNotIn("function varianceOf(", html)
-            self.assertNotIn(".vbar{", html)
+            # .vbar is base CSS shared with the tally view, so only the maths is checked here
+            self.assertNotIn("varianceOf(", html)
 
     def test_the_pattern_guard_passes(self):
         bad = [r.name + " " + r.detail for r in guards.check_patterns(self.c)

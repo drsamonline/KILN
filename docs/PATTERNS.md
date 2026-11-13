@@ -915,6 +915,78 @@ visible after the choice is made.
 
 ---
 
+## voting
+
+| | |
+|---|---|
+| Archetype | 10 |
+| Status | **emitted** |
+| View | a list with a bar and a share per row |
+| Requires | `crud`, `tally`, `theme` |
+| Requires fields | a `text`, a `number` |
+| Spec keys | `pattern`, `tally.field` |
+| Sample | [`specs/gallery/voting.md`](../specs/gallery/voting.md) |
+| Screenshot | [`docs/gallery/voting.png`](gallery/voting.png) |
+
+**Pros**
+
+- a bar to the leader makes the shape of the result obvious
+- the total and the share are derived, so a correction is instant
+- a tie marks every leader, which is what a tie means
+- one device is the right scope for a room, a family or a small team
+
+**Cons**
+
+- one device only: there is no ballot box across phones
+- the count is a number you type, not a button each voter presses
+- no weighting, no ranking, no rounds
+- no audit of who voted for what, by design
+
+**Best for:** tallying a show of hands in one room.
+
+**Avoid if:** the votes come from many devices.
+
+**The rule:** only the leader's bar is coloured; a full-width bar on every row says nothing.
+A negative or missing count is zero, and a tie marks every leading row and says how many.
+
+---
+
+## grid
+
+| | |
+|---|---|
+| Archetype | 11 |
+| Status | **emitted** |
+| View | a matrix above the list |
+| Requires | `crud`, `crosstab`, `theme` |
+| Requires fields | a `text`, two `select`s |
+| Spec keys | `pattern`, `crosstab.row`, `crosstab.column` |
+| Sample | [`specs/gallery/grid.md`](../specs/gallery/grid.md) |
+| Screenshot | [`docs/gallery/grid.png`](gallery/grid.png) |
+
+**Pros**
+
+- two dimensions at once, which no other view offers
+- both edges are totalled, so the margins are free
+- an empty cell is visible, and that is usually the finding
+- it prints well, because a matrix is a table
+
+**Cons**
+
+- two dimensions only, and both must be short lists
+- more than about eight columns needs a wide screen
+- no third dimension, no drill-down from a cell
+- cells hold counts, not sums
+
+**Best for:** a quick read of where things cluster across two attributes.
+
+**Avoid if:** you need sums in the cells, or a third dimension.
+
+**The rule:** rows and columns sort by key so the same data always draws the same grid; an
+empty cell shows a dot, not a blank; the corner holds the grand total.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -950,6 +1022,8 @@ spec naming it fails verification rather than silently building something else.
 | playlist | an explicit order | no drag and drop | **emitted** |
 | report | a summary on paper | one dimension only | **emitted** |
 | decision-log | the reason is kept | no voting | **emitted** |
+| voting | a tally at a glance | one device only | **emitted** |
+| grid | two dimensions | cramped past eight columns | **emitted** |
 | Print / Report | shareable artefact | layout brittle across browsers | planned |
 
 ---

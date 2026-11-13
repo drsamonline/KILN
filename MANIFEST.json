@@ -25,8 +25,8 @@
     "kits": 5
   },
   "verification": {
-    "tests": 411,
-    "guards": 390,
+    "tests": 429,
+    "guards": 410,
     "ci": ".github/workflows/kiln.yml"
   },
   "topics": [
@@ -79,7 +79,7 @@
       "F12",
       "F14"
     ],
-    "entries": 78,
+    "entries": 80,
     "patterns": "catalogue/patterns/",
     "archetypes_emitted": [
       "crud-list",
@@ -105,7 +105,9 @@
       "scheduler",
       "playlist",
       "report",
-      "decision-log"
+      "decision-log",
+      "voting",
+      "grid"
     ]
   },
   "guides": {

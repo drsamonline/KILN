@@ -1,0 +1,35 @@
+{
+  "id": "voting",
+  "name": "Voting",
+  "archetype": 10,
+  "status": "emitted",
+  "descriptor": "Options with a count each, a bar to the leader, and the leader marked.",
+  "view": "list + bars",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "tally", "theme"],
+  "requires_fields": ["text", "number"],
+  "requires_keys": ["tally"],
+  "spec_defaults": {"tier": 1, "features": ["crud", "tally", "search", "sort", "export", "theme"]},
+  "verify_checks": [
+    "pattern voting: required features present",
+    "tally: the share maths is emitted",
+    "tally: the leader is marked",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/voting.md",
+  "screenshot": "docs/gallery/voting.png",
+  "pros": [
+    "a bar to the leader makes the shape of the result obvious",
+    "the total and the share are derived, so a correction is instant",
+    "a tie marks every leader, which is what a tie means",
+    "one device is the right scope for a room, a family or a small team"
+  ],
+  "cons": [
+    "one device only: there is no ballot box across phones",
+    "the count is a number you type, not a button each voter presses",
+    "no weighting, no ranking, no rounds",
+    "no audit of who voted for what, by design"
+  ],
+  "best_for": "tallying a show of hands in one room",
+  "avoid_if": "the votes come from many devices"
+}

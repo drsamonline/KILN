@@ -199,6 +199,16 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "tally" in model["features"]:
+        res.add("L5", "tally: the share maths is emitted", "function tallyOf(" in html)
+        res.add("L5", "tally: the leader is marked", "· leading" in html)
+        res.add("L5", "tally: the config reached the model",
+                bool((model.get("tally") or {}).get("field")))
+    if "crosstab" in model["features"]:
+        res.add("L5", "crosstab: the matrix is emitted", "function crosstabOf(" in html)
+        res.add("L5", "crosstab: both edges are totalled", "rowTotals" in html and "colTotals" in html)
+        res.add("L5", "crosstab: the config reached the model",
+                bool((model.get("crosstab") or {}).get("row")))
     if "report" in model["features"]:
         res.add("L5", "report: the grouping is emitted", "function summarise(" in html)
         res.add("L5", "report: the grand total is emitted", 'className = "grand"' in html)

@@ -78,6 +78,25 @@
     bits.push("<span><b>" + rows.length + "</b> items</span>");
   }
   /* @end only */
+  /* a bar, shared by the variance view and the tally view */
+  .vbar{height:7px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);
+    margin:7px 0 5px;overflow:hidden}
+  .vfill{display:block;height:100%;background:var(--accent)}
+  /* @only tally */
+  .d.lead{color:var(--ok)}
+  /* @end only */
+  /* @only crosstab */
+  #cross{margin:0 0 14px;overflow-x:auto}
+  #cross table{border-collapse:collapse;font-size:13px;min-width:100%}
+  #cross th,#cross td{border:1px solid var(--line);padding:8px 11px;text-align:center;
+    font-variant-numeric:tabular-nums}
+  #cross th{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);
+    background:var(--panel)}
+  #cross td.k{text-align:left;color:var(--ink)}
+  #cross td.zero{color:var(--muted);opacity:.5}
+  #cross td.tot{font-weight:700;background:var(--panel)}
+  #cross tr.grand td{font-weight:700;background:var(--panel2)}
+  /* @end only */
   /* @only report */
   #report{margin:0 0 14px;overflow-x:auto}
   #report table{border-collapse:collapse;width:100%;font-size:13px}
@@ -86,11 +105,6 @@
   #report td:nth-child(2),#report td:nth-child(3){text-align:right;
     font-variant-numeric:tabular-nums}
   #report tr.grand td{font-weight:700;border-top:2px solid var(--line)}
-  /* @end only */
-  /* @only variance */
-  .vbar{height:7px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);
-    margin:7px 0 5px;overflow:hidden}
-  .vfill{display:block;height:100%;background:var(--accent)}
   /* @end only */
   /* @only gallery */
   #gal{display:none;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;
@@ -321,6 +335,9 @@
   <!-- @end only -->
   <!-- @only calendar -->
   <section id="cal" aria-label="calendar"></section>
+  <!-- @end only -->
+  <!-- @only crosstab -->
+  <section id="cross" aria-label="crosstab"></section>
   <!-- @end only -->
   <!-- @only report -->
   <section id="report" aria-label="summary"></section>
@@ -1011,6 +1028,63 @@ function summarise(rows, groupField, sumField) {
 /* sum:end */
 /* @end only */
 
+/* ---------- a tally across rows ---------- */
+/* @only tally */
+/* tally:start */
+function tallyOf(rows, field) {
+  let total = 0, max = 0;
+  for (const r of rows) {
+    const v = Number(r[field]);
+    if (!isFinite(v) || v <= 0) continue;
+    total += v;
+    if (v > max) max = v;
+  }
+  const shares = rows.map((r) => {
+    const v = Number(r[field]);
+    const n = isFinite(v) && v > 0 ? v : 0;
+    return {
+      id: r.id,
+      count: n,
+      pct: total === 0 ? 0 : Math.round((n / total) * 100),
+      width: max === 0 ? 0 : Math.round((n / max) * 100),
+      leading: max > 0 && n === max
+    };
+  });
+  return {total: total, max: max, shares: shares};
+}
+/* tally:end */
+/* @end only */
+
+/* ---------- two dimensions at once ----------
+   Pure: rows, a row field and a column field; the keys and the cell counts. cross:start */
+function crosstabOf(rows, rowField, colField) {
+  const rowKeys = [], colKeys = [], cells = {};
+  const seenRow = {}, seenCol = {};
+  for (const r of rows) {
+    const rk = r[rowField] === undefined || r[rowField] === null ? "" : String(r[rowField]);
+    const ck = r[colField] === undefined || r[colField] === null ? "" : String(r[colField]);
+    if (!seenRow[rk]) { seenRow[rk] = 1; rowKeys.push(rk); }
+    if (!seenCol[ck]) { seenCol[ck] = 1; colKeys.push(ck); }
+    const key = rk + "\u0000" + ck;
+    cells[key] = (cells[key] || 0) + 1;
+  }
+  rowKeys.sort();
+  colKeys.sort();
+  const rowTotals = {}, colTotals = {};
+  let grand = 0;
+  for (const rk of rowKeys) rowTotals[rk] = 0;
+  for (const ck of colKeys) colTotals[ck] = 0;
+  for (const key of Object.keys(cells)) {
+    const parts = key.split("\u0000");
+    rowTotals[parts[0]] += cells[key];
+    colTotals[parts[1]] += cells[key];
+    grand += cells[key];
+  }
+  return {rowKeys: rowKeys, colKeys: colKeys, cells: cells,
+          rowTotals: rowTotals, colTotals: colTotals, grand: grand};
+}
+/* cross:end */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -1338,6 +1412,68 @@ function renderComparison() {
     }
     table.appendChild(tr);
   }
+  box.innerHTML = "";
+  box.appendChild(table);
+}
+/* @end only */
+
+/* @only crosstab */
+function renderCrosstab() {
+  const box = $("#cross");
+  if (!MODEL.crosstab) return;
+  box.hidden = false;
+  const rowField = MODEL.crosstab.row;
+  const colField = MODEL.crosstab.column;
+  const x = crosstabOf(visible(), rowField, colField);
+  const rowLabel = (FIELDS.find((f) => f.name === rowField) || {}).label || rowField;
+  const colLabel = (FIELDS.find((f) => f.name === colField) || {}).label || colField;
+  const table = document.createElement("table");
+  const head = document.createElement("tr");
+  const corner = document.createElement("th");
+  corner.textContent = rowLabel + " \\ " + colLabel;
+  head.appendChild(corner);
+  for (const ck of x.colKeys) {
+    const th = document.createElement("th");
+    th.textContent = ck || "—";
+    head.appendChild(th);
+  }
+  const totHead = document.createElement("th");
+  totHead.textContent = "all";
+  head.appendChild(totHead);
+  table.appendChild(head);
+  for (const rk of x.rowKeys) {
+    const tr = document.createElement("tr");
+    const th = document.createElement("td");
+    th.className = "k";
+    th.textContent = rk || "—";
+    tr.appendChild(th);
+    for (const ck of x.colKeys) {
+      const td = document.createElement("td");
+      const n = x.cells[rk + "\u0000" + ck] || 0;
+      td.textContent = n ? String(n) : "·";
+      if (!n) td.className = "zero";
+      tr.appendChild(td);
+    }
+    const rt = document.createElement("td");
+    rt.className = "tot";
+    rt.textContent = String(x.rowTotals[rk]);
+    tr.appendChild(rt);
+    table.appendChild(tr);
+  }
+  const foot = document.createElement("tr");
+  foot.className = "grand";
+  const f0 = document.createElement("td");
+  f0.textContent = "all";
+  foot.appendChild(f0);
+  for (const ck of x.colKeys) {
+    const f = document.createElement("td");
+    f.textContent = String(x.colTotals[ck]);
+    foot.appendChild(f);
+  }
+  const fg = document.createElement("td");
+  fg.textContent = String(x.grand);
+  foot.appendChild(fg);
+  table.appendChild(foot);
   box.innerHTML = "";
   box.appendChild(table);
 }
@@ -1773,6 +1909,19 @@ function renderStrip() {
   const strip = $("#strip");
   const items = visible();
   const bits = [];
+  /* @only tally */
+  if (MODEL.tally) {
+    const t2 = tallyOf(rows, MODEL.tally.field);
+    bits.push("<span><b>" + t2.total + "</b> votes</span>");
+    const leaders = t2.shares.filter((s) => s.leading);
+    if (leaders.length === 1) {
+      const who = rows.find((r) => r.id === leaders[0].id);
+      bits.push("<span><b>" + esc(String(who ? who[FIELDS[0].name] : "")) + "</b> leading</span>");
+    } else if (leaders.length > 1) {
+      bits.push("<span><b>" + leaders.length + "</b> tied</span>");
+    }
+  }
+  /* @end only */
   /* @only decide */
   if (MODEL.decide) {
     let open = 0;
@@ -1851,6 +2000,9 @@ function render() {
   paintBanners();
   const list = $("#list");
   let items = visible();
+  /* @only crosstab */
+  if (MODEL.crosstab && typeof renderCrosstab === "function") renderCrosstab();
+  /* @end only */
   /* @only report */
   if (MODEL.report && typeof renderReport === "function") renderReport();
   /* @end only */
@@ -1949,6 +2101,21 @@ function render() {
       title.innerHTML = esc(r[FIELDS[0].name] || "(untitled)");
     }
     body.appendChild(title);
+    /* @only tally */
+    if (MODEL.tally) {
+      const t2 = tallyOf(rows, MODEL.tally.field);
+      const mine = t2.shares.find((s) => s.id === r.id) || {pct: 0, width: 0, leading: false};
+      const wrap = el("div", "vbar");
+      const fill = el("span", "vfill");
+      fill.style.width = mine.width + "%";
+      /* only the leader is coloured; a full-width bar for every row says nothing */
+      fill.style.background = mine.leading ? "var(--ok)" : "var(--muted)";
+      wrap.appendChild(fill);
+      body.appendChild(wrap);
+      body.appendChild(el("div", "d" + (mine.leading ? " lead" : ""),
+        mine.pct + "%" + (mine.leading ? " · leading" : "")));
+    }
+    /* @end only */
     /* @only decide */
     if (MODEL.decide) {
       const choice = r[MODEL.decide.choice];

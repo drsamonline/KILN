@@ -1,0 +1,35 @@
+{
+  "id": "grid",
+  "name": "Grid",
+  "archetype": 11,
+  "status": "emitted",
+  "descriptor": "Two fields crossed: one down the side, one across the top, a count in each cell, and totals on both edges.",
+  "view": "matrix",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "crosstab", "theme"],
+  "requires_fields": ["text", "select"],
+  "requires_keys": ["crosstab"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "crosstab", "search", "print", "export", "theme"]},
+  "verify_checks": [
+    "pattern grid: required features present",
+    "crosstab: the matrix is emitted",
+    "crosstab: both edges are totalled",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/grid.md",
+  "screenshot": "docs/gallery/grid.png",
+  "pros": [
+    "two dimensions at once, which no other view offers",
+    "both edges are totalled, so the margins are free",
+    "an empty cell is visible, and that is usually the finding",
+    "it prints well, because a matrix is a table"
+  ],
+  "cons": [
+    "two dimensions only, and both must be short lists",
+    "more than about eight columns needs a wide screen",
+    "no third dimension, no drill-down from a cell",
+    "cells hold counts, not sums"
+  ],
+  "best_for": "a quick read of where things cluster across two attributes",
+  "avoid_if": "you need sums in the cells, or a third dimension"
+}

@@ -711,6 +711,40 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "a decision with a choice shows what was chosen and why; one without shows open"
+    },
+    "tally": {
+      "label": "A per-row count, with the leader marked",
+      "aliases": [
+        "voting",
+        "poll",
+        "tally",
+        "count of votes",
+        "which one won"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "options with 5, 3 and 2 votes show 10 total and the 5 marked as leading"
+    },
+    "crosstab": {
+      "label": "Two dimensions at once: rows by columns, with a count in each cell",
+      "aliases": [
+        "grid",
+        "matrix",
+        "crosstab",
+        "by month and kind",
+        "two dimensions"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "four records over two kinds and two months fill four cells and two totals"
     }
   }
 }

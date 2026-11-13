@@ -4,6 +4,21 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.27 — 2026-11-13
+
+Two archetypes in one batch: `voting` and `grid`.
+
+| Area | Change |
+|---|---|
+| Archetype | `voting` — a count per row, a bar to the leader, a share of the total, and the leader marked |
+| Archetype | `grid` — a two-dimensional crosstab with counts, both edges totalled and a grand total in the corner |
+| Capabilities | `tally` and `crosstab` — 46 in total |
+| Registry | `metric-tally` and `view-crosstab` (F4/F7) — 80 entries |
+| Correctness | only the leader's bar is coloured: a full-width bar on every row says nothing |
+| Correctness | a negative or missing count is zero, not a vote; a tie marks every leader and says how many |
+| CSS | `.vbar` and `.vfill` moved out of the `variance` block into base: two capabilities share them |
+| Counts | 429 tests, 410 guards, 29 specs verifying |
+
 ## v0.26 — 2026-11-13
 
 Two archetypes in one batch: `report` and `decision-log`. Both are views over rows that

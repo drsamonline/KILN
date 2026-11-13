@@ -91,6 +91,7 @@ NEEDS_KEY = {
     "variance": "variance", "amount": "amount",
     "recur": "recur", "sequence": "sequence",
     "report": "report", "decide": "decide",
+    "tally": "tally", "crosstab": "crosstab",
     "dashboard": "dashboard", "multi": "entities",
 }
 
@@ -196,6 +197,33 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
         p.append("the 'multi' capability needs at least two entities")
     if len(ents) > 1 and "multi" not in (spec.get("features") or []):
         p.append(f"{len(ents)} entities need the 'multi' capability in features")
+
+    if "tally" in spec:
+        tl2 = spec["tally"]
+        if not isinstance(tl2, dict):
+            p.append("tally must be an object")
+        else:
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            fld = tl2.get("field")
+            if fld not in types:
+                p.append(f"tally.field '{fld}' is not a field on any entity")
+            elif types[fld]["type"] not in ("number", "currency_cents"):
+                p.append("tally.field must be a number field holding the count")
+
+    if "crosstab" in spec:
+        ct = spec["crosstab"]
+        if not isinstance(ct, dict):
+            p.append("crosstab must be an object")
+        else:
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            for k in ("row", "column"):
+                fld = ct.get(k)
+                if fld not in types:
+                    p.append(f"crosstab.{k} '{fld}' is not a field on any entity")
+                elif types[fld]["type"] not in ("select", "text"):
+                    p.append(f"crosstab.{k} must be a select or text field")
+            if ct.get("row") and ct.get("row") == ct.get("column"):
+                p.append("crosstab.row and crosstab.column cannot be the same field")
 
     if "report" in spec:
         rp = spec["report"]

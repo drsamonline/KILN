@@ -1,0 +1,11 @@
+{
+  "id": "view-crosstab",
+  "family": "F4",
+  "name": "crosstab",
+  "spec_keys": ["features[]", "crosstab.row", "crosstab.column"],
+  "emitter_hook": "templates/app/index.html::renderCrosstab",
+  "verify_check": "four records over two kinds and two months fill four cells and two totals",
+  "docs_anchor": "docs/PATTERNS.md#grid",
+  "status": "emitted",
+  "note": "rows by columns with counts, row and column totals, and a grand total"
+}

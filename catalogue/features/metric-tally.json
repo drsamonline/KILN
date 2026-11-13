@@ -1,0 +1,11 @@
+{
+  "id": "metric-tally",
+  "family": "F7",
+  "name": "tally",
+  "spec_keys": ["features[]", "tally.field"],
+  "emitter_hook": "templates/app/index.html::tallyOf",
+  "verify_check": "options with 5, 3 and 2 votes show 10 total and the 5 marked as leading",
+  "docs_anchor": "docs/PATTERNS.md#voting",
+  "status": "emitted",
+  "note": "a count per row, a share of the total, and the leader; ties mark every leader"
+}

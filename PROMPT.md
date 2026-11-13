@@ -86,6 +86,9 @@ FIELD RULES
   Include the steps feature.
 - If the work MOVES THROUGH STAGES (new → done), use "pattern": "kanban" with
   "board": {"field": "<select field>"}. The columns are that field's options, in order.
+- If the app TALLIES VOTES, use "pattern": "voting" with "tally": {"field": "<number field>"}.
+- If the app needs TWO DIMENSIONS at once, use "pattern": "grid" with
+  "crosstab": {"row": "<select field>", "column": "<select field>"}.
 - If the app is a SUMMARY you print, use "pattern": "report" with
   "report": {"group": "<select field>", "sum": "<numeric field>"}.
 - If the app records WHY THINGS ARE THE WAY THEY ARE, use "pattern": "decision-log" with
@@ -185,6 +188,8 @@ FEATURE CATALOGUE — the only features that exist
 | sequence | an explicit order, with position and running time | crud |
 | report | a grouped summary with counts and sums | crud |
 | decide | a choice, its options and the reason | crud |
+| tally | a per-row count with the leader marked | crud |
+| crosstab | two dimensions at once, with counts | crud |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees
