@@ -73,7 +73,11 @@ def check_wiring(model, html, res=None) -> Result:
         for fld in ent["fields"]:
             res.add("L3", f"field {ent['name']}.{fld['name']} is wired", fld["name"] in html)
     res.add("L3", "storage namespace is wired", model["namespace"] in html)
-    res.add("L3", "entity label is wired", model["entities"][0]["label"].lower() in html.lower())
+    if model["entities"]:
+        res.add("L3", "entity label is wired",
+                model["entities"][0]["label"].lower() in html.lower())
+    else:
+        res.add("L3", "no entity, as the pattern declares", True, "calculator shape")
     return res
 
 
@@ -186,6 +190,15 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
         res.add("L5", "derived: the panel is emitted", 'id="derived"' in html)
         res.add("L5", "derived: the tracker config reached the model",
                 bool(model.get("tracker", {}).get("field")))
+    if model.get("calculator"):
+        res.add("L5", "calculator: the parser is emitted", "function evalFormula(" in html)
+        res.add("L5", "calculator: eval and Function are not used",
+                "eval(" not in html and "new Function(" not in html)
+        res.add("L5", "calculator: the screen is emitted", 'id="calc"' in html)
+        res.add("L5", "calculator: the formula reached the model",
+                bool(model["calculator"].get("formula")))
+        res.add("L5", "calculator: no entity, as the pattern declares",
+                model.get("entities") == [])
     if "progress" in model["features"]:
         res.add("L5", "progress: a progressOf function is emitted", "function progressOf(" in html)
         res.add("L5", "progress: the bar is emitted", 'id="progress"' in html and 'role="progressbar"' in html)

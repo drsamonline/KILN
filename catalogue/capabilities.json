@@ -305,6 +305,21 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "ticking the box on a row saves immediately and moves the progress bar"
+    },
+    "formula": {
+      "label": "A formula over named inputs, evaluated without eval",
+      "aliases": [
+        "formula",
+        "calculate",
+        "compute",
+        "expression",
+        "calculator"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "words 1000 at 200 wpm shows 5.0 minutes"
     }
   }
 }

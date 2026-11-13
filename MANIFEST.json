@@ -25,8 +25,8 @@
     "kits": 5
   },
   "verification": {
-    "tests": 141,
-    "guards": 147,
+    "tests": 163,
+    "guards": 157,
     "ci": ".github/workflows/kiln.yml"
   },
   "topics": [
@@ -62,7 +62,8 @@
   "output": {
     "layout": "single file",
     "file": "index.html",
-    "docs_flag": "--with-docs"
+    "docs_flag": "--with-docs",
+    "size_ceiling_kb": 40
   },
   "registry": {
     "path": "catalogue/features/",
@@ -70,14 +71,16 @@
       "F1",
       "F2",
       "F5",
+      "F6",
       "F7"
     ],
-    "entries": 47,
+    "entries": 49,
     "patterns": "catalogue/patterns/",
     "archetypes_emitted": [
       "crud-list",
       "tracker",
-      "checklist"
+      "checklist",
+      "calculator"
     ]
   }
 }

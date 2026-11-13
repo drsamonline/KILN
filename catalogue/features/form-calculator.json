@@ -1,0 +1,15 @@
+{
+  "id": "form-calculator",
+  "family": "F6",
+  "name": "calculator-form",
+  "spec_keys": [
+    "features[]",
+    "calculator.inputs",
+    "calculator.formula"
+  ],
+  "emitter_hook": "templates/app/index.html::renderCalc",
+  "verify_check": "words 1000 at 200 wpm shows 5.0 minutes",
+  "docs_anchor": "docs/PATTERNS.md#calculator",
+  "status": "emitted",
+  "note": "inputs and a formula, no entity, no storage"
+}

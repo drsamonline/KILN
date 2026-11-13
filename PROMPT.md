@@ -68,6 +68,11 @@ FIELD RULES
   Mark at most two fields "required": true.
   The first field is the row title and should be a text field.
 - storage: {"kind": "localstorage", "namespace": "<lowercase-hyphen-slug>"}
+- If the app is ONE CALCULATION with no list (a converter, a rate, a dose), use
+  "pattern": "calculator" with "entities": [] and a "calculator" object:
+  {"inputs": [{"name","label","default","min","max"}], "formula": "<expression>",
+  "output": {"label","unit","decimals"}}. Include the formula feature. The formula may
+  use + - * / % ^, parentheses, and min max abs round floor ceil sqrt pow.
 - If the app is a LIST OF THINGS THAT GET DONE (packing, chores, an opening routine),
   also add: "pattern": "checklist" and "progress": {"field": "<bool field>",
   "label": "done"}, and include the progress and toggle features.
@@ -102,6 +107,7 @@ FEATURE CATALOGUE — the only features that exist
 | chart | inline sparkline, no library | crud, derived |
 | progress | how many rows are done, as a count and a percentage | crud |
 | toggle | tick a row without opening the form | crud |
+| formula | one calculation over named inputs, no list, no storage | - |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees

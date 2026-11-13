@@ -145,6 +145,51 @@ need tracking together.
 
 ---
 
+## calculator
+
+| | |
+|---|---|
+| Archetype | 10 |
+| Status | **emitted** |
+| View | form — **no entity at all** |
+| Requires | `formula`, `theme` |
+| Requires fields | none |
+| Spec keys | `pattern`, `calculator.inputs[]`, `calculator.formula`, `calculator.output` |
+| Sample | [`specs/gallery/calculator.md`](../specs/gallery/calculator.md) |
+| Screenshot | [`docs/gallery/calculator.png`](gallery/calculator.png) |
+
+**Pros**
+
+- nothing to store, so nothing to lose and nothing to back up
+- instant: one screen, one answer, no save button
+- the formula is data in the spec, so a new calculator is a new spec, not new code
+- works from a USB stick with no network, which is when you need it
+
+**Cons**
+
+- no history, so a result cannot be revisited tomorrow
+- one formula per app: a second calculation needs a second app
+- the parser is deliberately small: no dates, no percentages of a base, no lookups
+- it cannot explain itself beyond the label and the unit
+
+**Best for:** one calculation done repeatedly, where a spreadsheet is overkill.
+
+**Avoid if:** the answer depends on records kept over time, or several formulas are needed.
+
+**The grammar, and what it will not do**
+
+| Supported | Not supported |
+|---|---|
+| `+ - * / % ^`, parentheses, unary minus | dates, strings, comparisons |
+| named inputs from `calculator.inputs` | lookups into records |
+| `min max abs round floor ceil sqrt pow` | user-defined functions |
+| integers and decimals | money (use `currency_cents` in a list app) |
+
+The parser is a recursive-descent evaluator in the page. `eval` and `new Function` are
+forbidden, and `verify` fails a build that contains either.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -162,7 +207,7 @@ spec naming it fails verification rather than silently building something else.
 | Dashboard | insight at a glance | charts add weight | planned |
 | Wizard | guided, fewer errors | long specs, slow for pros | planned |
 | Quiz / Flashcard | a learning loop | content authoring burden | planned |
-| Calculator | tiny, instant | no persistence by default | planned |
+| calculator | tiny, instant | no persistence by default | **emitted** |
 | Converter | tiny, offline | rounding discipline | planned |
 | Voting / Poll | quick collection | single device only | planned |
 | Comparison table | decision clarity | rigid for small sets | planned |

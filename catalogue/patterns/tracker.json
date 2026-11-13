@@ -5,12 +5,34 @@
   "status": "emitted",
   "descriptor": "A number recorded per day, and what it adds up to: a streak, an average, a goal, a week of bars. Habits, water, weight, mood, sleep, BP, workouts.",
   "view": "table",
-  "requires_capabilities": ["crud", "search", "sort", "stats", "derived", "chart", "theme"],
-  "requires_fields": ["number", "date"],
-  "requires_keys": ["tracker"],
+  "requires_capabilities": [
+    "crud",
+    "search",
+    "sort",
+    "stats",
+    "derived",
+    "chart",
+    "theme"
+  ],
+  "requires_fields": [
+    "number",
+    "date"
+  ],
+  "requires_keys": [
+    "tracker"
+  ],
   "spec_defaults": {
     "tier": 1,
-    "features": ["crud", "search", "sort", "stats", "derived", "chart", "export", "theme"]
+    "features": [
+      "crud",
+      "search",
+      "sort",
+      "stats",
+      "derived",
+      "chart",
+      "export",
+      "theme"
+    ]
   },
   "verify_checks": [
     "pattern tracker: required features present",
@@ -33,5 +55,6 @@
     "no reminders, so the habit still depends on the user remembering"
   ],
   "best_for": "one number a day, against a goal the user sets once",
-  "avoid_if": "the value only makes sense as part of a longer record, or several metrics need tracking together"
+  "avoid_if": "the value only makes sense as part of a longer record, or several metrics need tracking together",
+  "requires_entities": true
 }

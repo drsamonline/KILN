@@ -38,8 +38,8 @@ console.log("PASS");
 
 def progress_source() -> str:
     tpl = TEMPLATE.read_text(encoding="utf-8")
-    start = tpl.index("/* progress:start */") + len("/* progress:start */")
-    end = tpl.index("/* progress:end */")
+    start = tpl.index("/* @only progress */") + len("/* @only progress */")
+    end = tpl.index("/* @end only */", start)
     return tpl[start:end]
 
 

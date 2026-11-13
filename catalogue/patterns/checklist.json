@@ -5,12 +5,31 @@
   "status": "emitted",
   "descriptor": "A list where each row is either done or not, with a bar that says how far along you are. Packing, grocery, chores, a clinic opening routine.",
   "view": "table",
-  "requires_capabilities": ["crud", "search", "sort", "progress", "toggle", "theme"],
-  "requires_fields": ["bool"],
-  "requires_keys": ["progress"],
+  "requires_capabilities": [
+    "crud",
+    "search",
+    "sort",
+    "progress",
+    "toggle",
+    "theme"
+  ],
+  "requires_fields": [
+    "bool"
+  ],
+  "requires_keys": [
+    "progress"
+  ],
   "spec_defaults": {
     "tier": 1,
-    "features": ["crud", "search", "sort", "progress", "toggle", "export", "theme"]
+    "features": [
+      "crud",
+      "search",
+      "sort",
+      "progress",
+      "toggle",
+      "export",
+      "theme"
+    ]
   },
   "verify_checks": [
     "pattern checklist: required features present",
@@ -33,5 +52,6 @@
     "reordering by hand is not available; sort is by field"
   ],
   "best_for": "a finite set of things that each end up done",
-  "avoid_if": "items have sub-items, quantities to reconcile, or owners"
+  "avoid_if": "items have sub-items, quantities to reconcile, or owners",
+  "requires_entities": true
 }

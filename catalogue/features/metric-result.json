@@ -1,0 +1,13 @@
+{
+  "id": "metric-result",
+  "family": "F7",
+  "name": "result",
+  "spec_keys": [
+    "calculator.output"
+  ],
+  "emitter_hook": "templates/app/index.html::renderCalc",
+  "verify_check": "the result is shown with its unit and its decimals",
+  "docs_anchor": "docs/PATTERNS.md#calculator",
+  "status": "emitted",
+  "note": "one number, formatted at view time"
+}

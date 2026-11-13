@@ -44,8 +44,8 @@ console.log("PASS");
 
 def derive_source() -> str:
     tpl = TEMPLATE.read_text(encoding="utf-8")
-    start = tpl.index("/* derive:start */") + len("/* derive:start */")
-    end = tpl.index("/* derive:end */")
+    start = tpl.index("/* @only derived */") + len("/* @only derived */")
+    end = tpl.index("/* @end only */", start)
     return tpl[start:end]
 
 

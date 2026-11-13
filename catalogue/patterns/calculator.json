@@ -1,0 +1,38 @@
+{
+  "id": "calculator",
+  "name": "Calculator",
+  "archetype": 10,
+  "status": "emitted",
+  "descriptor": "Inputs, a formula, one answer. No list, no storage, nothing to remember — the smallest useful app there is.",
+  "view": "form",
+  "requires_entities": false,
+  "requires_capabilities": ["formula", "theme"],
+  "requires_fields": [],
+  "requires_keys": ["calculator"],
+  "spec_defaults": {
+    "tier": 1,
+    "features": ["formula", "theme"]
+  },
+  "verify_checks": [
+    "pattern calculator: no entity, as declared",
+    "formula: the parser is emitted and eval is not used",
+    "formula: every identifier is a declared input or a known function",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/calculator.md",
+  "screenshot": "docs/gallery/calculator.png",
+  "pros": [
+    "nothing to store, so nothing to lose and nothing to back up",
+    "instant: one screen, one answer, no save button",
+    "the formula is data in the spec, so a new calculator is a new spec, not new code",
+    "works from a USB stick with no network, which is when you need it"
+  ],
+  "cons": [
+    "no history, so a result cannot be revisited tomorrow",
+    "one formula per app: a second calculation needs a second app",
+    "the parser is deliberately small: no dates, no percentages of a base, no lookups",
+    "it cannot explain itself beyond the label and the unit"
+  ],
+  "best_for": "one calculation done repeatedly, where a spreadsheet is overkill",
+  "avoid_if": "the answer depends on records kept over time, or several formulas are needed"
+}

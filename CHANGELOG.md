@@ -4,6 +4,22 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.11 — 2026-11-13
+
+Phase B, third archetype: `calculator`. The first app with no entity.
+
+| Area | Change |
+|---|---|
+| Archetype | `calculator` — inputs, a formula, one answer. No list, no storage, nothing to lose |
+| Parser | a recursive-descent evaluator in the page: `+ - * / % ^`, parentheses, unary minus, `min max abs round floor ceil sqrt pow`. No `eval`, no `Function`, no library |
+| Capabilities | `formula` — 19 in total |
+| Entities | a spec may have none, but only if its pattern declares `requires_entities: false` |
+| Emit | **unused capability code is stripped**: a notes app no longer carries the calculator, the tracker or the progress bar. Marked `@only <capability>` in the template |
+| Size | every spec now builds under the 40 KB ceiling; notes fell from 40.1 KB to 33.4 KB, the calculator is 38.2 KB |
+| Registry | `form-calculator` (F6) and `metric-result` (F7) — 49 entries |
+| Tests | 14 parser cases under node, plus a size-budget test that builds every spec |
+| Counts | 163 tests, 157 guards |
+
 ## v0.10 — 2026-11-13
 
 Phase B, second archetype: `checklist`.

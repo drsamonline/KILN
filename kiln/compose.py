@@ -33,7 +33,7 @@ def plan(spec, catalog, tier="personal", licensee="", with_docs=False) -> list[d
         if "crud" not in features and "crud" in catalog["features"]:
             features = ["crud"] + features
     kits = cat.resolve_kits(features, catalog)
-    ent = spec["entities"][0]
+    ent = spec["entities"][0] if spec["entities"] else {"name": "value", "label": "Value", "fields": []}
     today = datetime.date.today().isoformat()
 
     model = {
@@ -45,6 +45,7 @@ def plan(spec, catalog, tier="personal", licensee="", with_docs=False) -> list[d
         "currency": spec.get("currency", "\u20b9"),
         "tracker": spec.get("tracker"),
         "progress": spec.get("progress"),
+        "calculator": spec.get("calculator"),
         "features": features,
         "entities": spec["entities"],
         "assertions": [catalog["features"][f]["assertion"] for f in features],
@@ -91,7 +92,8 @@ def plan(spec, catalog, tier="personal", licensee="", with_docs=False) -> list[d
         "MODEL_CANON": json.dumps(canon).replace("</", "<\\/"),
     }
 
-    app = [{"path": "index.html", "template": "index.html", "ctx": ctx}]
+    app = [{"path": "index.html", "template": "index.html", "ctx": ctx,
+            "strip": features}]
     if not with_docs:
         # §1.3: the output is one file. Everything else is optional furniture.
         return app

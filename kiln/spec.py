@@ -13,7 +13,7 @@ FIELD_TYPES = {"text", "longtext", "number", "date", "bool", "select", "tags",
                "currency_cents"}
 REQUIRED_KEYS = ["id", "name", "tier", "category", "pitch", "features",
                  "entities", "storage", "done_means", "not"]
-OPTIONAL_KEYS = ["pattern", "accent", "currency", "tracker", "progress"]
+OPTIONAL_KEYS = ["pattern", "accent", "currency", "tracker", "progress", "calculator"]
 
 # A done-means must name something a person can watch happen.
 # Stems, not inflections: "reloading" must match "reload".
@@ -96,9 +96,21 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
         p.append("features contains duplicates")
 
     ents = spec["entities"]
-    if not isinstance(ents, list) or not ents:
-        p.append("entities must be a non-empty list")
+    if not isinstance(ents, list):
+        p.append("entities must be a list")
         ents = []
+    elif not ents:
+        # an archetype may declare that it needs no entity at all
+        pid = spec.get("pattern")
+        needs = True
+        if pid:
+            try:
+                from . import catalog as _cat
+                needs = _cat.patterns().get(pid, {}).get("requires_entities", True)
+            except Exception:
+                needs = True
+        if needs:
+            p.append("entities must be a non-empty list (this pattern needs one)")
     seen_ent = set()
     for e in ents:
         for k in ("name", "label", "fields"):
@@ -143,6 +155,42 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
             win = tr.get("window", 7)
             if not isinstance(win, int) or isinstance(win, bool) or not 1 <= win <= 90:
                 p.append("tracker.window must be a whole number from 1 to 90")
+
+    if "calculator" in spec:
+        if "formula" not in spec.get("features", []):
+            p.append("a calculator spec must include the 'formula' capability")
+        c = spec["calculator"]
+        if not isinstance(c, dict):
+            p.append("calculator must be an object")
+        else:
+            ins = c.get("inputs")
+            if not isinstance(ins, list) or not ins:
+                p.append("calculator.inputs must be a non-empty list")
+                ins = []
+            names = set()
+            for i in ins:
+                if not isinstance(i, dict) or not i.get("name"):
+                    p.append("every calculator input needs a name")
+                    continue
+                if not re.fullmatch(r"[a-z][a-z0-9_]*", str(i["name"])):
+                    p.append(f"calculator input '{i['name']}' must be lowercase snake_case")
+                if i["name"] in names:
+                    p.append(f"duplicate calculator input '{i['name']}'")
+                names.add(i["name"])
+            f = c.get("formula")
+            if not isinstance(f, str) or not f.strip():
+                p.append("calculator.formula must be a non-empty string")
+            else:
+                allowed = set(names) | {"min", "max", "abs", "round", "floor", "ceil", "sqrt", "pow"}
+                used = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", f))
+                stray = sorted(used - allowed)
+                if stray:
+                    p.append(f"calculator.formula uses undeclared names: {', '.join(stray)}")
+            out = c.get("output")
+            if not isinstance(out, dict) or not out.get("label"):
+                p.append("calculator.output needs a label")
+            elif "decimals" in out and not (isinstance(out["decimals"], int) and 0 <= out["decimals"] <= 6):
+                p.append("calculator.output.decimals must be 0-6")
 
     if "progress" in spec:
         pg = spec["progress"]
