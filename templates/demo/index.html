@@ -84,8 +84,8 @@
     <div class="counts">
       <span class="pill"><b>{{TOTAL}}</b> specs</span>
       <span class="pill"><b class="ok">{{RUNNABLE}}</b> runnable here</span>
-      <span class="pill"><b class="warn">{{BLOCKED}}</b> not runnable</span>
-      <span class="pill">demo builds are <b>capped</b></span>
+      <span class="pill"><b>{{BLOCKED}}</b> build locally</span>
+      <span class="pill"><b>{{RUNNABLE}}</b> of {{TOTAL}} run here · all build locally</span>
     </div>
 
     <p class="note">What you click is a <strong>demo build</strong>: CRUD, search and theme only.
@@ -116,10 +116,12 @@
       <pre id="spec"></pre>
     </div>
     <div class="card">
-      <h2>Why some are blocked</h2>
-      <p class="sub" style="margin:0">A spec whose category is clinical or health holds patient
-        data. Running it in a public page would put that data model in front of anyone who opens
-        the URL. The rule is a category check in <code>kiln/demo.py</code>, not a list of names.</p>
+      <h2>Why only four run here</h2>
+      <p class="sub" style="margin:0">Two reasons, and neither is a defect.
+        <b>Clinical and health specs hold patient data</b>, so they are never run in a public
+        page. The rest are runnable but not run: four is enough to show what a build looks
+        like, and every one of them builds locally in one command, uncapped. The category rule
+        is a check in <code>kiln/demo.py</code>, not a list of names.</p>
     </div>
   </aside>
 </main>
@@ -156,7 +158,7 @@ function draw() {
     row.className = "row";
 
     const btn = document.createElement("button");
-    btn.textContent = a.runnable ? "Run here" : "Not runnable";
+    btn.textContent = a.runnable ? "Run here" : "Build locally";
     btn.className = a.runnable ? "primary" : "";
     btn.disabled = !a.runnable;
     if (a.runnable) {
@@ -165,6 +167,12 @@ function draw() {
       btn.title = a.reason;
     }
     row.appendChild(btn);
+    if (!a.runnable && a.reason) {
+      const why = document.createElement("span");
+      why.className = "feat";
+      why.textContent = a.reason;
+      row.appendChild(why);
+    }
 
     const badge = document.createElement("span");
     badge.className = "feat";

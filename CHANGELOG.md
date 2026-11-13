@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.1 — 2026-11-13
+
+An audit pass, and two fixes it turned up.
+
+| Area | Change |
+|---|---|
+| **Fixed** | **the demo listed 3 specs, not 30.** `kiln/demo.py` globbed `specs/app-*.md` and never looked in `specs/gallery/`, so the page's claim "every spec in the KILN gallery" was false. It now lists **33** and runs **4** live, and the page states the ratio |
+| Fixed | a cap-excluded app was labelled "Not runnable". It builds fine, locally: the label is now "Build locally", with the reason shown |
+| Fixed | `master_detail` now requires the `detail` capability. Without it the children list vanished silently and `verify` did not notice |
+| Tests | 8 new: one per spec listed, the ratio stated, no clinical app run, the page deterministic, and the `master_detail` rule |
+| Audit | 450 guards 0 failed, 33 specs 0 failing, zero releases, largest app 58 KB |
+| Counts | 471 tests, 450 guards |
+
 ## v1.0.0 — 2026-11-13
 
 The last two archetypes, and the catalogue is complete.

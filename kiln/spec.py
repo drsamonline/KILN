@@ -456,6 +456,9 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
 
     if "master_detail" in spec:
         md = spec["master_detail"]
+        if "detail" not in (spec.get("features") or []):
+            p.append("master_detail needs the 'detail' capability: the children are listed "
+                     "in the parent's read view")
         if not isinstance(md, dict):
             p.append("master_detail must be an object")
         else:

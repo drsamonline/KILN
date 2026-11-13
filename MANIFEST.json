@@ -25,7 +25,7 @@
     "kits": 5
   },
   "verification": {
-    "tests": 463,
+    "tests": 471,
     "guards": 450,
     "ci": ".github/workflows/kiln.yml"
   },
@@ -132,5 +132,10 @@
       "live explain panel",
       "the same strip as the CLI"
     ]
+  },
+  "demo": {
+    "lists": "every spec on disk",
+    "runs_live": 4,
+    "policy": "all listed, a capped few run, the page says the ratio"
   }
 }

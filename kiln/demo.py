@@ -19,14 +19,18 @@ SPEC_DIR = ROOT / "specs"
 
 # A clinical log holds patient data. It is not going to run in a public page.
 EXCLUDE = {"clinical", "health"}
+# how many apps the public page actually runs. The rest are listed with their spec.
+LIVE_MAX = 4
 
 
 def gallery(catalog) -> list[dict]:
     """Every spec, with a demo build where that is allowed."""
     out = []
-    for f in sorted(SPEC_DIR.glob("app-*.md")):
+    files = sorted(SPEC_DIR.glob("app-*.md")) + sorted((SPEC_DIR / "gallery").glob("*.md"))
+    for f in files:
         s = specmod.load(f, catalog)
-        runnable = s["category"] not in EXCLUDE
+        # every spec is listed; only a few are run live, and the page says so
+        runnable = s["category"] not in EXCLUDE and len([a for a in out if a["runnable"]]) < LIVE_MAX
         entry = {
             "id": s["id"],
             "name": s["name"],
@@ -36,7 +40,9 @@ def gallery(catalog) -> list[dict]:
             "features": s["features"],
             "runnable": runnable,
             "reason": "" if runnable else (
-                f"holds {s['category']} data, so it is not run in a public page"),
+                f"holds {s['category']} data, so it is not run in a public page"
+                if s["category"] in EXCLUDE else
+                "not run here: the page runs a capped few. It builds locally in one command"),
             "html": "",
             "size": "",
             "spec": json.dumps({k: v for k, v in s.items() if not k.startswith("_")}, indent=2),
