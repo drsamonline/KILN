@@ -1,11 +1,10 @@
 """Licence tiers, and the attribution each one puts in a generated app.
 
-| tier | what the generated app carries |
+| edition | what the generated app carries |
 |---|---|
-| `free` | licence line, "Built with KILN", the sponsor block, the build fingerprint |
-| `commercial` | one line: "Built with KILN", hyperlinked. No sponsor block |
-| `corporate` | no visible attribution. The build comment stays, as evidence of origin |
-| `demo` | free attribution, features capped, export and import disabled |
+| `personal` | licence line, "Built with KILN", the sponsor block, the build fingerprint |
+| `commercial` | one line: "Built with KILN", hyperlinked. No sponsor block, no sponsor page |
+| `demo` | the personal edition, capped and without export — the online demo only |
 
 A key is Ed25519-signed and verified against a pinned public key, offline, with
 no packages. This is a deterrent and an evidence trail, not DRM: the compiler is
@@ -29,9 +28,11 @@ STORE = HOME / "licence.json"
 PRIVATE = HOME / "private.key"
 
 PREFIX = "KILN1"
-TIERS = ("free", "commercial", "corporate")
-PAID = ("commercial", "corporate")
+TIERS = ("personal", "commercial")
+PAID = ("commercial",)
+ALIASES = {"free": "personal", "personal": "personal", "commercial": "commercial"}
 DEMO_FEATURES = {"crud", "search", "theme", "sort"}
+EDITIONS = TIERS
 
 SPONSOR = {
     "upi": "drsohilboi@ybl",
@@ -181,9 +182,9 @@ def resolve(cli_tier: str | None = None) -> tuple[str, str, str]:
     env = os.environ.get("KILN_TIER", "").strip().lower()
 
     if cli_tier:
-        tier = cli_tier.strip().lower()
-        if tier not in TIERS:
-            raise LicenceError([f"unknown tier '{cli_tier}'; choose from {', '.join(TIERS)}"])
+        tier = ALIASES.get(cli_tier.strip().lower(), "")
+        if not tier:
+            raise LicenceError([f"unknown edition '{cli_tier}'; choose from {', '.join(TIERS)}"])
         if tier in PAID:
             if not lic or lic.get("tier") != tier:
                 raise LicenceError([
@@ -198,23 +199,26 @@ def resolve(cli_tier: str | None = None) -> tuple[str, str, str]:
         if lic and lic.get("tier") == env:
             return env, lic.get("licensee", ""), "KILN_TIER + licence"
         raise LicenceError([f"KILN_TIER={env} needs an active {env} licence"])
-    if env in ("free", "demo"):
-        return env, "", "KILN_TIER"
+    if env in ("free", "personal"):
+        return "personal", "", "KILN_TIER"
+    if env == "demo":
+        return "demo", "", "KILN_TIER"
 
     if lic:
         return lic["tier"], lic.get("licensee", ""), "licence"
-    return "free", "", "default"
+    return "personal", "", "default"
 
 
 def describe(tier: str) -> dict:
     """What this tier puts into a generated app. Used by docs and by the build."""
     return {
-        "free": {"sponsor": True, "attribution": "Built with KILN, hyperlinked",
-                 "watermark": True, "features": "full"},
-        "commercial": {"sponsor": False, "attribution": "one line: Built with KILN",
-                       "watermark": True, "features": "full"},
-        "corporate": {"sponsor": False, "attribution": "none, visible",
-                      "watermark": "build comment only", "features": "full"},
-        "demo": {"sponsor": True, "attribution": "Built with KILN, hyperlinked",
+        "personal": {"sponsor": True, "sponsor_page": True,
+                     "attribution": "Built with KILN, hyperlinked, plus the author block",
+                     "watermark": True, "features": "full"},
+        "commercial": {"sponsor": False, "sponsor_page": False,
+                       "attribution": "one line: Built with KILN",
+                       "watermark": True, "features": "full, unlocked"},
+        "demo": {"sponsor": True, "sponsor_page": True,
+                 "attribution": "Built with KILN, hyperlinked",
                  "watermark": True, "features": "capped: " + ", ".join(sorted(DEMO_FEATURES))},
     }[tier]

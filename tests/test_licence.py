@@ -105,21 +105,21 @@ class TestLicenceKeys(unittest.TestCase):
         with self.assertRaises(lic.LicenceError):
             lic.decode(key)
 
-    def test_a_free_key_cannot_be_issued(self):
+    def test_a_personal_edition_needs_no_key(self):
         with self.assertRaises(lic.LicenceError):
-            lic.issue("free", "Acme")
+            lic.issue("personal", "Acme")
 
     def test_activate_then_resolve(self):
-        key = lic.issue("corporate", "BigCo", days=30)
+        key = lic.issue("commercial", "BigCo", days=30)
         lic.activate(key)
         tier, licensee, source = lic.resolve()
-        self.assertEqual("corporate", tier)
+        self.assertEqual("commercial", tier)
         self.assertEqual("BigCo", licensee)
         self.assertEqual("licence", source)
 
-    def test_no_licence_means_free(self):
+    def test_no_licence_means_personal(self):
         tier, licensee, source = lic.resolve()
-        self.assertEqual(("free", "", "default"), (tier, licensee, source))
+        self.assertEqual(("personal", "", "default"), (tier, licensee, source))
 
     def test_a_paid_tier_without_a_licence_is_refused(self):
         with self.assertRaises(lic.LicenceError):
@@ -140,8 +140,8 @@ class TestAttribution(unittest.TestCase):
         plan = compose.plan(self.s, self.c, tier=tier, licensee=licensee)
         return plan[0]["ctx"], plan
 
-    def test_free_carries_the_sponsor_block(self):
-        ctx, _ = self._html("free")
+    def test_personal_carries_the_sponsor_block(self):
+        ctx, _ = self._html("personal")
         build = json.loads(ctx["BUILD_JSON"])
         self.assertTrue(build["sponsor"])
         self.assertIn("drsohilboi@ybl", json.dumps(build))
@@ -152,22 +152,18 @@ class TestAttribution(unittest.TestCase):
         self.assertEqual({}, build["sponsor"])
         self.assertEqual("Acme", build["licensee"])
 
-    def test_corporate_carries_no_sponsor(self):
-        ctx, _ = self._html("corporate", "BigCo")
-        self.assertEqual({}, json.loads(ctx["BUILD_JSON"])["sponsor"])
-
     def test_every_tier_carries_a_fingerprint(self):
-        for tier in ("free", "commercial", "corporate", "demo"):
+        for tier in ("personal", "commercial", "demo"):
             ctx, _ = self._html(tier)
             self.assertRegex(ctx["FINGERPRINT"], r"^[0-9a-f]{16}$")
 
     def test_the_fingerprint_is_the_model_hash(self):
-        ctx, _ = self._html("free")
+        ctx, _ = self._html("personal")
         model = json.loads(ctx["MODEL_JSON"])
         self.assertEqual(compose.fnv1a64(compose.canonical(model)), ctx["FINGERPRINT"])
 
     def test_editing_the_model_changes_the_fingerprint(self):
-        ctx, _ = self._html("free")
+        ctx, _ = self._html("personal")
         model = json.loads(ctx["MODEL_JSON"])
         model["features"] = model["features"] + ["print"]
         self.assertNotEqual(compose.fnv1a64(compose.canonical(model)), ctx["FINGERPRINT"])

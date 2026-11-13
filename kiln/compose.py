@@ -24,7 +24,7 @@ def canonical(model) -> str:
     return json.dumps(model, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
-def plan(spec, catalog, tier="free", licensee="") -> list[dict]:
+def plan(spec, catalog, tier="personal", licensee="") -> list[dict]:
     """The full file plan. Deterministic: same spec and tier, same plan, byte for byte."""
     features = cat.expand(spec["features"], catalog)
     if tier == "demo":
@@ -58,7 +58,7 @@ def plan(spec, catalog, tier="free", licensee="") -> list[dict]:
         "licence": catalog["licence"]["badge"],
         "licence_url": "https://polyformproject.org/licenses/noncommercial/1.0.0/",
         "home": "https://github.com/drsamonline/KILN",
-        "sponsor": dict(lic.SPONSOR) if tier in ("free", "demo") else {},
+        "sponsor": dict(lic.SPONSOR) if tier in ("personal", "demo") else {},
     }
 
     ctx = {

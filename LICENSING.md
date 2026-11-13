@@ -1,92 +1,76 @@
-# Licensing
+# Editions
 
-Three tiers for the compiler, and one rule that applies to all of them: **an app you generate is
-yours**. What changes between tiers is the attribution inside the app, not your rights to it.
+Two editions of the compiler. One rule under both: **an app you generate is yours**.
 
----
+| | **Personal** | **Commercial** |
+|---|---|---|
+| Price | free | a written licence |
+| Licence | PolyForm Noncommercial 1.0.0 | commercial, per agreement |
+| Who it is for | personal, academic, hobby, non-profit use | businesses, paid work, products you sell |
+| Features | all 14 | all 14, unlocked |
+| Sponsor block in the app (UPI, Ko-fi, Sponsors, books) | **yes** | no |
+| Author block in the app | **yes** | no |
+| Compiler credit | "Built with KILN", hyperlinked | one line, "Built with KILN" |
+| Build comment and fingerprint in the file | yes | yes |
+| Available to try online | **yes** — the live demo | no |
 
-## What each tier puts in a generated app
-
-| | `free` | `commercial` | `corporate` | `demo` (online only) |
-|---|---|---|---|---|
-| Cost | nothing | a written licence | a written licence | nothing |
-| Features | all 14 | all 14 | all 14 | capped: crud, search, sort, theme |
-| Sponsor block (UPI, Ko-fi, Sponsors, books) | yes | no | no | yes |
-| Visible attribution | "Built with KILN", hyperlinked | one line in About: "Built with KILN" | none | "Built with KILN", hyperlinked |
-| Build comment in the file | yes | yes | yes | yes |
-| Build fingerprint | yes | yes | yes | yes |
-| Export and import | yes | yes | yes | **no** |
-
-The build comment stays in every tier. It names the compiler, the spec and the fingerprint —
-it is evidence of origin, not an advertisement, and it is not visible to a user of the app.
+There is no third edition, no per-seat tier and nothing to configure beyond these two.
 
 ---
 
-## The free tier
+## Personal edition
 
-Nothing to do. `kiln build` with no licence produces a free build.
+Free for personal use. Nothing to buy and nothing to activate.
 
-| Inside the app | Where |
+| What it is | Detail |
 |---|---|
-| Licence line, "Built with KILN" | About |
-| UPI `drsohilboi@ybl`, GitHub Sponsors, Ko-fi, books | About |
-| Fingerprint and spec id | About, plus the file's head comment |
+| Command | `kiln build specs/app-x.md` |
+| Needs a key | no |
+| What lands in the app | a licence line, "Built with KILN", and an author block with the UPI id, GitHub Sponsors, Ko-fi and the books link |
+| Where it appears | the app's **About** panel, plus a comment in the file's head |
+| Features | all fourteen |
+| Try it | [demo.html](demo.html) — a gallery of every spec, capped, with export switched off |
 
-Free builds are for personal, academic, hobby and non-profit use, under the PolyForm
-Noncommercial licence in [`LICENSE`](LICENSE).
+The author block is the price of the free edition. It is one panel, it is honest, and it is
+how the compiler gets paid for when nobody is paying for it.
 
----
+## Commercial edition
 
-## The commercial tier
+Buys one thing: the author block disappears and the credit shrinks to a single line.
 
-Buys one thing: the sponsor block disappears and the attribution shrinks to a single line.
-
-| Inside the app | Where |
+| What it is | Detail |
 |---|---|
-| `Built with KILN` — one line, hyperlinked | About |
-| Nothing else about the author | — |
+| Command | `kiln licence activate KILN1.…` then `kiln build specs/app-x.md` |
+| Needs a key | yes, issued by the owner |
+| What lands in the app | one line in About: "Built with KILN", hyperlinked |
+| Features | all fourteen, unlocked |
+| Validity | checked at build time; an expired key falls back to Personal |
 
-### How it works
+### How a key is issued
 
 | Step | Who | Command |
 |---|---|---|
-| 1 | owner, once | `kiln licence keygen` — writes `~/.kiln/private.key` (chmod 600) and pins the public key in `catalog/licence-key.json` |
+| 1 | owner, once per machine | `kiln licence keygen` — private key to `~/.kiln/private.key` (chmod 600), public half pinned in `catalog/licence-key.json` |
 | 2 | owner, per customer | `kiln licence issue --to "Acme Clinic Pvt Ltd" --tier commercial --days 365` |
 | 3 | customer | `kiln licence activate KILN1.…` |
-| 4 | customer | `kiln build specs/app-x.md` — the tier is picked up from the licence |
+| 4 | customer | `kiln build specs/app-x.md` — the edition comes from the licence |
 
-The key is Ed25519-signed and verified **offline**, with no packages and no network: the
-compiler carries a small, tested implementation of the signature check. Expiry is enforced at
-build time.
-
----
-
-## The corporate tier
-
-For a business that cannot carry anyone else's name in its product.
-
-| Inside the app | Where |
-|---|---|
-| No About button at all | — |
-| The build comment only, in the file's head | not visible to a user |
-
-Issued exactly like the commercial tier, with `--tier corporate`.
+Keys are Ed25519-signed and verified **offline**, with no packages and no network. The
+signature check is a small, tested implementation in `kiln/ed25519.py`, checked against the
+RFC 8032 vector in `tests/test_licence.py`.
 
 ---
 
-## The demo tier
+## The demo is not an edition
 
-Not for sale and not selectable. It exists so the online demo can show a real app without
-giving away the full one.
+`demo.html` is the Personal edition, capped, so it can sit on a public page.
 
 | Difference | Detail |
 |---|---|
-| Features | only `crud`, `search`, `sort`, `theme` survive |
-| Export, import, filters, print, reminders | removed at build time, not hidden |
+| Features | only `crud`, `search`, `sort`, `theme` survive the build |
+| Export and import | removed at build time, not hidden |
 | Banner | the app says it is a demo build, on every load |
-
-`demo.html` lists every spec in the repository and refuses to run the ones whose category is
-`clinical` or `health` — a public page is the wrong place for a patient-data model.
+| Which specs run | all are listed; a spec whose category is `clinical` or `health` is refused, with the reason |
 
 ---
 
@@ -99,19 +83,23 @@ giving away the full one.
 | A fingerprint that shows a file was edited after it was built | encryption |
 | A deterrent with an evidence trail | a technical control you can rely on |
 
-The compiler is source-available. Anyone can edit it and remove the attribution. That is
+The compiler is source-available. Anyone can edit it and remove the author block. That is
 stated here, in [`SECURITY.md`](SECURITY.md) and in [`COMMERCIAL.md`](COMMERCIAL.md), because
 a licensing page that pretends otherwise is worse than no page.
 
-What the fingerprint does give you: if a customer's build turns up modified, the file says so,
-and the hash in the head comment can be checked against the spec it names.
+What the fingerprint does give you: if a build turns up modified, the file says so, and the
+hash in the head comment can be checked against the spec it names.
 
 ---
 
 ## Buying a licence
 
 Email **sohilmomin2000@gmail.com** with the subject `KILN commercial`. See
-[`COMMERCIAL.md`](COMMERCIAL.md) for what to include.
+[`COMMERCIAL.md`](COMMERCIAL.md) for what to include. There is no price list: the terms
+depend on whether the compiler ships to your customers or only the generated apps.
 
-There is no price list. The terms depend on whether the compiler ships to your customers or
-only the generated apps.
+---
+
+## Releases
+
+None are published until the owner says so. See [`RELEASE.md`](RELEASE.md).

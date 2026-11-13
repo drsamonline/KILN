@@ -4,6 +4,20 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.6 — 2026-11-13
+
+Two editions, and no releases.
+
+| Area | Change |
+|---|---|
+| Editions | `personal` (free, PolyForm, sponsor and author block in the app) and `commercial` (paid, full features, no sponsor block) |
+| Removed | the corporate edition, and the free/demo naming that went with it |
+| Demo | still the Personal edition, capped and without export — labelled as a demo, not an edition |
+| Command | `kiln licence tiers` prints two editions and one demo row; `kiln licence` says "edition" |
+| Releases | none published until the owner says so — [`RELEASE.md`](RELEASE.md) |
+| Guard | `C12` fails if a third edition reappears anywhere in the repository |
+| Counts | 80 tests, 106 guards |
+
 ## v0.5 — 2026-11-13
 
 Tiers, watermark, and a gallery that shows every spec while running only some of them.

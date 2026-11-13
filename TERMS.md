@@ -15,17 +15,18 @@ permitted on those terms. Any commercial use — selling it, bundling it into a 
 or using it to deliver paid work — requires a separate written licence
 (see [`COMMERCIAL.md`](COMMERCIAL.md)).
 
-## 2. Tiers and attribution
+## 2. Editions and attribution
 
-KILN is built in tiers, described in [`LICENSING.md`](LICENSING.md). The tier a build was made
-under is recorded in the generated file. Removing or altering that record does not change the
-tier the build was made under, and does not grant a licence you did not buy.
+KILN comes in two editions, described in [`LICENSING.md`](LICENSING.md). The edition a build
+was made under is recorded in the generated file.
 
-| Tier | What the file carries |
+| Edition | What the file carries |
 |---|---|
-| free | licence line, "Built with KILN", the sponsor block, the build record |
-| commercial | one line, "Built with KILN" |
-| corporate | no visible attribution; the build record remains in the file |
+| Personal | licence line, "Built with KILN", the sponsor and author block, the build record |
+| Commercial | one line, "Built with KILN", and the build record |
+
+Removing or altering that record does not change the edition the build was made under, and
+does not grant a licence you did not buy.
 
 ## 3. Applications you generate
 

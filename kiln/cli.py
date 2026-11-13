@@ -235,7 +235,7 @@ def cmd_licence(args, catalog) -> int:
     action = args.action
     if action in (None, "status"):
         tier, licensee, source = lic.resolve()
-        print(f"tier        {tier}  ({source})")
+        print(f"edition     {tier}  ({source})")
         if licensee:
             print(f"licensee    {licensee}")
         act = lic.active()
@@ -251,11 +251,12 @@ def cmd_licence(args, catalog) -> int:
         return 0
 
     if action == "tiers":
-        print(f"{'tier':<12} {'sponsor':<9} attribution")
+        print(f"{'edition':<12} {'sponsor':<9} attribution")
         for t_ in lic.TIERS:
             d = lic.describe(t_)
             print(f"{t_:<12} {('yes' if d['sponsor'] else 'no'):<9} {d['attribution']}")
-        print(f"{'demo':<12} {'yes':<9} {lic.describe('demo')['attribution']} (features capped)")
+        d = lic.describe("demo")
+        print(f"{'(demo)':<12} {'yes':<9} {d['attribution']} — online demo only, not an edition")
         return 0
 
     if action == "keygen":
@@ -394,7 +395,7 @@ def main(argv=None) -> int:
     p.add_argument("--all", action="store_true")
     p.add_argument("--no-verify", action="store_true")
     p.add_argument("--quiet", action="store_true")
-    p.add_argument("--tier", choices=["free", "commercial", "corporate"],
+    p.add_argument("--tier", choices=["personal", "commercial"],
                    help="what the build carries; paid tiers need a licence")
     p.set_defaults(fn=cmd_build)
 
@@ -403,7 +404,7 @@ def main(argv=None) -> int:
     p.add_argument("--id")
     p.add_argument("-o", "--out")
     p.add_argument("--zip", action="store_true")
-    p.add_argument("--tier", choices=["free", "commercial", "corporate"])
+    p.add_argument("--tier", choices=["personal", "commercial"])
     p.set_defaults(fn=cmd_pipeline)
 
     p = sub.add_parser("verify", help="check an emitted app")
@@ -424,7 +425,7 @@ def main(argv=None) -> int:
                    choices=["status", "tiers", "keygen", "issue", "verify", "activate"])
     p.add_argument("key", nargs="?")
     p.add_argument("--to", help="licensee name, for issue")
-    p.add_argument("--tier", default="commercial", help="commercial or corporate, for issue")
+    p.add_argument("--tier", default="commercial", choices=["commercial"], help="the only edition that needs a key")
     p.add_argument("--days", type=int, default=365)
     p.add_argument("--note")
     p.add_argument("--out")

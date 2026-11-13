@@ -188,26 +188,30 @@ Nothing here is claimed without a command and its output.
 
 ---
 
-## Tiers, and what ends up inside your app
+## Two editions
 
-| Tier | Sponsor block | Attribution in the app | Features |
-|---|---|---|---|
-| **free** | yes | "Built with KILN", hyperlinked | all 14 |
-| **commercial** | no | one line in About: "Built with KILN" | all 14 |
-| **corporate** | no | none | all 14 |
-| **demo** (online only) | yes | "Built with KILN" | crud, search, sort, theme |
-
-Every build carries a fingerprint of the model it came from, and the app recomputes it on boot:
-a file edited after it was built says so. That is a deterrent and an evidence trail, not DRM —
-[`SECURITY.md`](SECURITY.md) says exactly what is and is not enforced, and
-[`LICENSING.md`](LICENSING.md) has the full table.
+| | **Personal** — free | **Commercial** — paid |
+|---|---|---|
+| Licence | PolyForm Noncommercial 1.0.0 | a written licence |
+| For | personal, academic, hobby, non-profit | businesses, paid work, products you sell |
+| Features | all 14 | all 14, unlocked |
+| Sponsor block in the app | **yes** | no |
+| Author block in the app | **yes** | no |
+| Compiler credit | "Built with KILN", hyperlinked | one line, "Built with KILN" |
+| Try it online | **yes** — [the live demo](demo.html) | — |
 
 ```bash
-kiln build specs/app-x.md                      # free build
+kiln build specs/app-x.md                      # Personal: no key, sponsor block in About
 kiln licence activate KILN1.…                  # a purchased key
-kiln build specs/app-x.md                      # now commercial, sponsor block gone
-kiln licence tiers                             # what each tier carries
+kiln build specs/app-x.md                      # Commercial: sponsor block gone
+kiln licence tiers                             # what each edition carries
 ```
+
+Every build carries a fingerprint of the model it came from, and the app recomputes it on
+boot: a file edited after it was built says so. That is a deterrent and an evidence trail,
+not DRM — [`SECURITY.md`](SECURITY.md) lists exactly what is and is not enforced, and
+[`LICENSING.md`](LICENSING.md) has the full table. No releases are published until the owner
+says so ([`RELEASE.md`](RELEASE.md)).
 
 <!-- support:sweep -->
 ## Support

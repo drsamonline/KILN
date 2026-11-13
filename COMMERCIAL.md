@@ -18,6 +18,7 @@ This page says what counts, and how to ask. It is a summary, not the licence.
 | Fork it and keep your fork noncommercial | yes |
 | Build an app you sell, or bundle into something you sell | no |
 | Use it inside a company, for that company's work | no |
+| Ship a generated app to a client | yes — the app is yours; the compiler is not |
 | Offer paid development, where KILN is part of how you deliver | no |
 | Host it as a paid service | no |
 
@@ -26,14 +27,13 @@ assumption costs a lot.
 
 ## What you actually get
 
-The tiers, and exactly what changes inside a generated app, are in
-[`LICENSING.md`](LICENSING.md). The short version:
+There are two editions, and exactly one difference that matters inside a generated app.
+The full table is in [`LICENSING.md`](LICENSING.md).
 
-| Tier | Sponsor block | Attribution | Features |
-|---|---|---|---|
-| free | yes | "Built with KILN", hyperlinked | all |
-| commercial | no | one line in About | all |
-| corporate | no | none | all |
+| Edition | Sponsor and author block | Features |
+|---|---|---|
+| Personal (free) | yes, in the app's About panel | all 14 |
+| Commercial (paid) | no — one line, "Built with KILN" | all 14, unlocked |
 
 ## What a commercial licence looks like
 

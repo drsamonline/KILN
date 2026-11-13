@@ -63,7 +63,7 @@ built is not described here as if it were.
 | Every build carries a build record: tier, compiler version, spec id, fingerprint | `const BUILD` in the emitted file | `verify` fails a build without it |
 | The fingerprint is a hash of the model the file was built from | `compose.fnv1a64(canonical(model))` | `tests/test_licence.py` |
 | The app recomputes the hash on boot and says so if it does not match | `tampered()` in the runtime | the app itself, visibly |
-| A free build carries the sponsor block; commercial carries one line; corporate carries none | `licence.describe()` | `verify` checks sponsor presence against tier |
+| A Personal build carries the sponsor and author block; Commercial carries one line | `licence.describe()` | `verify` checks sponsor presence against the edition |
 | A paid tier cannot be selected without a valid key | `licence.resolve()` | the build refuses with an explanation |
 | Keys are Ed25519-signed and verified offline, no packages | `kiln/ed25519.py` | RFC 8032 test vector in `tests/test_licence.py` |
 | The private signing key never enters the repository | `~/.kiln/private.key`, chmod 600 | guard `C12` |

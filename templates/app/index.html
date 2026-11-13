@@ -484,7 +484,6 @@ function aboutHtml() {
 }
 function bootAbout() {
   const btn = $("#about");
-  if (BUILD.tier === "corporate") { btn.hidden = true; return; }
   btn.onclick = () => { $("#aboutBody").innerHTML = aboutHtml(); $("#about").showModal(); };
   $("#aboutClose").onclick = () => $("#about").close();
 }

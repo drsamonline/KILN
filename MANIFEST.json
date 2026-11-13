@@ -1,7 +1,7 @@
 {
   "name": "KILN",
   "tagline": "Spec in. Finished app out.",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "kind": "compiler",
   "language": "Python",
   "runtime": "python>=3.9",
@@ -25,8 +25,8 @@
     "kits": 5
   },
   "verification": {
-    "tests": 81,
-    "guards": 107,
+    "tests": 80,
+    "guards": 106,
     "ci": ".github/workflows/kiln.yml"
   },
   "topics": [
@@ -48,12 +48,13 @@
     "email": "sohilmomin2000@gmail.com"
   },
   "licensing": {
-    "tiers": [
-      "free",
-      "commercial",
-      "corporate"
+    "editions": [
+      "personal",
+      "commercial"
     ],
-    "demo_tier": "capped, online only",
+    "personal": "free for personal use, PolyForm Noncommercial, sponsor and author block in the app",
+    "commercial": "paid, full features, no sponsor block, one line of compiler credit",
+    "demo": "the personal edition, capped, online only \u2014 not an edition",
     "key": "Ed25519, verified offline, pinned public key in catalog/licence-key.json",
     "watermark": "build record + fingerprint + integrity check in every generated app",
     "doc": "LICENSING.md"
