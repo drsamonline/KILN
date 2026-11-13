@@ -479,6 +479,22 @@ def check_row_loop_is_linear(catalog) -> list[Row]:
     return out
 
 
+def check_changelog_report(catalog) -> list[Row]:
+    """The printable changelog must be the changelog, not a stale copy of it."""
+    from . import changelog as chlogmod
+    if not chlogmod.TARGET.exists():
+        return [Row("C21 the printable changelog exists", False,
+                    "run: python3 -m kiln changelog --write")]
+    fresh = chlogmod.build(catalog)
+    current = chlogmod.TARGET.read_text(encoding="utf-8")
+    if fresh != current:
+        return [Row("C21 the printable changelog matches CHANGELOG.md", False,
+                    "stale, run: python3 -m kiln changelog --write")]
+    versions = chlogmod.parse(chlogmod.SOURCE.read_text(encoding="utf-8"))
+    return [Row("C21 the printable changelog matches CHANGELOG.md", True,
+                f"{len(versions)} versions")]
+
+
 def check_sizes(catalog) -> list[Row]:
     """A stated size that disagrees with the build is a false claim, not a typo."""
     from . import sizes as sizesmod
@@ -733,6 +749,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_block_ownership(catalog)
     rows += check_row_loop_is_linear(catalog)
     rows += check_sizes(catalog)
+    rows += check_changelog_report(catalog)
     rows += check_counts()
     rows += check_guides(catalog)
     rows += check_licensing()

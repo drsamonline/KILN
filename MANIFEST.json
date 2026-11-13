@@ -25,8 +25,8 @@
     "kits": 5
   },
   "verification": {
-    "tests": 501,
-    "guards": 452,
+    "tests": 512,
+    "guards": 453,
     "ci": ".github/workflows/kiln.yml"
   },
   "topics": [

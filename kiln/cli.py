@@ -11,6 +11,7 @@ from pathlib import Path
 
 from . import adopt as adoptmod
 from . import catalog as cat
+from . import changelog as chlogmod
 from . import completions as compmod
 from . import sizes as sizesmod
 from . import compose, demo as demomod, emit, explain as explainmod
@@ -240,6 +241,25 @@ def cmd_completions(args, catalog=None) -> int:
     except ValueError as e:
         print(str(e))
         return 2
+    return 0
+
+
+def cmd_changelog(args, catalog) -> int:
+    """Render CHANGELOG.md as a printable page."""
+    html = chlogmod.build(catalog)
+    if args.write:
+        chlogmod.TARGET.parent.mkdir(parents=True, exist_ok=True)
+        chlogmod.TARGET.write_text(html, encoding="utf-8")
+        versions = chlogmod.parse(chlogmod.SOURCE.read_text(encoding="utf-8"))
+        print(f"wrote {chlogmod.TARGET.relative_to(Path.cwd()) if chlogmod.TARGET.is_relative_to(Path.cwd()) else chlogmod.TARGET}"
+              f"  ({len(versions)} versions, {len(html) // 1024} KB)")
+        print("print it: open it in a browser and use Print to PDF")
+        return 0
+    current = chlogmod.TARGET.read_text(encoding="utf-8") if chlogmod.TARGET.exists() else ""
+    if current != html:
+        print("docs/changelog.html is stale — run: python3 -m kiln changelog --write")
+        return 1
+    print("docs/changelog.html matches CHANGELOG.md")
     return 0
 
 
@@ -567,6 +587,10 @@ def main(argv=None) -> int:
     p = sub.add_parser("completions", help="shell completions for bash, zsh or fish")
     p.add_argument("shell", choices=sorted(compmod.SHELLS))
     p.set_defaults(fn=cmd_completions)
+
+    p = sub.add_parser("changelog", help="render CHANGELOG.md as a printable page")
+    p.add_argument("--write", action="store_true")
+    p.set_defaults(fn=cmd_changelog)
 
     p = sub.add_parser("sizes", help="measure the real sizes and rewrite the docs")
     p.add_argument("--write", action="store_true")

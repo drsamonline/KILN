@@ -4,6 +4,18 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.7 — 2026-11-14
+
+A printable changelog, generated from the changelog itself.
+
+| Area | Change |
+|---|---|
+| Command | `kiln changelog` renders `CHANGELOG.md` into `docs/changelog.html` — a version table, then one card per version, print-styled for A4 |
+| Guard | **C21** fails the audit when the printable page is stale |
+| Honesty | the report reads `CHANGELOG.md`, never git history: a commit message is not a user-facing claim, and the changelog was already checked against the build at each version |
+| Print | 22 A4 pages, no web fonts, no network at render time, a version card never splits across a page |
+| Counts | 512 tests, 453 guards |
+
 ## v1.0.6 — 2026-11-14
 
 A HIG critique of the studio, and the four findings that held up.
