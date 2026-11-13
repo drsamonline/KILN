@@ -1,0 +1,35 @@
+{
+  "id": "search-directory",
+  "name": "Search directory",
+  "archetype": 17,
+  "status": "emitted",
+  "descriptor": "A search box with focus, and cards underneath. For a list you look things up in rather than read.",
+  "view": "search + cards",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "search", "directory", "theme"],
+  "requires_fields": ["text"],
+  "requires_keys": ["directory"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "search", "directory", "export", "theme"]},
+  "verify_checks": [
+    "pattern search-directory: required features present",
+    "directory: the view is emitted",
+    "directory: the search box is enlarged and focused",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/search-directory.md",
+  "screenshot": "docs/gallery/search-directory.png",
+  "pros": [
+    "the cursor is already in the box, so the first keystroke is the search",
+    "matches are highlighted, so you see why a card came back",
+    "cards fit more per record than a row does",
+    "no toolbar to learn: one box and a list"
+  ],
+  "cons": [
+    "search is still a linear scan, so it is not a real index",
+    "nothing is shown until you type, which looks empty to a first-time user",
+    "no sort and no filters: this view deliberately has one control",
+    "cards are taller, so fewer records fit on a screen"
+  ],
+  "best_for": "a few hundred records you look up by name",
+  "avoid_if": "you need to browse, sort, or see everything at once"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "view-directory",
+  "family": "F4",
+  "name": "directory",
+  "spec_keys": ["features[]", "directory.subtitle", "directory.body"],
+  "emitter_hook": "templates/app/index.html::renderDirectory",
+  "verify_check": "opening the app puts the cursor in the search box",
+  "docs_anchor": "docs/PATTERNS.md#search-directory",
+  "status": "emitted",
+  "note": "search first, cards second: the toolbar is hidden and the box has focus"
+}

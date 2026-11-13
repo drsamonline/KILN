@@ -15,7 +15,7 @@ REQUIRED_KEYS = ["id", "name", "tier", "category", "pitch", "features",
                  "entities", "storage", "done_means", "not"]
 OPTIONAL_KEYS = ["pattern", "accent", "currency", "tracker", "progress",
                  "calculator", "i18n", "converter", "wizard", "detail", "totals",
-                 "board", "calendar"]
+                 "board", "calendar", "directory", "comparison"]
 KNOWN_LANGS = {"en", "hi", "gu"}
 
 # A done-means must name something a person can watch happen.
@@ -172,6 +172,42 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
                 p.append("tracker.window must be a whole number from 1 to 90")
 
     field_names = {f["name"] for e in ents for f in (e.get("fields") or [])}
+
+    if "directory" in spec:
+        dr = spec["directory"]
+        if not isinstance(dr, dict):
+            p.append("directory must be an object")
+        else:
+            for k in ("subtitle", "body"):
+                if k in dr and dr[k] not in field_names:
+                    p.append(f"directory.{k} '{dr[k]}' is not a field on any entity")
+        if "directory" not in spec.get("features", []):
+            p.append("a directory block needs the 'directory' capability in features")
+        if "search" not in spec.get("features", []):
+            p.append("a directory needs the 'search' capability: it is a search-first view")
+
+    if "comparison" in spec:
+        cp = spec["comparison"]
+        if not isinstance(cp, dict):
+            p.append("comparison must be an object")
+        else:
+            cols = cp.get("columns")
+            if not isinstance(cols, list) or len(cols) < 2:
+                p.append("comparison.columns must name at least two fields")
+                cols = []
+            for c in cols:
+                if c not in field_names:
+                    p.append(f"comparison.columns names a field that does not exist: {c}")
+            hl = cp.get("highlight")
+            if hl is not None:
+                if not isinstance(hl, dict):
+                    p.append("comparison.highlight must be an object of field: max|min")
+                else:
+                    for k, v in hl.items():
+                        if v not in ("max", "min"):
+                            p.append(f"comparison.highlight.{k} must be max or min")
+        if "comparison" not in spec.get("features", []):
+            p.append("a comparison block needs the 'comparison' capability in features")
 
     if "board" in spec:
         bd = spec["board"]

@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.19 — 2026-11-13
+
+Two archetypes in one batch: `search-directory` and `comparison`.
+
+| Area | Change |
+|---|---|
+| Archetype | `search-directory` — the box takes focus, sort and filter are hidden, matches are highlighted, and a long list shows a count instead of the rows until you type |
+| Archetype | `comparison` — one row per record, the columns named in the spec, and the best value in each numeric column marked (`max` or `min`) |
+| Capabilities | `directory` and `comparison` — 31 in total |
+| Registry | `view-directory` and `view-comparison` (F4) — 61 entries |
+| Correctness | the comparison assertion no longer claims exclusivity: a tie marks both rows, which is what "cheapest" means |
+| Counts | 291 tests, 268 guards, 14 specs verifying |
+
 ## v0.18 — 2026-11-13
 
 The studio catches up with the compiler.

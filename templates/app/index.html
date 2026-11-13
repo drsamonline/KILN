@@ -69,6 +69,29 @@
   .spark .axis{stroke:var(--line);stroke-width:1}
   .spark .lbl{fill:var(--muted);font-size:9px}
   /* @end only */
+  /* @only directory */
+  #dir{display:none;margin:0 0 14px}
+  #dir.on{display:block}
+  .hit{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    padding:12px 14px;margin:0 0 10px}
+  .hit .t{font-weight:700;font-size:15px;margin:0 0 3px}
+  .hit .s{color:var(--muted);font-size:12.5px;margin:0 0 5px}
+  .hit .b{font-size:13px;line-height:1.55;margin:0;display:-webkit-box;
+    -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .hit mark{background:rgba(124,156,255,.28);color:inherit;border-radius:3px;padding:0 2px}
+  #search.big{font-size:16px;padding:14px 16px}
+  /* @end only */
+  /* @only comparison */
+  #cmp{display:none;margin:0 0 14px;overflow-x:auto}
+  #cmp.on{display:block}
+  #cmp table{border-collapse:collapse;width:100%;font-size:13px}
+  #cmp th,#cmp td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left;
+    white-space:nowrap}
+  #cmp th{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);
+    position:sticky;top:0;background:var(--bg)}
+  #cmp td.best{color:var(--ok);font-weight:700}
+  #cmp tr:hover td{background:var(--panel)}
+  /* @end only */
   /* @only board */
   #board{display:none;gap:12px;overflow-x:auto;padding:0 0 8px;margin:0 0 14px}
   #board.on{display:flex}
@@ -223,6 +246,12 @@
   <!-- @end only -->
   <!-- @only convert -->
   <section id="convert" hidden></section>
+  <!-- @end only -->
+  <!-- @only directory -->
+  <section id="dir" aria-label="directory"></section>
+  <!-- @end only -->
+  <!-- @only comparison -->
+  <section id="cmp" aria-label="comparison"></section>
   <!-- @end only -->
   <!-- @only board -->
   <div id="board" role="list"></div>
@@ -687,6 +716,22 @@ function addMonths(ym, n) {
 /* month:end */
 /* @end only */
 
+/* ---------- the best value in a column ----------
+   Pure: rows, a field and a direction in; the winning value out. best:start */
+function columnBest(rows, field, mode) {
+  let best = null;
+  for (const r of rows) {
+    const raw = r[field];
+    if (raw === null || raw === undefined || raw === "") continue;
+    const v = Number(raw);
+    if (!isFinite(v)) continue;
+    if (best === null) { best = v; continue; }
+    if (mode === "min" ? v < best : v > best) best = v;
+  }
+  return best;
+}
+/* best:end */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -891,6 +936,108 @@ function renderProgress() {
     '" aria-valuemin="0" aria-valuemax="100"><span style="width:' + p.pct + '%"></span></div>';
 }
 /* @end only */
+/* @only directory */
+function renderDirectory() {
+  const box = $("#dir");
+  if (!MODEL.directory) return;
+  const items = visible();
+  const q = ($("#search").value || "").trim();
+  box.innerHTML = "";
+  if (!q && rows.length > 3) {
+    const p = document.createElement("p");
+    p.className = "hint";
+    p.style.margin = "6px 2px";
+    p.textContent = rows.length + " records. Type to narrow them.";
+    box.appendChild(p);
+    return;
+  }
+  const sub = MODEL.directory.subtitle;
+  const body = MODEL.directory.body;
+  for (const r of items) {
+    const card = document.createElement("div");
+    card.className = "hit";
+    const tt = document.createElement("div");
+    tt.className = "t";
+    tt.innerHTML = highlight(r[FIELDS[0].name], q);
+    card.appendChild(tt);
+    if (sub && r[sub]) {
+      const s = document.createElement("div");
+      s.className = "s";
+      s.innerHTML = highlight(r[sub], q);
+      card.appendChild(s);
+    }
+    if (body && r[body]) {
+      const b = document.createElement("p");
+      b.className = "b";
+      b.innerHTML = highlight(String(r[body]).slice(0, 220), q);
+      card.appendChild(b);
+    }
+    const acts = document.createElement("div");
+    acts.className = "row";
+    acts.style.margin = "8px 0 0";
+    const ed = document.createElement("button");
+    ed.className = "ghost";
+    ed.textContent = T("edit");
+    ed.onclick = () => openEditor(r.id);
+    acts.appendChild(ed);
+    card.appendChild(acts);
+    box.appendChild(card);
+  }
+}
+function highlight(value, q) {
+  const text = esc(String(value === undefined || value === null ? "" : value));
+  if (!q) return text;
+  const needle = esc(q);
+  const i = text.toLowerCase().indexOf(needle.toLowerCase());
+  if (i < 0) return text;
+  return text.slice(0, i) + "<mark>" + text.slice(i, i + needle.length) + "</mark>" +
+    text.slice(i + needle.length);
+}
+/* @end only */
+
+/* @only comparison */
+function renderComparison() {
+  const box = $("#cmp");
+  if (!MODEL.comparison) return;
+  const cols = MODEL.comparison.columns || [];
+  const items = visible();
+  const best = {};
+  for (const c of cols) {
+    const f = FIELDS.find((x) => x.name === c) || {};
+    if (f.type === "number" || f.type === "currency_cents" || f.type === "duration") {
+      const mode = (MODEL.comparison.highlight || {})[c] || "max";
+      best[c] = columnBest(items, c, mode);
+    }
+  }
+  const table = document.createElement("table");
+  const head = document.createElement("tr");
+  for (const name of [FIELDS[0].name].concat(cols)) {
+    const th = document.createElement("th");
+    th.textContent = (FIELDS.find((x) => x.name === name) || {}).label || name;
+    head.appendChild(th);
+  }
+  table.appendChild(head);
+  for (const r of items) {
+    const tr = document.createElement("tr");
+    for (const name of [FIELDS[0].name].concat(cols)) {
+      const f = FIELDS.find((x) => x.name === name) || {};
+      const td = document.createElement("td");
+      const v = r[name];
+      td.textContent = v === undefined || v === null ? "" :
+        f.type === "currency_cents" ? money(v) :
+        f.type === "duration" ? fmtDuration(v) :
+        f.type === "bool" ? (v ? "yes" : "no") :
+        Array.isArray(v) ? v.join(", ") : String(v);
+      if (best[name] !== undefined && Number(v) === best[name]) td.className = "best";
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+  box.innerHTML = "";
+  box.appendChild(table);
+}
+/* @end only */
+
 /* @only board */
 let view = "board";
 function moveCard(r, delta) {
@@ -1106,6 +1253,19 @@ function render() {
   const items = visible();
   const boardOn = F.has("board") && MODEL.board && typeof renderBoard === "function";
   const calOn = F.has("calendar") && MODEL.calendar && typeof renderCalendar === "function";
+  const dirOn = F.has("directory") && MODEL.directory && typeof renderDirectory === "function";
+  const cmpOn = F.has("comparison") && MODEL.comparison && typeof renderComparison === "function";
+  if (dirOn || cmpOn) {
+    list.hidden = true;
+    list.innerHTML = "";
+    const d = $("#dir"), c2 = $("#cmp");
+    if (d) d.className = dirOn ? "on" : "";
+    if (c2) c2.className = cmpOn ? "on" : "";
+    if (dirOn) renderDirectory();
+    if (cmpOn) renderComparison();
+    renderStrip();
+    return;
+  }
   if (boardOn || calOn) {
     list.hidden = true;
     list.innerHTML = "";
@@ -1527,6 +1687,14 @@ function boot() {
   bootTheme();
   bootPWA();
   bootAbout();
+  if (F.has("directory")) {
+    const s0 = $("#search");
+    if (s0) { s0.classList.add("big"); s0.focus(); }
+    const sortEl = $("#sort");
+    if (sortEl) sortEl.hidden = true;
+    const fsel = $("#filter");
+    if (fsel) fsel.hidden = true;
+  }
   if (CALC && F.has("formula")) {
     for (const id of ["add", "export", "search", "sort", "print", "filter"]) {
       const elx = document.getElementById(id);

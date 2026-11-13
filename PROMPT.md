@@ -86,6 +86,11 @@ FIELD RULES
   Include the steps feature.
 - If the work MOVES THROUGH STAGES (new → done), use "pattern": "kanban" with
   "board": {"field": "<select field>"}. The columns are that field's options, in order.
+- If the app is a LOOKUP (a directory, a reference you search), use
+  "pattern": "search-directory" with "directory": {"subtitle": "<field>", "body": "<field>"}.
+  Include search and directory.
+- If the app COMPARES A SHORTLIST, use "pattern": "comparison" with
+  "comparison": {"columns": ["a", "b"], "highlight": {"price": "min"}}. At least two columns.
 - If the app is ABOUT DAYS (appointments, a diary of dates), use "pattern": "calendar"
   with "calendar": {"field": "<date field>"}.
 - If the app is ONE CALCULATION with no list (a converter, a rate, a dose), use
@@ -136,6 +141,8 @@ FEATURE CATALOGUE — the only features that exist
 | totals | a running total of one numeric or duration field | crud |
 | board | a board of columns from one select field | crud |
 | calendar | a month grid over one date field | crud |
+| directory | a search-first lookup with cards | crud, search |
+| comparison | a fixed-column table with the best value marked | crud |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees

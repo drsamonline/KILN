@@ -1,0 +1,35 @@
+{
+  "id": "comparison",
+  "name": "Comparison table",
+  "archetype": 14,
+  "status": "emitted",
+  "descriptor": "Records as rows, chosen attributes as columns, and the best value in each numeric column marked.",
+  "view": "table",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "comparison", "theme"],
+  "requires_fields": ["text"],
+  "requires_keys": ["comparison"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "comparison", "search", "export", "theme"]},
+  "verify_checks": [
+    "pattern comparison: required features present",
+    "comparison: the table is emitted",
+    "comparison: the best-value maths is emitted",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/comparison.md",
+  "screenshot": "docs/gallery/comparison.png",
+  "pros": [
+    "side by side is the only honest way to compare",
+    "the best value is marked, so the eye does not have to hunt",
+    "columns are chosen in the spec, so the table stays readable",
+    "it scrolls horizontally rather than dropping columns"
+  ],
+  "cons": [
+    "one highlight direction per column: max or min, not both",
+    "no weighting, no scoring, no verdict",
+    "more than about six columns needs a wide screen",
+    "the marked value is not always the right choice, and the app does not say so"
+  ],
+  "best_for": "a shortlist of options with a few attributes",
+  "avoid_if": "the decision needs weights, or the attributes are long text"
+}

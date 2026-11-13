@@ -405,6 +405,78 @@ board on anything but a select with two or more options.
 
 ---
 
+## search-directory
+
+| | |
+|---|---|
+| Archetype | 17 |
+| Status | **emitted** |
+| View | a focused search box, cards underneath |
+| Requires | `crud`, `search`, `directory`, `theme` |
+| Requires fields | a `text` |
+| Spec keys | `pattern`, `directory.subtitle`, `directory.body` |
+| Sample | [`specs/gallery/search-directory.md`](../specs/gallery/search-directory.md) |
+| Screenshot | [`docs/gallery/search-directory.png`](gallery/search-directory.png) |
+
+**Pros**
+
+- the cursor is already in the box, so the first keystroke is the search
+- matches are highlighted, so you see why a card came back
+- cards fit more per record than a row does
+- no toolbar to learn: one box and a list
+
+**Cons**
+
+- search is still a linear scan, so it is not a real index
+- nothing is shown until you type, which looks empty to a first-time user
+- no sort and no filters: this view deliberately has one control
+- cards are taller, so fewer records fit on a screen
+
+**Best for:** a few hundred records you look up by name.
+
+**Avoid if:** you need to browse, sort, or see everything at once.
+
+**The rule:** the search box takes focus, the sort and filter controls are hidden, and a list
+longer than three records shows a count instead of the rows until you type.
+
+---
+
+## comparison
+
+| | |
+|---|---|
+| Archetype | 14 |
+| Status | **emitted** |
+| View | a fixed-column table |
+| Requires | `crud`, `comparison`, `theme` |
+| Requires fields | a `text` |
+| Spec keys | `pattern`, `comparison.columns`, `comparison.highlight` |
+| Sample | [`specs/gallery/comparison.md`](../specs/gallery/comparison.md) |
+| Screenshot | [`docs/gallery/comparison.png`](gallery/comparison.png) |
+
+**Pros**
+
+- side by side is the only honest way to compare
+- the best value is marked, so the eye does not have to hunt
+- columns are chosen in the spec, so the table stays readable
+- it scrolls horizontally rather than dropping columns
+
+**Cons**
+
+- one highlight direction per column: max or min, not both
+- no weighting, no scoring, no verdict
+- more than about six columns needs a wide screen
+- a tie marks both rows, which is correct and occasionally surprising
+
+**Best for:** a shortlist of options with a few attributes.
+
+**Avoid if:** the decision needs weights, or the attributes are long text.
+
+**The rule:** `comparison.columns` names at least two fields; `comparison.highlight` maps a
+numeric column to `max` or `min`; the best value in each mapped column gets a mark.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -425,10 +497,10 @@ spec naming it fails verification rather than silently building something else.
 | calculator | tiny, instant | no persistence by default | **emitted** |
 | converter | tiny, offline | rounding discipline | **emitted** |
 | Voting / Poll | quick collection | single device only | planned |
-| Comparison table | decision clarity | rigid for small sets | planned |
+| comparison | decision clarity | rigid for small sets | **emitted** |
 | Gallery / Cards | visual, scannable | verbose for data-heavy | planned |
 | Grid / Matrix | many dimensions | cramped on mobile | planned |
-| Search directory | scales by search | still linear underneath | planned |
+| search-directory | scales by search | still linear underneath | **emitted** |
 | log | time and mileage | duration field | **emitted** |
 | Print / Report | shareable artefact | layout brittle across browsers | planned |
 

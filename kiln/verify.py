@@ -199,6 +199,19 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "directory" in model["features"]:
+        res.add("L5", "directory: the view is emitted", "function renderDirectory(" in html)
+        res.add("L5", "directory: match highlighting is emitted", "function highlight(" in html)
+        res.add("L5", "directory: the search box is enlarged and focused",
+                'classList.add("big")' in html and ".focus()" in html)
+        res.add("L5", "directory: the config reached the model",
+                isinstance(model.get("directory"), dict))
+    if "comparison" in model["features"]:
+        res.add("L5", "comparison: the table is emitted", "function renderComparison(" in html)
+        res.add("L5", "comparison: the best-value maths is emitted",
+                "function columnBest(" in html)
+        res.add("L5", "comparison: the config reached the model",
+                len((model.get("comparison") or {}).get("columns", [])) >= 2)
     if "board" in model["features"]:
         res.add("L5", "board: the board is emitted", "function renderBoard(" in html)
         res.add("L5", "board: the grouping is emitted", "function groupBy(" in html)

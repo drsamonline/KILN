@@ -454,6 +454,41 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "a record dated the 13th appears in the cell for the 13th of that month"
+    },
+    "directory": {
+      "label": "A search-first directory: one box, cards, no toolbar",
+      "aliases": [
+        "directory",
+        "search first",
+        "lookup",
+        "find someone",
+        "cards"
+      ],
+      "requires": [
+        "crud",
+        "search"
+      ],
+      "conflicts": [],
+      "kit": "search-kit",
+      "emitter": "runtime",
+      "assertion": "opening the app puts the cursor in the search box and shows the count, not the rows"
+    },
+    "comparison": {
+      "label": "A fixed-column comparison table with the best value marked",
+      "aliases": [
+        "comparison",
+        "compare",
+        "matrix",
+        "side by side",
+        "which is better"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "the cheapest price shows a mark, and a row that is not cheapest shows none"
     }
   }
 }

@@ -1,0 +1,11 @@
+{
+  "id": "view-comparison",
+  "family": "F4",
+  "name": "comparison",
+  "spec_keys": ["features[]", "comparison.columns", "comparison.highlight"],
+  "emitter_hook": "templates/app/index.html::renderComparison",
+  "verify_check": "the highest price in the table is marked, and only that one",
+  "docs_anchor": "docs/PATTERNS.md#comparison",
+  "status": "emitted",
+  "note": "one row per record, one column per named field, the best numeric value marked"
+}
