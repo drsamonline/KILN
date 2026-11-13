@@ -1,0 +1,11 @@
+{
+  "id": "view-quiz",
+  "family": "F4",
+  "name": "quiz",
+  "spec_keys": ["features[]", "quiz.answer", "quiz.prompt", "quiz.explain"],
+  "emitter_hook": "templates/app/index.html::renderQuiz",
+  "verify_check": "three questions with two right answers show 2 of 3 at the end",
+  "docs_anchor": "docs/PATTERNS.md#quiz",
+  "status": "emitted",
+  "note": "one question at a time, the pick is checked against a text answer, the score is derived"
+}

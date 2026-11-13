@@ -626,6 +626,78 @@ being dropped.
 
 ---
 
+## quiz
+
+| | |
+|---|---|
+| Archetype | 9 |
+| Status | **emitted** |
+| View | one question at a time, a score at the end |
+| Requires | `crud`, `quiz`, `theme` |
+| Requires fields | a `text`, and a `tags` field for the options |
+| Spec keys | `pattern`, `quiz.answer`, `quiz.prompt`, `quiz.explain` |
+| Sample | [`specs/gallery/quiz.md`](../specs/gallery/quiz.md) |
+| Screenshot | [`docs/gallery/quiz.png`](gallery/quiz.png) |
+
+**Pros**
+
+- the questions are ordinary records, so authoring is the same form as everything else
+- the score is derived from the picks, not stored, so a retake is honest
+- the explanation is available on the record for when it is worth reading
+- one file: a revision aid you can carry on a phone
+
+**Cons**
+
+- answers are matched as text, so a typo in the spec is a wrong answer
+- no spaced repetition, no scheduling, no difficulty weighting
+- one correct answer per question
+- the question order is the record order
+
+**Best for:** revising a fixed set of facts you wrote yourself.
+
+**Avoid if:** you need adaptive testing or multiple correct answers.
+
+**The rule:** the answer is text and is compared case-insensitively, so it must match one of
+the options exactly. The score is counted from the picks at the end and is never stored.
+
+---
+
+## gallery
+
+| | |
+|---|---|
+| Archetype | 13 |
+| Status | **emitted** |
+| View | a responsive grid of cards, image first |
+| Requires | `crud`, `gallery`, `theme` |
+| Requires fields | a `text`, and an `image` |
+| Spec keys | `pattern`, `gallery.image`, `gallery.caption` |
+| Sample | [`specs/gallery/gallery.md`](../specs/gallery/gallery.md) |
+| Screenshot | [`docs/gallery/gallery.png`](gallery/gallery.png) |
+
+**Pros**
+
+- the picture is the record, so the grid is the honest layout
+- lazy loading means a hundred cards still open quickly
+- a missing or broken image degrades to a caption, not a hole
+- it prints and exports the same records as any other list
+
+**Cons**
+
+- images are urls: nothing is embedded, so a dead link is a dead card
+- no upload, no cropping, no zoom, no lightbox
+- the grid is only as fast as the host serving the images
+- a record with a long caption breaks the grid rhythm
+
+**Best for:** a visual index of things you already have pictures of.
+
+**Avoid if:** the images must be carried inside the file.
+
+**The rule:** an `image` field is a url string — `https://…` or a `data:` uri. Nothing is
+uploaded and nothing is fetched at build time. A card with no image shows a placeholder.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -653,6 +725,8 @@ spec naming it fails verification rather than silently building something else.
 | log | time and mileage | duration field | **emitted** |
 | inventory | stock accuracy | needs master-detail | **emitted** |
 | timeline | chronology | long scroll | **emitted** |
+| quiz | a learning loop | content authoring burden | **emitted** |
+| gallery | visual, scannable | verbose for data-heavy | **emitted** |
 | Print / Report | shareable artefact | layout brittle across browsers | planned |
 
 ---

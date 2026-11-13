@@ -369,6 +369,72 @@ def check_registry(catalog) -> list[Row]:
 
 
 # ------------------------------------------------------- C15 pattern integrity
+ONLY_RE = re.compile(r"^(?:/\*|<!--)\s*@only ([a-z0-9_]+)\s*(?:\*/|-->)$")
+END_RE = re.compile(r"^(?:/\*|<!--)\s*@end only\s*(?:\*/|-->)$")
+DECL_RE = re.compile(r"^(?:function|let|const|var)\s+([A-Za-z_$][\w$]*)")
+
+
+def check_block_ownership(catalog) -> list[Row]:
+    """A name declared inside a capability block must not be used by a capability
+    that does not require it.
+
+    This is the bug that has bitten this repository four times: a `let` or a
+    `function` placed inside the wrong @only block, so the capability that needs
+    it ships without it and the app dies at runtime with a ReferenceError.
+    """
+    src = (ROOT / "templates" / "app" / "index.html").read_text(encoding="utf-8")
+    out: list[Row] = []
+    stack: list[str] = []
+    lines: list[tuple[int, str | None, str]] = []
+    for i, raw in enumerate(src.splitlines(), 1):
+        s = raw.strip()
+        m = ONLY_RE.match(s)
+        if m:
+            stack.append(m.group(1))
+            continue
+        if END_RE.match(s):
+            if stack:
+                stack.pop()
+            continue
+        lines.append((i, stack[-1] if stack else None, raw))
+
+    decls: dict[str, str] = {}
+    for _, cap, text in lines:
+        if cap is None:
+            continue
+        m = DECL_RE.match(text)
+        if m:
+            decls[m.group(1)] = cap
+
+    closure: dict[str, set[str]] = {}
+    for name, owner in sorted(decls.items()):
+        for line_no, cap, text in lines:
+            if cap is None or cap == owner:
+                continue
+            if cap not in closure:
+                try:
+                    closure[cap] = set(cat.expand([cap], catalog))
+                except Exception:
+                    closure[cap] = {cap}
+            if owner in closure[cap]:
+                continue
+            # a property name is not a reference: MODEL.comparison.highlight
+            if not re.search(r"(?<!\.)\b" + re.escape(name) + r"\b", text):
+                continue
+            # typeof X is the safe probe for a name that may not exist
+            if re.search(r"typeof\s+" + re.escape(name) + r"\b", text):
+                continue
+            # a reference behind F.has("<owner>") can never run without the owner
+            if f'F.has("{owner}")' in text:
+                continue
+            out.append(Row(f"C18 {name} escapes its block", False,
+                           f"declared in @only {owner}, used in @only {cap} at line {line_no}"))
+    if not out:
+        out.append(Row("C18 no name escapes its capability block", True,
+                       f"{len(decls)} declarations checked"))
+    return out
+
+
 def check_patterns(catalog) -> list[Row]:
     """§2: every archetype ships a descriptor, a sample, a screenshot and a pros/cons block."""
     from . import catalog as cat
@@ -610,6 +676,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_support()
     rows += check_registry(catalog)
     rows += check_patterns(catalog)
+    rows += check_block_ownership(catalog)
     rows += check_counts()
     rows += check_guides(catalog)
     rows += check_licensing()

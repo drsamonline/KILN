@@ -1,3 +1,3 @@
 """KILN — spec in, finished app out, no model required."""
 
-__version__ = "0.22.0"
+__version__ = "0.23.0"

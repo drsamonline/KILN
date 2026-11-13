@@ -1,0 +1,35 @@
+{
+  "id": "gallery",
+  "name": "Gallery",
+  "archetype": 13,
+  "status": "emitted",
+  "descriptor": "A responsive grid of cards, each led by an image, with a caption underneath.",
+  "view": "grid",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "gallery", "theme"],
+  "requires_fields": ["text", "image"],
+  "requires_keys": ["gallery"],
+  "spec_defaults": {"tier": 1, "features": ["crud", "gallery", "search", "export", "theme"]},
+  "verify_checks": [
+    "pattern gallery: required features present",
+    "gallery: the grid is emitted",
+    "gallery: images are lazy",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/gallery.md",
+  "screenshot": "docs/gallery/gallery.png",
+  "pros": [
+    "the picture is the record, so the grid is the honest layout",
+    "lazy loading means a hundred cards still open quickly",
+    "a missing or broken image degrades to a caption, not a hole",
+    "it prints and exports the same records as any other list"
+  ],
+  "cons": [
+    "images are urls: nothing is embedded, so a dead link is a dead card",
+    "no upload, no cropping, no zoom, no lightbox",
+    "the grid is only as fast as the host serving the images",
+    "a record with a long caption breaks the grid rhythm"
+  ],
+  "best_for": "a visual index of things you already have pictures of",
+  "avoid_if": "the images must be carried inside the file"
+}

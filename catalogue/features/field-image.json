@@ -1,0 +1,12 @@
+{
+  "id": "field-image",
+  "family": "F2",
+  "name": "image",
+  "runtime_type": "image",
+  "spec_keys": ["entities[].fields[].type = image"],
+  "emitter_hook": "templates/app/index.html::fieldInput",
+  "verify_check": "an image field is a url input and renders as an img in the card",
+  "docs_anchor": "docs/PATTERNS.md#gallery",
+  "status": "emitted",
+  "note": "a url string; http(s) or data:, nothing is uploaded and nothing is fetched at build time"
+}

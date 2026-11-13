@@ -1,0 +1,35 @@
+{
+  "id": "quiz",
+  "name": "Quiz",
+  "archetype": 9,
+  "status": "emitted",
+  "descriptor": "A question bank you author, and a run that shows one question at a time and scores the picks.",
+  "view": "one at a time",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "quiz", "theme"],
+  "requires_fields": ["text", "tags"],
+  "requires_keys": ["quiz"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "quiz", "export", "theme"]},
+  "verify_checks": [
+    "pattern quiz: required features present",
+    "quiz: the runner is emitted",
+    "quiz: the score maths is emitted",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/quiz.md",
+  "screenshot": "docs/gallery/quiz.png",
+  "pros": [
+    "the questions are ordinary records, so authoring is the same form as everything else",
+    "the score is derived from the picks, not stored, so a retake is honest",
+    "the explanation is shown after the answer, which is when it is worth reading",
+    "one file: a revision aid you can carry on a phone"
+  ],
+  "cons": [
+    "answers are matched as text, so a typo in the spec is a wrong answer",
+    "no spaced repetition, no scheduling, no difficulty weighting",
+    "one correct answer per question",
+    "the question order is the record order"
+  ],
+  "best_for": "revising a fixed set of facts you wrote yourself",
+  "avoid_if": "you need adaptive testing or multiple correct answers"
+}

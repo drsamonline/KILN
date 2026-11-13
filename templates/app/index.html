@@ -70,6 +70,28 @@
   .spark .axis{stroke:var(--line);stroke-width:1}
   .spark .lbl{fill:var(--muted);font-size:9px}
   /* @end only */
+  /* @only gallery */
+  #gal{display:none;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;
+    margin:0 0 14px}
+  #gal.on{display:grid}
+  .gcard{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    overflow:hidden;cursor:pointer}
+  .gcard img{display:block;width:100%;height:150px;object-fit:cover;background:var(--panel2)}
+  .gmiss{display:flex;align-items:center;justify-content:center;height:150px;
+    background:var(--panel2);color:var(--muted);font-size:12px}
+  .gcard figcaption{padding:9px 11px;font-size:13px}
+  .gcard figcaption b{display:block;margin:0 0 2px}
+  .gcard figcaption span{color:var(--muted);font-size:12px}
+  /* @end only */
+  /* @only quiz */
+  #quiz{display:none;margin:0 0 14px}
+  #quiz.on{display:block}
+  .qcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+  .qn{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+  .qcard h3{margin:6px 0 14px;font-size:18px;line-height:1.4}
+  .opts{display:grid;gap:8px}
+  .opt{text-align:left;padding:11px 13px;font-size:14px}
+  /* @end only */
   /* @only timeline */
   #timeline{display:none}
   #timeline.on{display:block}
@@ -262,6 +284,12 @@
   <!-- @end only -->
   <!-- @only comparison -->
   <section id="cmp" aria-label="comparison"></section>
+  <!-- @end only -->
+  <!-- @only gallery -->
+  <section id="gal" aria-label="gallery"></section>
+  <!-- @end only -->
+  <!-- @only quiz -->
+  <section id="quiz" aria-label="quiz"></section>
   <!-- @end only -->
   <!-- @only timeline -->
   <section id="timeline" aria-label="timeline"></section>
@@ -858,6 +886,19 @@ function groupByMonth(rows, field) {
 /* month2:end */
 /* @end only */
 
+/* ---------- a score from the picks ----------
+   Pure: questions, picks and the answer field in; how many were right out. score:start */
+function scoreOf(questions, picks, answerField) {
+  let right = 0;
+  for (let i = 0; i < questions.length; i++) {
+    const want = String(questions[i][answerField] === undefined ? "" : questions[i][answerField]).trim().toLowerCase();
+    const got = String(picks[i] === undefined ? "" : picks[i]).trim().toLowerCase();
+    if (want && got === want) right += 1;
+  }
+  return right;
+}
+/* score:end */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -1190,6 +1231,115 @@ function renderComparison() {
 }
 /* @end only */
 
+/* @only gallery */
+function renderGallery() {
+  const box = $("#gal");
+  if (!MODEL.gallery) return;
+  const img = MODEL.gallery.image;
+  const cap = MODEL.gallery.caption;
+  box.innerHTML = "";
+  const items = visible();
+  if (!items.length) {
+    const p = document.createElement("p");
+    p.className = "hint";
+    p.textContent = rows.length ? "No match." : T("empty");
+    box.appendChild(p);
+    return;
+  }
+  for (const r of items) {
+    const card = document.createElement("figure");
+    card.className = "gcard";
+    const url = r[img];
+    if (url) {
+      const el2 = document.createElement("img");
+      el2.loading = "lazy";
+      el2.alt = String(r[FIELDS[0].name] || "");
+      el2.src = String(url);
+      el2.onerror = () => { el2.replaceWith(el("div", "gmiss", "image unavailable")); };
+      card.appendChild(el2);
+    } else {
+      card.appendChild(el("div", "gmiss", "no image"));
+    }
+    const cap2 = document.createElement("figcaption");
+    const tt = document.createElement("b");
+    tt.textContent = String(r[FIELDS[0].name] || "(untitled)");
+    cap2.appendChild(tt);
+    if (cap && r[cap]) {
+      const d = document.createElement("span");
+      d.textContent = String(r[cap]);
+      cap2.appendChild(d);
+    }
+    card.appendChild(cap2);
+    card.onclick = () => openEditor(r.id);
+    box.appendChild(card);
+  }
+}
+/* @end only */
+
+/* @only quiz */
+function renderQuiz() {
+  const box = $("#quiz");
+  if (!MODEL.quiz) return;
+  const q = MODEL.quiz;
+  const questions = visible();
+  if (!quizState) {
+    box.innerHTML = "";
+    const p = document.createElement("p");
+    p.className = "hint";
+    p.textContent = questions.length + " questions. Each one is checked as you go.";
+    const start = document.createElement("button");
+    start.className = "primary";
+    start.textContent = "Start";
+    start.onclick = () => { quizState = {i: 0, picks: []}; render(); };
+    box.appendChild(p);
+    box.appendChild(start);
+    return;
+  }
+  box.innerHTML = "";
+  if (quizState.i >= questions.length) {
+    const right = scoreOf(questions, quizState.picks, q.answer);
+    const done = document.createElement("div");
+    done.className = "metrics";
+    done.innerHTML = "<div class=\"metric\"><b>" + right + "</b><span>right</span></div>" +
+      "<div class=\"metric\"><b>" + questions.length + "</b><span>asked</span></div>";
+    box.appendChild(done);
+    const again = document.createElement("button");
+    again.className = "ghost";
+    again.textContent = "Again";
+    again.onclick = () => { quizState = {i: 0, picks: []}; render(); };
+    box.appendChild(again);
+    return;
+  }
+  const item = questions[quizState.i];
+  const card = document.createElement("div");
+  card.className = "qcard";
+  const n = document.createElement("div");
+  n.className = "qn";
+  n.textContent = (quizState.i + 1) + " of " + questions.length;
+  card.appendChild(n);
+  const prompt = document.createElement("h3");
+  prompt.textContent = String(item[q.prompt || FIELDS[0].name] || "");
+  card.appendChild(prompt);
+  const opts = Array.isArray(item.options) ? item.options
+    : (item.options ? String(item.options).split(",") : []);
+  const wrap = document.createElement("div");
+  wrap.className = "opts";
+  for (const o of opts) {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.textContent = String(o);
+    b.onclick = () => {
+      quizState.picks[quizState.i] = String(o);
+      quizState.i += 1;
+      render();
+    };
+    wrap.appendChild(b);
+  }
+  card.appendChild(wrap);
+  box.appendChild(card);
+}
+/* @end only */
+
 /* @only timeline */
 function renderTimeline() {
   const box = $("#timeline");
@@ -1300,6 +1450,10 @@ function renderBoard() {
 }
 /* @end only */
 
+/* @only quiz */
+let quizState = null;
+/* @end only */
+
 /* @only calendar */
 let calMonth = null;
 function renderCalendar() {
@@ -1393,6 +1547,7 @@ function openDetail(r) {
       : Array.isArray(v) ? v.join(", ") : String(v));
     box.appendChild(row);
   }
+  /* @only relation */
   if (MODEL.master_detail && MODEL.master_detail.master === ENTITY.name) {
     const md = MODEL.master_detail;
     const kids = childrenOf(md.child, md.field, r.id);
@@ -1419,6 +1574,7 @@ function openDetail(r) {
       box.appendChild(line);
     }
   }
+  /* @end only */
   $("#detailEdit").onclick = () => { $("#detail").close(); openEditor(r.id); };
   $("#detailClose").onclick = () => $("#detail").close();
   $("#detail").showModal();
@@ -1485,6 +1641,19 @@ function render() {
   const calOn = F.has("calendar") && MODEL.calendar && typeof renderCalendar === "function";
   const dirOn = F.has("directory") && MODEL.directory && typeof renderDirectory === "function";
   const cmpOn = F.has("comparison") && MODEL.comparison && typeof renderComparison === "function";
+  const galOn = F.has("gallery") && MODEL.gallery && typeof renderGallery === "function";
+  const quizOn = F.has("quiz") && MODEL.quiz && typeof renderQuiz === "function";
+  if (galOn || quizOn) {
+    list.hidden = true;
+    list.innerHTML = "";
+    const g2 = $("#gal"), q2 = $("#quiz");
+    if (g2) g2.className = galOn ? "on" : "";
+    if (q2) q2.className = quizOn ? "on" : "";
+    if (galOn) renderGallery();
+    if (quizOn) renderQuiz();
+    renderStrip();
+    return;
+  }
   const tlOn = F.has("timeline") && MODEL.timeline && typeof renderTimeline === "function";
   if (tlOn) {
     list.hidden = true;
@@ -1579,7 +1748,12 @@ function render() {
         body.appendChild(chips);
       } else if (f.type === "currency_cents") {
         body.appendChild(el("div", "d", (f.label + ": " + money(v))));
-      } else if (f.type === "lookup") {
+      } else if (f.type === "image") {
+    input = document.createElement("input");
+    input.type = "url";
+    input.placeholder = "https://… or data:image/…";
+    input.inputMode = "url";
+  } else if (f.type === "lookup") {
         body.appendChild(el("div", "d", (f.label + ": " + (labelOf(f.entity, v) || "—"))));
       } else if (f.type === "duration") {
         body.appendChild(el("div", "d", (f.label + ": " + fmtDuration(v))));
@@ -1639,12 +1813,14 @@ function fieldInput(f, value) {
     blank.value = "";
     blank.textContent = "—";
     input.appendChild(blank);
+    /* @only relation */
     for (const other of DB[f.entity] || []) {
       const o = document.createElement("option");
       o.value = other.id;
       o.textContent = String(other[titleFieldOf(f.entity)] || other.id);
       input.appendChild(o);
     }
+    /* @end only */
   } else if (f.type === "duration") {
     input = document.createElement("input");
     input.type = "number";
@@ -1744,6 +1920,7 @@ function openEditor(id) {
   const box = $("#fields");
   box.innerHTML = "";
   $("#formErr").textContent = "";
+  /* @only steps */
   if (typeof STEPS !== "undefined" && STEPS) {
     stepIndex = 0;
     draft = r ? Object.assign({}, r) : {};
@@ -1755,6 +1932,7 @@ function openEditor(id) {
     $("#editor").showModal();
     return;
   }
+  /* @end only */
   for (const f of FIELDS) {
     const lab = document.createElement("label");
     lab.textContent = f.label + (f.required ? " *" : "");

@@ -575,6 +575,40 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "two records in November and one in October show two month headings"
+    },
+    "quiz": {
+      "label": "A question at a time, a pick, and a score at the end",
+      "aliases": [
+        "quiz",
+        "flashcard",
+        "test me",
+        "questions and answers",
+        "score"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "three questions with two right answers show 2 of 3 at the end"
+    },
+    "gallery": {
+      "label": "A grid of cards, each with an image",
+      "aliases": [
+        "gallery",
+        "cards with pictures",
+        "photo wall",
+        "visual list",
+        "lookbook"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "four records with image urls show four cards, each with an img element"
     }
   }
 }

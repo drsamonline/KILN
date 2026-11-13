@@ -10,7 +10,7 @@ from pathlib import Path
 
 BLOCK = re.compile(r"```json\s+kiln\s*\n(.*?)\n```", re.S)
 FIELD_TYPES = {"text", "longtext", "number", "date", "bool", "select", "tags",
-               "currency_cents", "duration", "lookup"}
+               "currency_cents", "duration", "lookup", "image"}
 REQUIRED_KEYS = ["id", "name", "tier", "category", "pitch", "features",
                  "entities", "storage", "done_means", "not"]
 OPTIONAL_KEYS = ["pattern", "accent", "currency", "tracker", "progress",
@@ -87,6 +87,7 @@ NEEDS_KEY = {
     "directory": "directory", "comparison": "comparison", "i18n": "i18n",
     "relation": "master_detail",
     "balance": "balance", "timeline": "timeline",
+    "quiz": "quiz", "gallery": "gallery",
     "dashboard": "dashboard", "multi": "entities",
 }
 
@@ -192,6 +193,37 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
         p.append("the 'multi' capability needs at least two entities")
     if len(ents) > 1 and "multi" not in (spec.get("features") or []):
         p.append(f"{len(ents)} entities need the 'multi' capability in features")
+
+    if "quiz" in spec:
+        qz = spec["quiz"]
+        if not isinstance(qz, dict):
+            p.append("quiz must be an object")
+        else:
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            ans = qz.get("answer")
+            if ans not in types:
+                p.append(f"quiz.answer '{ans}' is not a field on any entity")
+            elif types[ans]["type"] not in ("text", "select"):
+                p.append("quiz.answer must be a text or select field")
+            for k in ("prompt", "explain"):
+                if k in qz and qz[k] not in types:
+                    p.append(f"quiz.{k} '{qz[k]}' is not a field on any entity")
+            if not any(f["type"] == "tags" for e in ents for f in (e.get("fields") or [])):
+                p.append("a quiz needs a tags field for the options to choose between")
+
+    if "gallery" in spec:
+        gl = spec["gallery"]
+        if not isinstance(gl, dict):
+            p.append("gallery must be an object")
+        else:
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            img = gl.get("image")
+            if img not in types:
+                p.append(f"gallery.image '{img}' is not a field on any entity")
+            elif types[img]["type"] != "image":
+                p.append("gallery.image must be an image field")
+            if "caption" in gl and gl["caption"] not in types:
+                p.append(f"gallery.caption '{gl['caption']}' is not a field on any entity")
 
     if "balance" in spec:
         bl = spec["balance"]

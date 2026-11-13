@@ -199,6 +199,16 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "quiz" in model["features"]:
+        res.add("L5", "quiz: the runner is emitted", "function renderQuiz(" in html)
+        res.add("L5", "quiz: the score maths is emitted", "function scoreOf(" in html)
+        res.add("L5", "quiz: the config reached the model",
+                bool((model.get("quiz") or {}).get("answer")))
+    if "gallery" in model["features"]:
+        res.add("L5", "gallery: the grid is emitted", "function renderGallery(" in html)
+        res.add("L5", "gallery: images are lazy", 'loading = "lazy"' in html)
+        res.add("L5", "gallery: the config reached the model",
+                bool((model.get("gallery") or {}).get("image")))
     if "balance" in model["features"]:
         res.add("L5", "balance: the balance maths is emitted", "function balanceOf(" in html)
         res.add("L5", "balance: the reorder flag is emitted", "to reorder" in html)

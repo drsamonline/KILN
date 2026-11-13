@@ -4,6 +4,21 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.23 — 2026-11-13
+
+Two archetypes, two field types, and the guard that stops a bug class.
+
+| Area | Change |
+|---|---|
+| Field type | `image` — a url string (`https://` or `data:`); nothing uploaded, nothing fetched at build time |
+| Archetype | `quiz` — one question at a time, options as buttons, the score derived from the picks |
+| Archetype | `gallery` — a responsive grid, lazy images, a placeholder where a picture is missing |
+| Capabilities | `quiz` and `gallery` — 38 in total |
+| Registry | `view-quiz` (F4) and `field-image` (F2) — 72 entries |
+| **Guard C18** | **a name declared inside an `@only` block must not be used by a capability that does not require it.** This is the bug that broke the runtime four times in this project; it is now checked on every audit, with `typeof`, property access and `F.has(owner)` treated as the safe probes they are |
+| Fixed by C18 | three real escapes: the lookup option builder (relation), the wizard handover inside `openEditor` (steps), and the children list inside `openDetail` (relation) |
+| Counts | 358 tests, 330 guards, 21 specs verifying |
+
 ## v0.22 — 2026-11-13
 
 Two archetypes in one batch: `inventory` and `timeline`.

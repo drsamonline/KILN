@@ -86,6 +86,10 @@ FIELD RULES
   Include the steps feature.
 - If the work MOVES THROUGH STAGES (new → done), use "pattern": "kanban" with
   "board": {"field": "<select field>"}. The columns are that field's options, in order.
+- If the app TESTS KNOWLEDGE, use "pattern": "quiz" with "quiz": {"answer", "prompt",
+  "explain"}; the options are a tags field and the answer is text.
+- If the app IS A WALL OF PICTURES, use "pattern": "gallery" with
+  "gallery": {"image", "caption"} and a field of type "image" holding a url.
 - If the app COUNTS STOCK (items and movements), use "pattern": "inventory" with a
   signed numeric field on the child and "balance": {"master", "child", "field", "lookup",
   "reorder"}. The balance is derived, never stored.
@@ -161,6 +165,8 @@ FEATURE CATALOGUE — the only features that exist
 | relation | a field pointing at a record in another list | crud, multi |
 | balance | a running balance per parent, from its children | crud, multi, relation |
 | timeline | the list grouped by month, newest first | crud |
+| quiz | a question at a time, with a score | crud |
+| gallery | a grid of cards, each with an image | crud |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees
