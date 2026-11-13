@@ -7,32 +7,40 @@ from pathlib import Path
 from .compose import TPL
 
 VAR = re.compile(r"\{\{([A-Z_]+)\}\}")
-ONLY = re.compile(
-    r"(?:/\*|<!--)\s*@only ([a-z0-9_]+)\s*(?:\*/|-->).*?(?:/\*|<!--)\s*@end only\s*(?:\*/|-->)\n?",
-    re.S)
-MARKER = re.compile(r"(?:/\*|<!--)\s*@(?:only [a-z0-9_]+|end only)\s*(?:\*/|-->)\n?")
-
-
-def strip_unused(text: str, features) -> tuple[str, list[str]]:
-    """Remove the code blocks for capabilities this app does not have.
-
-    A calculator should not carry the tracker's arithmetic. The markers are in
-    the template, so the block and its removal live next to each other.
-    """
-    keep = set(features)
-    dropped = []
-
-    def sub(m):
-        name = m.group(1)
-        if name in keep:
-            return MARKER.sub("", m.group(0))
-        dropped.append(name)
-        return ""
-    return ONLY.sub(sub, text), dropped
+ONLY_LINE = re.compile(r"^(?:/\*|<!--)\s*@only ([a-z0-9_]+)\s*(?:\*/|-->)$")
+END_LINE = re.compile(r"^(?:/\*|<!--)\s*@end only\s*(?:\*/|-->)$")
 
 
 class EmitError(Exception):
     pass
+
+
+def strip_unused(text: str, features) -> tuple[str, list[str]]:
+    """Remove the blocks for capabilities this app does not have.
+
+    A line scanner, not a regex over the whole file: a regular expression cannot
+    pair markers reliably when one block follows another, and a mis-paired block
+    silently deletes the wrong code. The stack makes nesting impossible to get
+    wrong, and no marker can survive into the output.
+    """
+    keep = set(features)
+    out, stack, dropped = [], [], []
+    for line in text.splitlines(keepends=True):
+        probe = line.strip()
+        m = ONLY_LINE.match(probe)
+        if m:
+            name = m.group(1)
+            stack.append((name, name in keep))
+            if name not in keep:
+                dropped.append(name)
+            continue
+        if END_LINE.match(probe):
+            if stack:
+                stack.pop()
+            continue
+        if all(flag for _, flag in stack):
+            out.append(line)
+    return "".join(out), dropped
 
 
 def render(template: str, ctx: dict) -> str:

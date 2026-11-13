@@ -1,0 +1,11 @@
+{
+  "id": "form-convert",
+  "family": "F6",
+  "name": "converter",
+  "spec_keys": ["features[]", "converter.units", "converter.default_from", "converter.default_to"],
+  "emitter_hook": "templates/app/index.html::renderConvert",
+  "verify_check": "1 kilometre converts to 0.62 miles and back again",
+  "docs_anchor": "docs/PATTERNS.md#converter",
+  "status": "emitted",
+  "note": "one amount, two unit selects, a factor table, no formula"
+}

@@ -72,6 +72,13 @@ FIELD RULES
   and include the i18n feature. Known dictionaries: en, hi, gu. English must be first.
 - If the app will be used by real people over time, include the a11y and feedback
   features: a skip link, a focus ring, and honest banners about size and backups.
+- If the app CONVERTS BETWEEN UNITS (distance, weight, volume), use
+  "pattern": "converter" with a "converter" object: {"units": [{"id","label","short",
+  "factor"}], "default_from", "default_to", "decimals"}. One base unit, factor per unit.
+  Include the convert feature. Temperature is not supported: it needs an offset.
+- If the form is too long for one screen, use "pattern": "wizard" with
+  "wizard": {"steps": [{"title", "fields": [...]}]}. A field belongs to exactly one step.
+  Include the steps feature.
 - If the app is ONE CALCULATION with no list (a converter, a rate, a dose), use
   "pattern": "calculator" with "entities": [] and a "calculator" object:
   {"inputs": [{"name","label","default","min","max"}], "formula": "<expression>",
@@ -114,6 +121,8 @@ FEATURE CATALOGUE — the only features that exist
 | formula | one calculation over named inputs, no list, no storage | - |
 | a11y | skip link, focus ring, live regions, reduced motion | - |
 | feedback | a size warning and a backup reminder | crud |
+| convert | convert between units of one dimension | - |
+| steps | a form split into steps, validated one at a time | crud |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees

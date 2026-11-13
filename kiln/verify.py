@@ -199,6 +199,17 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "convert" in model["features"]:
+        res.add("L5", "convert: the conversion function is emitted", "function convertValue(" in html)
+        res.add("L5", "convert: the screen is emitted", 'id="convert"' in html)
+        res.add("L5", "convert: the unit table reached the model",
+                len((model.get("converter") or {}).get("units", [])) >= 2)
+    if "steps" in model["features"]:
+        res.add("L5", "steps: the step renderer is emitted", "function renderStep(" in html)
+        res.add("L5", "steps: Back, Next and Save exist",
+                all(f'id="{x}"' in html for x in ("stepBack", "stepNext", "stepSave")))
+        res.add("L5", "steps: the wizard config reached the model",
+                len((model.get("wizard") or {}).get("steps", [])) >= 2)
     if "a11y" in model["features"]:
         res.add("L5", "a11y: a skip link is emitted", 'class="skip"' in html)
         res.add("L5", "a11y: a visible focus ring is emitted", ":focus-visible" in html)

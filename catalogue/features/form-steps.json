@@ -1,0 +1,11 @@
+{
+  "id": "form-steps",
+  "family": "F6",
+  "name": "wizard-steps",
+  "spec_keys": ["features[]", "wizard.steps"],
+  "emitter_hook": "templates/app/index.html::renderStep",
+  "verify_check": "a three step wizard shows Back only from the second step and Save only on the last",
+  "docs_anchor": "docs/PATTERNS.md#wizard",
+  "status": "emitted",
+  "note": "the editor dialog split into steps, each validated before it advances"
+}

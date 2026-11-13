@@ -1,0 +1,35 @@
+{
+  "id": "converter",
+  "name": "Converter",
+  "archetype": 11,
+  "status": "emitted",
+  "descriptor": "One amount, two units, a factor table. Nothing is stored, because a conversion is not a record.",
+  "view": "form",
+  "requires_entities": true,
+  "requires_capabilities": ["convert", "theme"],
+  "requires_fields": [],
+  "requires_keys": ["converter"],
+  "spec_defaults": {"tier": 1, "features": ["convert", "theme"]},
+  "verify_checks": [
+    "pattern converter: required features present",
+    "convert: the conversion function is emitted",
+    "convert: the unit table reached the model",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/converter.md",
+  "screenshot": "docs/gallery/converter.png",
+  "pros": [
+    "the factor table is data, so a new dimension is a new spec",
+    "no storage and no history: nothing to lose, nothing to clear",
+    "two selects and one number, so it is usable one-handed",
+    "exact factors in the spec, not rounded constants in code"
+  ],
+  "cons": [
+    "one dimension per app; temperature needs an offset, which this does not do",
+    "no history, so a conversion cannot be revisited",
+    "the factors are as good as whoever typed them",
+    "it will not tell you which unit is sensible"
+  ],
+  "best_for": "one family of units, converted often",
+  "avoid_if": "the conversion needs an offset (temperature), or several dimensions at once"
+}

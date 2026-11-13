@@ -4,6 +4,23 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.14 — 2026-11-13
+
+Two archetypes in one batch: `converter` and `wizard`.
+
+| Area | Change |
+|---|---|
+| Archetype | `converter` — one amount, two unit selects, a factor table. `amount × factor_from ÷ factor_to` |
+| Archetype | `wizard` — the editor split into steps, each validated before it advances, with Back/Next/Save and a draft |
+| Capabilities | `convert` and `steps` — 25 in total |
+| Registry | `form-convert` and `form-steps` (F6) — 54 entries |
+| Emit | the strip is now a **line scanner with a stack**, not a regular expression. Two markers had been mis-pairing and silently deleting the wrong block; nesting can no longer go wrong, and no marker can ship |
+| Emit | CSS is gated per capability too, and the form machinery is gated behind `crud` — a calculator no longer carries the editor |
+| Dedupe | one field reader, shared by the plain form and by a step |
+| Tests | the node tests extract a function by its boundary instead of by a strip marker, so reordering a block no longer breaks them |
+| Size | every spec builds under 40 KB: converter 34.9 KB, wizard 38.4 KB |
+| Counts | 211 tests, 200 guards |
+
 ## v0.13 — 2026-11-13
 
 Phase B4 and B5 in one batch: a real i18n dictionary, an accessibility pass, and the two banners.

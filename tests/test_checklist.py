@@ -15,6 +15,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import _extract as extract  # noqa: E402
 from kiln import catalog as cat   # noqa: E402
 from kiln import guards           # noqa: E402
 from kiln import spec as specmod  # noqa: E402
@@ -37,10 +39,7 @@ console.log("PASS");
 
 
 def progress_source() -> str:
-    tpl = TEMPLATE.read_text(encoding="utf-8")
-    start = tpl.index("/* @only progress */") + len("/* @only progress */")
-    end = tpl.index("/* @end only */", start)
-    return tpl[start:end]
+    return extract.source("progressOf")
 
 
 class TestProgressMaths(unittest.TestCase):

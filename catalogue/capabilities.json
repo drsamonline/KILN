@@ -352,6 +352,39 @@
       "kit": "web-kit",
       "emitter": "runtime",
       "assertion": "over 2000 rows the app says so and offers an export"
+    },
+    "convert": {
+      "label": "Convert between units of one dimension",
+      "aliases": [
+        "convert",
+        "converter",
+        "units",
+        "kilometres to miles",
+        "celsius to fahrenheit"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "1 kilometre converts to 0.62 miles and back again"
+    },
+    "steps": {
+      "label": "A form in steps, validated one step at a time",
+      "aliases": [
+        "wizard",
+        "steps",
+        "multi-step",
+        "onboarding",
+        "survey",
+        "guided form"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "a three step wizard shows Back only from the second step and Save only on the last"
     }
   }
 }

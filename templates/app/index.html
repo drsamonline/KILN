@@ -54,6 +54,7 @@
   #search{flex:1 1 220px; min-width:160px}
   .strip{display:flex; gap:14px; margin:0 0 12px; color:var(--muted); font-size:13px}
   .strip b{color:var(--ink)}
+  /* @only derived */
   #derived{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
     padding:14px;margin:0 0 14px}
   .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:12px;
@@ -67,6 +68,25 @@
   .spark .bar.empty{opacity:.15}
   .spark .axis{stroke:var(--line);stroke-width:1}
   .spark .lbl{fill:var(--muted);font-size:9px}
+  /* @end only */
+  /* @only convert */
+  #convert{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    padding:18px;margin:0 0 14px}
+  #convert .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+  #convert .swap{align-self:end}
+  #convert .result{margin:16px 0 0;padding:14px;border-radius:10px;background:var(--panel2);
+    border:1px solid var(--line)}
+  #convert .result .k{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+  #convert .result .v{font-size:30px;font-weight:800;line-height:1.15;overflow-wrap:anywhere}
+  #convert .result .v .u{font-size:15px;font-weight:500;color:var(--muted);margin-left:4px}
+  #convert .err{color:var(--danger);font-size:12.5px;min-height:18px;margin:10px 0 0}
+  /* @end only */
+  /* @only steps */
+  .steps{display:flex;gap:6px;margin:0 0 12px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+  .steps span{padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
+  .steps span.on{border-color:var(--accent);color:var(--ink)}
+  /* @end only */
+  /* @only formula */
   #calc{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
     padding:18px;margin:0 0 14px}
   #calc .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
@@ -76,6 +96,8 @@
   #calc .result .v{font-size:30px;font-weight:800;line-height:1.15;overflow-wrap:anywhere}
   #calc .result .v .u{font-size:15px;font-weight:500;color:var(--muted);margin-left:4px}
   #calc .err{color:var(--danger);font-size:12.5px;min-height:18px;margin:10px 0 0}
+  /* @end only */
+  /* @only progress */
   #progress{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
     padding:12px 14px;margin:0 0 14px}
   #progress .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
@@ -84,9 +106,12 @@
   .track{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
   .track > span{display:block;height:100%;background:var(--accent);width:0;
     transition:width .18s ease}
+  /* @end only */
+  /* @only toggle */
   li.item .tick{margin-top:2px;width:20px;height:20px;min-height:0;padding:0;
     accent-color:var(--accent);flex:0 0 auto;cursor:pointer}
   li.item.done .t,li.item.done .d{opacity:.55;text-decoration:line-through}
+  /* @end only */
   ul.list{list-style:none; margin:0; padding:0; display:grid; gap:8px}
   li.item{
     background:var(--panel); border:1px solid var(--line); border-radius:var(--r);
@@ -114,12 +139,14 @@
   label input,label textarea,label select{width:100%; margin-top:4px}
   .err{color:var(--danger); font-size:12px; min-height:16px}
   .hint{color:var(--muted); font-size:11px}
+  /* @only a11y */
   .skip{position:absolute;left:-9999px;top:0;background:var(--accent);color:#0b0d12;
     padding:10px 14px;border-radius:0 0 8px 0;font-weight:700;z-index:50}
   .skip:focus{left:0}
   :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
   .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
     clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  /* @end only */
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:.001ms !important;animation-iteration-count:1 !important;
       transition-duration:.001ms !important;scroll-behavior:auto !important}
@@ -156,6 +183,7 @@
   <div id="derived" hidden></div>
   <div id="progress" hidden></div>
   <section id="calc" hidden></section>
+  <section id="convert" hidden></section>
   <ul class="list" id="list"></ul>
 </main>
 
@@ -176,6 +204,9 @@
     <div class="row" style="margin-top:14px">
       <button type="button" class="ghost" id="cancel">Cancel</button>
       <div class="spacer"></div>
+      <button type="button" class="ghost" id="stepBack" hidden>Back</button>
+      <button type="button" class="primary" id="stepNext" hidden>Next</button>
+      <button type="button" class="primary" id="stepSave" hidden>Save</button>
       <button type="submit" class="primary">Save</button>
     </div>
     <p class="hint" style="margin:10px 0 0">Stored on this device only. Nothing leaves it.</p>
@@ -500,6 +531,25 @@ function evalFormula(src, vars) {
 }
 /* @end only */
 
+/* ---------- conversion ----------
+   Pure: an amount, a factor table, two unit ids. No DOM, no clock. */
+/* convert:start */
+function unitFactor(units, id) {
+  for (const u of units) if (u.id === id) return Number(u.factor);
+  return null;
+}
+function convertValue(amount, units, from, to) {
+  const a = Number(amount);
+  if (!isFinite(a)) throw new Error("the amount must be a number");
+  const fFrom = unitFactor(units, from);
+  const fTo = unitFactor(units, to);
+  if (fFrom === null) throw new Error("unknown unit: " + from);
+  if (fTo === null) throw new Error("unknown unit: " + to);
+  if (!isFinite(fFrom) || !isFinite(fTo) || fFrom === 0) throw new Error("a factor is not a usable number");
+  return (a * fFrom) / fTo;
+}
+/* convert:end */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -653,6 +703,44 @@ function renderCalc() {
 }
 /* @end only */
 
+/* @only convert */
+function renderConvert() {
+  const box = $("#convert");
+  const C = MODEL.converter;
+  if (!C) return;
+  box.hidden = false;
+  const units = C.units || [];
+  const opts = (sel) => units.map((u) =>
+    '<option value="' + esc(u.id) + '"' + (u.id === sel ? " selected" : "") + ">" +
+    esc(u.label || u.id) + "</option>").join("");
+  box.innerHTML =
+    '<div class="grid3">' +
+      '<label class="f" style="margin:0">Amount<input id="cvIn" type="number" step="any" inputmode="decimal" value="' + esc(C.default_amount === undefined ? 1 : C.default_amount) + '"></label>' +
+      '<label class="f" style="margin:0">From<select id="cvFrom">' + opts(C.default_from) + "</select></label>" +
+      '<label class="f" style="margin:0">To<select id="cvTo">' + opts(C.default_to) + "</select></label>" +
+    "</div>" +
+    '<div class="result"><div class="k">' + esc(C.label || "Result") +
+      '</div><div class="v" id="cvOut">—</div></div><div class="err" id="cvErr"></div>' +
+    (C.note ? '<p class="hint" style="margin:12px 0 0">' + esc(C.note) + "</p>" : "");
+  const update = () => {
+    const outEl = $("#cvOut"), errEl = $("#cvErr");
+    try {
+      const v = convertValue($("#cvIn").value, units, $("#cvFrom").value, $("#cvTo").value);
+      const dp = Number(C.decimals);
+      const shown = isFinite(dp) ? v.toFixed(Math.max(0, Math.min(6, dp))) : String(v);
+      const toUnit = units.find((u) => u.id === $("#cvTo").value) || {};
+      outEl.innerHTML = esc(shown) + '<span class="u">' + esc(toUnit.short || toUnit.id) + "</span>";
+      errEl.textContent = "";
+    } catch (e) {
+      outEl.textContent = "—";
+      errEl.textContent = e.message;
+    }
+  };
+  ["cvIn", "cvFrom", "cvTo"].forEach((id) => { const elx = $("#" + id); if (elx) elx.oninput = update; });
+  update();
+}
+/* @end only */
+
 /* @only progress */
 function renderProgress() {
   const box = $("#progress");
@@ -761,6 +849,7 @@ function render() {
 }
 
 /* ---------- form ---------- */
+/* @only crud */
 function fieldInput(f, value) {
   let input;
   if (f.type === "longtext") {
@@ -808,6 +897,49 @@ function fieldInput(f, value) {
   else input.value = value === undefined || value === null ? (f.default !== undefined ? f.default : "") : value;
   return input;
 }
+/* @only steps */
+let stepIndex = 0;
+let draft = {};
+const STEPS = (MODEL.wizard && MODEL.wizard.steps) || null;
+
+function renderStep() {
+  const step = STEPS[stepIndex];
+  $("#editorTitle").textContent = step.title ||
+    ("Step " + (stepIndex + 1) + " of " + STEPS.length);
+  const box = $("#fields");
+  box.innerHTML = "";
+  const bar = document.createElement("div");
+  bar.className = "steps";
+  STEPS.forEach((s, i) => {
+    const sp = document.createElement("span");
+    if (i === stepIndex) sp.className = "on";
+    sp.textContent = String(i + 1) + ". " + (s.title || "Step");
+    bar.appendChild(sp);
+  });
+  box.appendChild(bar);
+  for (const name of step.fields) {
+    const f = FIELDS.find((x) => x.name === name);
+    if (!f) continue;
+    const lab = document.createElement("label");
+    lab.textContent = f.label + (f.required ? " *" : "");
+    lab.appendChild(fieldInput(f, draft[f.name]));
+    box.appendChild(lab);
+  }
+  $("#stepBack").hidden = stepIndex === 0;
+  $("#stepNext").hidden = stepIndex === STEPS.length - 1;
+  $("#stepSave").hidden = stepIndex !== STEPS.length - 1;
+  $("#formErr").textContent = "";
+  const first = box.querySelector("input,textarea,select");
+  if (first) first.focus();
+}
+
+function collectStep() {
+  const {out, errs} = readForm(STEPS[stepIndex].fields);
+  for (const k of Object.keys(out)) draft[k] = out[k];
+  return errs;
+}
+/* @end only */
+
 function openEditor(id) {
   editingId = id || null;
   const r = id ? rows.find((x) => x.id === id) : null;
@@ -815,6 +947,17 @@ function openEditor(id) {
   const box = $("#fields");
   box.innerHTML = "";
   $("#formErr").textContent = "";
+  if (typeof STEPS !== "undefined" && STEPS) {
+    stepIndex = 0;
+    draft = r ? Object.assign({}, r) : {};
+    $("#stepBack").hidden = false;
+    $("#stepNext").hidden = false;
+    $("#stepSave").hidden = true;
+    $("#form").querySelector("button[type=submit]").hidden = true;
+    renderStep();
+    $("#editor").showModal();
+    return;
+  }
   for (const f of FIELDS) {
     const lab = document.createElement("label");
     lab.textContent = f.label + (f.required ? " *" : "");
@@ -825,23 +968,22 @@ function openEditor(id) {
   const first = box.querySelector("input,textarea,select");
   if (first) first.focus();
 }
-function readForm() {
+function readForm(only) {
   const out = {}, errs = [];
-  for (const f of FIELDS) {
+  const wanted = only ? FIELDS.filter((f) => only.indexOf(f.name) >= 0) : FIELDS;
+  for (const f of wanted) {
     const input = $("#f_" + f.name);
+    if (!input) continue;
     let v;
     if (f.type === "bool") v = input.checked;
     else if (f.type === "tags") v = input.value.split(",").map((s) => s.trim()).filter(Boolean);
-    else if (f.type === "number") {
+    else if (f.type === "currency_cents") {
+      v = input.value === "" ? null : toCents(input.value);
+      if (input.value !== "" && v === null) errs.push(f.label + " must be an amount");
+    } else if (f.type === "number") {
       if (input.value === "") v = null;
       else if (isNaN(Number(input.value))) errs.push(f.label + " must be a number");
       else v = Number(input.value);
-    } else if (f.type === "currency_cents") {
-      if (input.value === "") v = null;
-      else {
-        v = toCents(input.value);
-        if (v === null) errs.push(f.label + " must be an amount");
-      }
     } else v = input.value.trim();
     if (f.required && (v === "" || v === null || v === undefined)) errs.push(f.label + " is required");
     if (f.type === "date" && v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) errs.push(f.label + " must be a date");
@@ -850,6 +992,7 @@ function readForm() {
   }
   return {out, errs};
 }
+/* @end only */
 
 /* ---------- export / import ---------- */
 function download(name, text, mime) {
@@ -1023,6 +1166,15 @@ function boot() {
     renderCalc();
     return;
   }
+  if (MODEL.converter && F.has("convert")) {
+    for (const id of ["add", "export", "search", "sort", "print", "filter", "list", "strip"]) {
+      const elx = document.getElementById(id);
+      if (elx) elx.hidden = true;
+    }
+    renderConvert();
+    return;
+  }
+
   if (tampered()) {
     banner = {kind: "bad", text: "This file was modified after it was built. " +
       "The licence and attribution shown under About describe the build, not this copy."};
@@ -1057,10 +1209,24 @@ function boot() {
     if (e.key === "Escape" && $("#editor").open) $("#editor").close();
   });
   $("#cancel").onclick = () => $("#editor").close();
-  $("#form").onsubmit = (e) => {
-    e.preventDefault();
-    const {out, errs} = readForm();
+  const stepNext = $("#stepNext"), stepBack = $("#stepBack"), stepSave = $("#stepSave");
+  if (stepNext) stepNext.onclick = () => {
+    if (typeof collectStep !== "function") return;
+    const errs = collectStep();
     if (errs.length) { $("#formErr").textContent = errs.join(" · "); return; }
+    if (stepIndex < STEPS.length - 1) { stepIndex += 1; renderStep(); }
+  };
+  if (stepBack) stepBack.onclick = () => {
+    if (typeof collectStep === "function") collectStep();
+    if (stepIndex > 0) { stepIndex -= 1; renderStep(); }
+  };
+  if (stepSave) stepSave.onclick = () => {
+    if (typeof collectStep !== "function") return;
+    const errs = collectStep();
+    if (errs.length) { $("#formErr").textContent = errs.join(" · "); return; }
+    commit(Object.assign({}, draft));
+  };
+  function commit(out) {
     if (editingId) {
       const i = rows.findIndex((x) => x.id === editingId);
       if (i >= 0) rows[i] = Object.assign({}, rows[i], out, {updated: today()});
@@ -1071,6 +1237,13 @@ function boot() {
     $("#editor").close();
     bootSort();
     render();
+  }
+  $("#form").onsubmit = (e) => {
+    e.preventDefault();
+    if (typeof STEPS !== "undefined" && STEPS) return;   /* the step buttons drive it */
+    const {out, errs} = readForm();
+    if (errs.length) { $("#formErr").textContent = errs.join(" · "); return; }
+    commit(out);
   };
   if (F.has("i18n") && LANGLIST.length > 1) {
     try { const saved = localStorage.getItem(LANG_KEY); if (saved && LANGLIST.indexOf(saved) >= 0) lang = saved; } catch (e) {}

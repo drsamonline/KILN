@@ -1,0 +1,35 @@
+{
+  "id": "wizard",
+  "name": "Wizard",
+  "archetype": 8,
+  "status": "emitted",
+  "descriptor": "A form split into steps, each validated before it advances. For the long record nobody wants to see all at once.",
+  "view": "form",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "steps", "theme"],
+  "requires_fields": ["text"],
+  "requires_keys": ["wizard"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "steps", "search", "export", "theme"]},
+  "verify_checks": [
+    "pattern wizard: required features present",
+    "steps: the step renderer is emitted",
+    "steps: Back, Next and Save exist",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/wizard.md",
+  "screenshot": "docs/gallery/wizard.png",
+  "pros": [
+    "a long form becomes three short ones, so it gets finished",
+    "each step validates on its own, so the error is always near the field",
+    "the step names double as a progress indicator",
+    "the draft survives stepping back and forth"
+  ],
+  "cons": [
+    "more clicks than one form, which annoys an expert user",
+    "conditional steps are not supported: every step is always shown",
+    "no save-and-resume across sessions",
+    "the step list is in the spec, so reordering means editing the spec"
+  ],
+  "best_for": "a record with more fields than fit on one screen",
+  "avoid_if": "the form is short, or the fields depend on each other"
+}

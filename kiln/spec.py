@@ -14,7 +14,7 @@ FIELD_TYPES = {"text", "longtext", "number", "date", "bool", "select", "tags",
 REQUIRED_KEYS = ["id", "name", "tier", "category", "pitch", "features",
                  "entities", "storage", "done_means", "not"]
 OPTIONAL_KEYS = ["pattern", "accent", "currency", "tracker", "progress",
-                 "calculator", "i18n"]
+                 "calculator", "i18n", "converter", "wizard"]
 KNOWN_LANGS = {"en", "hi", "gu"}
 
 # A done-means must name something a person can watch happen.
@@ -157,6 +157,61 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
             win = tr.get("window", 7)
             if not isinstance(win, int) or isinstance(win, bool) or not 1 <= win <= 90:
                 p.append("tracker.window must be a whole number from 1 to 90")
+
+    field_names = {f["name"] for e in ents for f in (e.get("fields") or [])}
+
+    if "converter" in spec:
+        cv = spec["converter"]
+        if not isinstance(cv, dict):
+            p.append("converter must be an object")
+        else:
+            units = cv.get("units")
+            if not isinstance(units, list) or len(units) < 2:
+                p.append("converter.units must list at least two units")
+                units = []
+            ids = set()
+            for u in units:
+                if not isinstance(u, dict) or not u.get("id"):
+                    p.append("every converter unit needs an id")
+                    continue
+                if not re.fullmatch(r"[a-z0-9_]+", str(u["id"])):
+                    p.append(f"converter unit id '{u['id']}' must be lowercase")
+                if u["id"] in ids:
+                    p.append(f"duplicate converter unit '{u['id']}'")
+                ids.add(u["id"])
+                f = u.get("factor")
+                if not isinstance(f, (int, float)) or isinstance(f, bool) or f <= 0:
+                    p.append(f"converter unit '{u['id']}' needs a positive factor")
+            for k in ("default_from", "default_to"):
+                if cv.get(k) not in ids:
+                    p.append(f"converter.{k} must name one of the units")
+            if "convert" not in spec.get("features", []):
+                p.append("a converter spec must include the 'convert' capability")
+
+    if "wizard" in spec:
+        w = spec["wizard"]
+        if not isinstance(w, dict):
+            p.append("wizard must be an object")
+        else:
+            steps = w.get("steps")
+            if not isinstance(steps, list) or len(steps) < 2:
+                p.append("wizard.steps must list at least two steps")
+                steps = []
+            seen = set()
+            for i, st in enumerate(steps):
+                if not isinstance(st, dict) or not isinstance(st.get("fields"), list):
+                    p.append(f"wizard step {i + 1} needs a fields list")
+                    continue
+                if not st["fields"]:
+                    p.append(f"wizard step {i + 1} has no fields")
+                for name in st["fields"]:
+                    if name not in field_names:
+                        p.append(f"wizard step {i + 1} names a field that does not exist: {name}")
+                    if name in seen:
+                        p.append(f"wizard field '{name}' appears in more than one step")
+                    seen.add(name)
+            if "steps" not in spec.get("features", []):
+                p.append("a wizard spec must include the 'steps' capability")
 
     if "i18n" in spec:
         i = spec["i18n"]

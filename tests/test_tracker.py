@@ -18,6 +18,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import _extract as extract  # noqa: E402
 from kiln import catalog as cat   # noqa: E402
 from kiln import guards           # noqa: E402
 from kiln import spec as specmod  # noqa: E402
@@ -43,10 +45,9 @@ console.log("PASS");
 
 
 def derive_source() -> str:
-    tpl = TEMPLATE.read_text(encoding="utf-8")
-    start = tpl.index("/* @only derived */") + len("/* @only derived */")
-    end = tpl.index("/* @end only */", start)
-    return tpl[start:end]
+    """The pure derivation, plus the two helpers it calls."""
+    return (extract.source("dayISO") + extract.source("shiftDay") +
+            extract.source("derive"))
 
 
 class TestDerivedMaths(unittest.TestCase):

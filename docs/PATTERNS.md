@@ -190,6 +190,76 @@ forbidden, and `verify` fails a build that contains either.
 
 ---
 
+## converter
+
+| | |
+|---|---|
+| Archetype | 11 |
+| Status | **emitted** |
+| View | form — one amount, two unit selects |
+| Requires | `convert`, `theme` |
+| Requires keys | `converter.units[]`, `converter.default_from`, `converter.default_to` |
+| Sample | [`specs/gallery/converter.md`](../specs/gallery/converter.md) |
+| Screenshot | [`docs/gallery/converter.png`](gallery/converter.png) |
+
+**Pros**
+
+- the factor table is data, so a new dimension is a new spec
+- no storage and no history: nothing to lose, nothing to clear
+- two selects and one number, so it is usable one-handed
+- exact factors in the spec, not rounded constants in code
+
+**Cons**
+
+- one dimension per app; temperature needs an offset, which this does not do
+- no history, so a conversion cannot be revisited
+- the factors are as good as whoever typed them
+- it will not tell you which unit is sensible
+
+**Best for:** one family of units, converted often.
+
+**Avoid if:** the conversion needs an offset (temperature), or several dimensions at once.
+
+**The rule:** `amount × factor_from ÷ factor_to`, against one base unit. A mile is
+1609.344 metres because the spec says so, not because the code remembers it.
+
+---
+
+## wizard
+
+| | |
+|---|---|
+| Archetype | 8 |
+| Status | **emitted** |
+| View | form, in steps |
+| Requires | `crud`, `steps`, `theme` |
+| Requires keys | `wizard.steps[]` |
+| Sample | [`specs/gallery/wizard.md`](../specs/gallery/wizard.md) |
+| Screenshot | [`docs/gallery/wizard.png`](gallery/wizard.png) |
+
+**Pros**
+
+- a long form becomes three short ones, so it gets finished
+- each step validates on its own, so the error is always near the field
+- the step names double as a progress indicator
+- the draft survives stepping back and forth
+
+**Cons**
+
+- more clicks than one form, which annoys an expert user
+- conditional steps are not supported: every step is always shown
+- no save-and-resume across sessions
+- the step list is in the spec, so reordering means editing the spec
+
+**Best for:** a record with more fields than fit on one screen.
+
+**Avoid if:** the form is short, or the fields depend on each other.
+
+**The rule:** a field belongs to exactly one step, and `verify` refuses a spec where a step
+names a field that does not exist or repeats one.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -205,10 +275,10 @@ spec naming it fails verification rather than silently building something else.
 | checklist | packing, grocery | one level only | **emitted** |
 | Journal | low friction | no encryption | planned |
 | Dashboard | insight at a glance | charts add weight | planned |
-| Wizard | guided, fewer errors | long specs, slow for pros | planned |
+| wizard | guided, fewer errors | long specs, slow for pros | **emitted** |
 | Quiz / Flashcard | a learning loop | content authoring burden | planned |
 | calculator | tiny, instant | no persistence by default | **emitted** |
-| Converter | tiny, offline | rounding discipline | planned |
+| converter | tiny, offline | rounding discipline | **emitted** |
 | Voting / Poll | quick collection | single device only | planned |
 | Comparison table | decision clarity | rigid for small sets | planned |
 | Gallery / Cards | visual, scannable | verbose for data-heavy | planned |
