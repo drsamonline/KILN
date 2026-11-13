@@ -25,7 +25,7 @@
     "kits": 5
   },
   "verification": {
-    "tests": 471,
+    "tests": 475,
     "guards": 450,
     "ci": ".github/workflows/kiln.yml"
   },
@@ -130,6 +130,7 @@
       "pattern picker",
       "gallery loader",
       "live explain panel",
+      "live preview of the built app",
       "the same strip as the CLI"
     ]
   },

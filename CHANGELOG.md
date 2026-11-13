@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.2 — 2026-11-14
+
+The studio shows you the app it built.
+
+| Area | Change |
+|---|---|
+| Studio | a **live preview** of the built app in a sandboxed iframe, with its size, its capability count and what was left out |
+| Studio | "Open full screen" writes the same file into a new tab |
+| Studio | the preview frame is `sandbox="allow-scripts allow-forms allow-modals"` — **no `allow-same-origin`**, so the app cannot touch the studio |
+| Fixed | with 50 capabilities the feature grid pushed the Build button 1500 px down the page. The grid now scrolls inside a 300 px box |
+| Tests | 4 new: the preview exists, the frame is sandboxed, the size and the left-out list are shown, the grid scrolls |
+| Counts | 475 tests, 450 guards |
+
 ## v1.0.1 — 2026-11-13
 
 An audit pass, and two fixes it turned up.

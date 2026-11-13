@@ -51,6 +51,26 @@ class TestStudioCarriesItsSources(unittest.TestCase):
         self.assertIn("function stripUnused(", self.html)
         self.assertIn("@end only", self.html)
 
+    def test_it_previews_the_app_it_builds(self):
+        self.assertIn('id="prev"', self.html)
+        self.assertIn("function showPreview(", self.html)
+        self.assertIn("frame.srcdoc = html", self.html)
+
+    def test_the_preview_frame_is_sandboxed(self):
+        import re
+        tag = re.search(r"<iframe[^>]*>", self.html)
+        self.assertIsNotNone(tag)
+        self.assertIn("sandbox=", tag.group(0))
+        self.assertNotIn("allow-same-origin", tag.group(0))
+
+    def test_the_preview_reports_its_size_and_what_was_left_out(self):
+        self.assertIn('id="prevsize"', self.html)
+        self.assertIn('id="prevnote"', self.html)
+        self.assertIn("capabilities left out", self.html)
+
+    def test_the_feature_grid_scrolls_so_the_build_button_stays_reachable(self):
+        self.assertIn("#features{max-height", self.html)
+
     def test_it_says_which_edition_it_builds(self):
         self.assertIn("Personal edition", self.html)
 

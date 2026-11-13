@@ -30,11 +30,18 @@
   label.f{display:block;margin:12px 0 4px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
   label.f input,label.f textarea,label.f select{width:100%;margin-top:5px;text-transform:none;letter-spacing:0}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:6px}
+  #features{max-height:300px;overflow-y:auto;padding:2px 4px 2px 0}
   .feat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--panel);
     display:flex;gap:8px;align-items:center;font-size:13px}
   .feat input{min-height:auto;width:18px;height:18px}
   .feat.on{border-color:var(--accent)}
   .hint{color:var(--muted);font-size:12px}
+  .prev{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:12px 0 0;
+    background:var(--bg)}
+  .prevbar{display:flex;align-items:center;gap:10px;padding:8px 10px;
+    border-bottom:1px solid var(--line);background:var(--panel)}
+  #prev{display:block;width:100%;height:520px;border:0;background:var(--bg)}
+  @media (max-width:700px){ #prev{height:420px} }
   .explain{background:var(--panel2);border:1px solid var(--line);border-radius:10px;
     padding:10px 12px;font-size:12px;color:var(--muted);margin:0 0 10px;line-height:1.7}
   .explain b{color:var(--ink)}
@@ -129,6 +136,16 @@
         <button id="specbtn">Download spec</button>
         <span class="spacer"></span>
         <span id="status" class="hint"></span>
+      </div>
+      <div class="prev" id="prevwrap" hidden>
+        <div class="prevbar">
+          <span class="pill" id="prevsize">not built yet</span>
+          <span class="hint" id="prevnote"></span>
+          <span class="spacer"></span>
+          <button id="prevexpand" class="tab">Open full screen</button>
+        </div>
+        <iframe id="prev" sandbox="allow-scripts allow-forms allow-modals"
+                title="preview of the app you just built"></iframe>
       </div>
       <div id="report" class="out" hidden></div>
     </div>
@@ -464,7 +481,7 @@ function buildApp(spec) {
   const ent = spec.entities[0];
   const canonModel = canon(model);
   const build = {
-    tier: "personal", version: "1.0.1", fp: fnv(canonModel), spec: spec.id,
+    tier: "personal", version: "1.0.2", fp: fnv(canonModel), spec: spec.id,
     licensee: "", licence: LICENCE,
     licence_url: "https://polyformproject.org/licenses/noncommercial/1.0.0/",
     home: "https://github.com/drsamonline/KILN",
@@ -485,7 +502,7 @@ function buildApp(spec) {
     NOT: spec.not.map((n) => "- " + n).join("\n"),
     LICENCE: LICENCE, LICENCE_ID: "PolyForm-Noncommercial-1.0.0",
     SPEC_PATH: spec.id + ".md",
-    KILN_VERSION: "1.0.1", TIER: "personal", FINGERPRINT: build.fp,
+    KILN_VERSION: "1.0.2", TIER: "personal", FINGERPRINT: build.fp,
     YEAR: String(new Date().getFullYear()), OWNER: "Dr Sohil Momin",
     LICENCE_URL: build.licence_url,
     BUILD_JSON: JSON.stringify(build, null, 2),
@@ -534,6 +551,34 @@ function stripUnused(text, features) {
     if (stack.every((s) => s[1])) out.push(line);
   }
   return [out.join("\n"), dropped];
+}
+
+/* the preview is the built file, in a sandboxed frame: no network, no same-origin */
+function showPreview(html, spec) {
+  const wrap = $("#prevwrap");
+  const frame = $("#prev");
+  const dropped = buildApp.lastDropped || [];
+  const uniq = dropped.filter((d, i) => dropped.indexOf(d) === i);
+  wrap.hidden = false;
+  frame.srcdoc = html;
+  $("#prevsize").textContent = (new Blob([html]).size / 1024).toFixed(1) + " KB · " +
+    spec.features.length + " capabilities";
+  $("#prevnote").textContent = uniq.length
+    ? uniq.length + " capabilities left out: " + uniq.slice(0, 4).join(", ") +
+      (uniq.length > 4 ? " …" : "")
+    : "nothing left out";
+}
+
+function expandPreview() {
+  const frame = $("#prev");
+  if (!frame.srcdoc) return;
+  const w = window.open("", "_blank");
+  if (!w) {
+    $("#status").innerHTML = '<span class="bad">the browser blocked the new tab</span>';
+    return;
+  }
+  w.document.write(frame.srcdoc);
+  w.document.close();
 }
 
 function download(name, text, mime) {
@@ -776,11 +821,12 @@ document.addEventListener("DOMContentLoaded", () => {
       $("#status").innerHTML = '<span class="ok">spec downloaded</span>';
     } catch (e) { $("#status").innerHTML = '<span class="bad">' + esc(e.message) + "</span>"; }
   };
+  $("#prevexpand").onclick = expandPreview;
   $("#build").onclick = () => {
     try {
       const spec = buildSpec();
       const html = buildApp(spec);
-      download(spec.id + ".html", html, "text/html");
+      showPreview(html, spec);
       $("#status").innerHTML = '<span class="ok">built</span>';
       report([
         "app       " + spec.id,
@@ -789,7 +835,8 @@ document.addEventListener("DOMContentLoaded", () => {
         "entity    " + spec.entities[0].name + " (" + spec.entities[0].fields.length + " fields)",
         "size      " + (html.length / 1024).toFixed(1) + " KB",
         "",
-        "Open the downloaded file in any browser. It works offline.",
+        "The preview above is the file itself, in a sandboxed frame.",
+        "Use Download to keep it. It works offline.",
         "Nothing was uploaded. No model was called."
       ]);
     } catch (e) {
