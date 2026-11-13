@@ -15,7 +15,9 @@ The commercial edition, exercised end to end for the first time.
 | Runtime | the About panel hard-coded the string "PolyForm Noncommercial 1.0.0", so a commercial file still contained it | reads `BUILD.licence`, so the string is absent entirely |
 | Flow | `keygen` → `issue` → `activate` → `build` works, and was never tested | **6 end-to-end tests** in a temporary `HOME`: the happy path, the personal build, a build with no key, a tampered key, the payload, and `status` |
 | Docs | `GUIDE-LICENSING.md` described commands that do not exist | rewritten against the real CLI, including that an active key makes `build` commercial by default |
-| Counts | 492 tests, 452 guards |
+| Secrets | running the flow pinned a public key whose private half lived in a temporary `HOME`. Committing it would lock every future customer out, so it is removed and **gitignored**; the owner runs `keygen` themselves |
+| Tests | 4 more: no private key tracked, the pinned key ignored, the pinned key not in the tree, `status` honest when nothing is pinned |
+| Counts | 496 tests, 452 guards |
 
 ## v1.0.4 — 2026-11-14
 

@@ -1,4 +1,0 @@
-{
-  "public_key": "08b71991dd83ab278aa9db3abb7f00ce920477649bb65db74ce58c789073c56b",
-  "note": "The public half of the licence signing key. Commit this. The private half stays in ~/.kiln/private.key and is never shared."
-}
