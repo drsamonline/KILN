@@ -398,6 +398,28 @@ def check_patterns(catalog) -> list[Row]:
     return rows
 
 
+# --------------------------------------------------- C16 stated counts are true
+def check_counts() -> list[Row]:
+    """A number in the docs that nobody checks is a number that will be wrong."""
+    real = 0
+    for f in sorted((ROOT / "tests").glob("test_*.py")):
+        real += f.read_text(encoding="utf-8").count("\ndef test_") + \
+            f.read_text(encoding="utf-8").count("\n    def test_")
+    rows = [Row("C16 tests were counted", real > 0, f"{real} test functions")]
+    stated = {}
+    for f in ("README.md", "INSTALL.md", "index.html"):
+        p = ROOT / f
+        if not p.exists():
+            continue
+        text = p.read_text(encoding="utf-8")
+        for m in re.finditer(r"(\d+)\s*(?:<[^>]+>)?\s*tests", text):
+            stated.setdefault(f, set()).add(int(m.group(1)))
+    wrong = {f: sorted(v) for f, v in stated.items() if real not in v}
+    rows.append(Row("C16 every stated test count matches", not wrong,
+                    "; ".join(f"{f}: {v}" for f, v in wrong.items())))
+    return rows
+
+
 # ------------------------------------------------- C12 licensing and watermark
 def check_licensing() -> list[Row]:
     """The tiers must exist in code, be documented, and leave no private key behind."""
@@ -556,6 +578,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_support()
     rows += check_registry(catalog)
     rows += check_patterns(catalog)
+    rows += check_counts()
     rows += check_licensing()
     rows += check_gallery(catalog)
     rows += check_runs()

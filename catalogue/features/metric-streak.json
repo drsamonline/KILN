@@ -1,0 +1,14 @@
+{
+  "id": "metric-streak",
+  "family": "F7",
+  "name": "streak",
+  "spec_keys": [
+    "features[]",
+    "tracker"
+  ],
+  "emitter_hook": "templates/app/index.html::derive",
+  "verify_check": "a tracker with three consecutive days logged shows a streak of 3",
+  "docs_anchor": "docs/PATTERNS.md#tracker",
+  "status": "emitted",
+  "note": "consecutive days with a record, ending today or yesterday"
+}

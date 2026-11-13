@@ -1,0 +1,14 @@
+{
+  "id": "metric-sparkline",
+  "family": "F7",
+  "name": "sparkline",
+  "spec_keys": [
+    "features[]",
+    "tracker"
+  ],
+  "emitter_hook": "templates/app/index.html::sparkSvg",
+  "verify_check": "the sparkline is inline svg with one point per day in the window",
+  "docs_anchor": "docs/PATTERNS.md#tracker",
+  "status": "emitted",
+  "note": "one bar per day in the window, inline svg"
+}

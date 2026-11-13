@@ -181,6 +181,16 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
         if build.get("tier") == "demo":
             res.add("L5", "demo build says it is a demo", "Demo build." in html)
 
+    if "derived" in model["features"]:
+        res.add("L5", "derived: a derive function is emitted", "function derive(" in html)
+        res.add("L5", "derived: the panel is emitted", 'id="derived"' in html)
+        res.add("L5", "derived: the tracker config reached the model",
+                bool(model.get("tracker", {}).get("field")))
+    if "chart" in model["features"]:
+        res.add("L5", "chart: inline svg is emitted", "sparkSvg(" in html and "<svg" in html)
+        for lib in ("chart.js", "cdn.jsdelivr", "unpkg.com", "d3.min.js"):
+            res.add("L5", f"chart: no library ({lib})", lib not in html.lower())
+
     scripts = re.findall(r"<script>(.*?)</script>", html, re.S)
     res.add("L4", "exactly one inline script", len(scripts) == 1, str(len(scripts)))
 

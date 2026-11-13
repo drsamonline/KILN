@@ -54,6 +54,19 @@
   #search{flex:1 1 220px; min-width:160px}
   .strip{display:flex; gap:14px; margin:0 0 12px; color:var(--muted); font-size:13px}
   .strip b{color:var(--ink)}
+  #derived{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    padding:14px;margin:0 0 14px}
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:12px;
+    margin:0 0 10px}
+  .metric{min-width:0}
+  .metric .k{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+  .metric .v{font-size:20px;font-weight:700;line-height:1.2}
+  .metric .u{font-size:12px;color:var(--muted);margin-left:2px}
+  .spark{display:block;width:100%;height:64px}
+  .spark .bar{fill:var(--accent);opacity:.85}
+  .spark .bar.empty{opacity:.15}
+  .spark .axis{stroke:var(--line);stroke-width:1}
+  .spark .lbl{fill:var(--muted);font-size:9px}
   ul.list{list-style:none; margin:0; padding:0; display:grid; gap:8px}
   li.item{
     background:var(--panel); border:1px solid var(--line); border-radius:var(--r);
@@ -107,6 +120,7 @@
     <button id="print" class="ghost" title="Print">Print</button>
   </div>
   <div class="strip" id="strip" hidden></div>
+  <div id="derived" hidden></div>
   <ul class="list" id="list"></ul>
 </main>
 
@@ -250,6 +264,64 @@ function save() {
   }
 }
 
+/* ---------- derived metrics ----------
+   Pure: given the rows, the tracker config and a date, the same numbers come out.
+   No clock inside; the caller passes the date in, so this can be tested alone. */
+/* derive:start */
+function dayISO(d) {
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0");
+}
+function shiftDay(iso, delta) {
+  const d = new Date(iso + "T00:00:00");
+  d.setDate(d.getDate() + delta);
+  return dayISO(d);
+}
+function derive(rows, tracker, todayISO) {
+  const out = {streak: 0, days: 0, sum: 0, avg: 0, goalPct: 0, window: 0,
+               spark: [], best: 0, unit: tracker.unit || ""};
+  if (!tracker || !tracker.field) return out;
+  const win = Math.max(1, Math.min(90, Number(tracker.window) || 7));
+  out.window = win;
+
+  const byDay = {};
+  for (const r of rows) {
+    const day = r.date || r.created;
+    if (!day) continue;
+    const v = Number(r[tracker.field]);
+    if (!isFinite(v)) continue;
+    byDay[day] = (byDay[day] || 0) + v;
+  }
+  out.days = Object.keys(byDay).length;
+  out.sum = Object.keys(byDay).reduce((a, k) => a + byDay[k], 0);
+  out.avg = out.days ? out.sum / out.days : 0;
+
+  /* a streak counts consecutive days with a record, ending today or yesterday */
+  let cursor = todayISO;
+  if (!byDay[cursor]) {
+    cursor = shiftDay(todayISO, -1);
+    if (!byDay[cursor]) cursor = null;
+  }
+  while (cursor && byDay[cursor]) {
+    out.streak += 1;
+    cursor = shiftDay(cursor, -1);
+  }
+
+  /* the window is the last N days, oldest first, for the sparkline */
+  const goal = Number(tracker.goal) || 0;
+  let inWindow = 0;
+  for (let i = win - 1; i >= 0; i--) {
+    const day = shiftDay(todayISO, -i);
+    const v = byDay[day] || 0;
+    out.spark.push({day: day, v: v});
+    inWindow += v;
+    if (v > out.best) out.best = v;
+  }
+  out.goalPct = goal > 0 ? Math.round((inWindow / (goal * win)) * 100) : 0;
+  return out;
+}
+/* derive:end */
+
 /* ---------- rendering ---------- */
 function paintBanners() {
   const box = $("#banners");
@@ -297,6 +369,43 @@ function isOverdue(r) {
   if (r.done === true) return false;
   return String(due) < today();
 }
+function sparkSvg(spark, best) {
+  const n = spark.length || 1;
+  const w = 300, h = 64, pad = 2;
+  const max = Math.max(best, 1);
+  const bw = (w - pad * 2) / n;
+  const parts = ['<svg class="spark" viewBox="0 0 ' + w + " " + h +
+    '" preserveAspectRatio="none" role="img" aria-label="Last ' + n + ' days">'];
+  parts.push('<line class="axis" x1="0" y1="' + (h - 1) + '" x2="' + w + '" y2="' + (h - 1) + '"/>');
+  for (let i = 0; i < n; i++) {
+    const v = spark[i].v;
+    const bh = Math.max(v > 0 ? 2 : 1, (v / max) * (h - 6));
+    const x = pad + i * bw;
+    parts.push('<rect class="bar' + (v > 0 ? "" : " empty") + '" x="' + x.toFixed(1) +
+      '" y="' + (h - 1 - bh).toFixed(1) + '" width="' + Math.max(1, bw - 1.5).toFixed(1) +
+      '" height="' + bh.toFixed(1) + '" rx="1.5"><title>' + spark[i].day + ": " + v + "</title></rect>");
+  }
+  parts.push("</svg>");
+  return parts.join("");
+}
+function renderDerived() {
+  const box = $("#derived");
+  if (!F.has("derived") || !MODEL.tracker) { box.hidden = true; return; }
+  box.hidden = false;
+  const d = derive(rows, MODEL.tracker, today());
+  const unit = d.unit ? '<span class="u">' + esc(d.unit) + "</span>" : "";
+  const cell = (k, v, u) => '<div class="metric"><div class="k">' + esc(k) +
+    '</div><div class="v">' + esc(v) + (u || "") + "</div></div>";
+  let html = '<div class="metrics">' +
+    cell("Streak", d.streak + (d.streak === 1 ? " day" : " days")) +
+    cell("Days logged", d.days) +
+    cell("Average", (Math.round(d.avg * 10) / 10).toString(), unit) +
+    cell("Goal", d.goalPct + "%") +
+    "</div>";
+  if (F.has("chart")) html += sparkSvg(d.spark, d.best);
+  box.innerHTML = html;
+}
+
 function render() {
   paintBanners();
   const list = $("#list");
@@ -340,6 +449,7 @@ function render() {
     li.appendChild(acts);
     list.appendChild(li);
   }
+  renderDerived();
   const strip = $("#strip");
   if (F.has("stats")) {
     strip.hidden = false;

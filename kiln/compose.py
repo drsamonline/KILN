@@ -43,6 +43,7 @@ def plan(spec, catalog, tier="personal", licensee="", with_docs=False) -> list[d
         "version": 1,
         "accent": spec.get("accent", "#7c9cff"),
         "currency": spec.get("currency", "\u20b9"),
+        "tracker": spec.get("tracker"),
         "features": features,
         "entities": spec["entities"],
         "assertions": [catalog["features"][f]["assertion"] for f in features],

@@ -1,0 +1,14 @@
+{
+  "id": "metric-average",
+  "family": "F7",
+  "name": "average",
+  "spec_keys": [
+    "features[]",
+    "tracker"
+  ],
+  "emitter_hook": "templates/app/index.html::derive",
+  "verify_check": "two days of 1 and 3 litres show an average of 2",
+  "docs_anchor": "docs/PATTERNS.md#tracker",
+  "status": "emitted",
+  "note": "mean of the tracked value per logged day"
+}

@@ -233,6 +233,43 @@
       "kit": "export-kit",
       "emitter": "runtime",
       "assertion": "a backup file restored into an empty store reproduces every record"
+    },
+    "derived": {
+      "label": "Derived metrics: streak, average, goal percent",
+      "aliases": [
+        "streak",
+        "average",
+        "goal",
+        "derived",
+        "trend",
+        "progress",
+        "how many days"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "a tracker with three consecutive days logged shows a streak of 3"
+    },
+    "chart": {
+      "label": "Inline sparkline, no library",
+      "aliases": [
+        "chart",
+        "sparkline",
+        "graph",
+        "trend line",
+        "visualise"
+      ],
+      "requires": [
+        "crud",
+        "derived"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "the sparkline is inline svg with one point per day in the window"
     }
   }
 }

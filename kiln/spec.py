@@ -13,13 +13,13 @@ FIELD_TYPES = {"text", "longtext", "number", "date", "bool", "select", "tags",
                "currency_cents"}
 REQUIRED_KEYS = ["id", "name", "tier", "category", "pitch", "features",
                  "entities", "storage", "done_means", "not"]
-OPTIONAL_KEYS = ["pattern", "accent", "currency"]
+OPTIONAL_KEYS = ["pattern", "accent", "currency", "tracker"]
 
 # A done-means must name something a person can watch happen.
 # Stems, not inflections: "reloading" must match "reload".
 VERBS = {"show", "hide", "save", "reload", "export", "import", "return",
          "refuse", "block", "count", "sort", "filter", "delete",
-         "restore", "open", "print", "render", "persist", "replace"}
+         "restore", "open", "print", "render", "persist", "replace", "draw"}
 
 # A done-means must not be able to certify anything and everything.
 VAGUE = ["works as expected", "works correctly", "does what it says",
@@ -125,6 +125,24 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
         p.append("storage.kind must be 'localstorage'")
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", str(st.get("namespace", ""))):
         p.append("storage.namespace must be lowercase letters, digits and hyphens")
+
+    if "tracker" in spec:
+        tr = spec["tracker"]
+        if not isinstance(tr, dict):
+            p.append("tracker must be an object")
+        else:
+            types = {f["name"]: f["type"] for e in ents for f in (e.get("fields") or [])}
+            fld = tr.get("field")
+            if fld not in types:
+                p.append(f"tracker.field '{fld}' is not a field on any entity")
+            elif types[fld] not in ("number", "currency_cents"):
+                p.append(f"tracker.field '{fld}' must be number or currency_cents")
+            goal = tr.get("goal")
+            if not isinstance(goal, (int, float)) or isinstance(goal, bool) or goal <= 0:
+                p.append("tracker.goal must be a number greater than zero")
+            win = tr.get("window", 7)
+            if not isinstance(win, int) or isinstance(win, bool) or not 1 <= win <= 90:
+                p.append("tracker.window must be a whole number from 1 to 90")
 
     if "pattern" in spec and not re.fullmatch(r"[a-z][a-z0-9-]*", str(spec["pattern"])):
         p.append("pattern must be a slug, e.g. crud-list")

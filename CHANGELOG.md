@@ -4,6 +4,21 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.9 — 2026-11-13
+
+Phase B, first archetype: `tracker`.
+
+| Area | Change |
+|---|---|
+| Archetype | `tracker` — one number a day, against a goal: streak, days logged, average, goal percent, a week of bars |
+| Capabilities | `derived` (metrics computed at view time) and `chart` (inline SVG sparkline, no library) |
+| Registry | F7 family opens: `metric-streak`, `metric-average`, `metric-goal`, `metric-sparkline` — 45 entries in total |
+| Spec key | `tracker: {field, goal, window, unit}`, validated: the field must exist and be numeric, the goal positive, the window 1–90 |
+| Determinism | the derivation takes the date as an argument, so it can be run on its own — and is, under node, in `tests/test_tracker.py` |
+| Guards | `B6` caught `PROMPT.md` missing the two new capabilities; the prompt now lists them, and explains `tracker` |
+| Size | the tracker sample builds to 33 KB, inside the 40 KB ceiling |
+| Counts | 127 tests, 134 guards |
+
 ## v0.8 — 2026-11-13
 
 Phase A of the master prompt: determinism, one file, integer money, and the first archetype.
