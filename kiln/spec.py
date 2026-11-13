@@ -53,6 +53,18 @@ def split(path) -> tuple[str, str]:
     return m.group(1), text
 
 
+def parse_only(path):
+    """Read the machine block without validating it. For the studio's gallery."""
+    text = Path(path).read_text(encoding="utf-8")
+    m = BLOCK.search(text)
+    if not m:
+        raise SpecError([f"{path}: no ```json kiln block found"])
+    try:
+        return json.loads(m.group(1))
+    except json.JSONDecodeError as e:
+        raise SpecError([f"{path}: the block is not valid JSON ({e})"])
+
+
 def load(path, catalog=None) -> dict:
     raw, text = split(path)
     try:

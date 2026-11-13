@@ -25,7 +25,7 @@
     "kits": 5
   },
   "verification": {
-    "tests": 265,
+    "tests": 274,
     "guards": 248,
     "ci": ".github/workflows/kiln.yml"
   },
@@ -101,5 +101,15 @@
       "GUIDE-FEATURES.md"
     ],
     "command": "python3 -m kiln guide"
+  },
+  "studio": {
+    "patterns": "catalogue/patterns/",
+    "gallery": "specs/gallery/",
+    "features": [
+      "pattern picker",
+      "gallery loader",
+      "live explain panel",
+      "the same strip as the CLI"
+    ]
   }
 }

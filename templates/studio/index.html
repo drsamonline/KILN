@@ -35,6 +35,10 @@
   .feat input{min-height:auto;width:18px;height:18px}
   .feat.on{border-color:var(--accent)}
   .hint{color:var(--muted);font-size:12px}
+  .explain{background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;font-size:12px;color:var(--muted);margin:0 0 10px;line-height:1.7}
+  .explain b{color:var(--ink)}
+  .explain .bad{color:var(--bad)}
   .pill{font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);
     color:var(--muted);background:var(--panel);white-space:nowrap}
   .pill b{color:var(--accent)}
@@ -75,6 +79,15 @@
         <span class="hint">reads a <code>.md</code> from <code>specs/</code>, or a pasted reply saved as a file</span>
         <input id="specfile" type="file" accept=".md,.json,.txt" hidden>
       </div>
+      <div class="row" style="margin-top:10px">
+        <label class="f" style="flex:1 1 220px">Start from a pattern
+          <select id="pattern"><option value="">none</option></select>
+        </label>
+        <label class="f" style="flex:1 1 220px">Or a gallery sample
+          <select id="gallery"><option value="">none</option></select>
+        </label>
+      </div>
+      <p class="hint" id="patternhint"></p>
       <div class="row">
         <label class="f" style="flex:1 1 220px">App name
           <input id="name" placeholder="Tea Log">
@@ -109,6 +122,7 @@
     </div>
 
     <div class="card">
+      <div class="explain" id="explain" aria-live="polite"></div>
       <div class="row">
         <button id="build" class="primary">Build app</button>
         <span class="pill">builds the <b>Personal</b> edition — the author block is included</span>
@@ -147,11 +161,34 @@
 /* KILN Studio {{VERSION}} — one file, no network, no model.
    Everything below runs in the browser, including on a phone. */
 const CATALOG = {{CATALOG_JSON}};
+const PATTERNS = {{PATTERNS_JSON}};
+const GALLERY = {{GALLERY_JSON}};
+/* the keys a pattern needs, filled from the fields the spec already has */
+const PATTERN_KEY = {
+  tracker: (f) => ({field: name(f, "number"), goal: 10, window: 7, unit: ""}),
+  checklist: (f) => ({field: name(f, "bool"), label: "done"}),
+  journal: (f) => ({field: name(f, "longtext")}),
+  log: (f) => ({field: name(f, "duration") || name(f, "number"), format: "duration", label: "total"}),
+  kanban: (f) => ({field: name(f, "select")}),
+  calendar: (f) => ({field: name(f, "date")}),
+  calculator: (f) => ({inputs: [{name: "a", label: "A", type: "number", default: 1}],
+                       formula: "a", output: {label: "Result", decimals: 1}}),
+  converter: (f) => ({units: [{id: "a", label: "A", short: "a", factor: 1},
+                              {id: "b", label: "B", short: "b", factor: 1000}],
+                      default_from: "a", default_to: "b", decimals: 2}),
+  wizard: (f) => ({steps: [{title: "One", fields: f.slice(0, 1).map((x) => x.name)},
+                           {title: "Two", fields: f.slice(1).map((x) => x.name)}]})
+};
+function name(fields, type) {
+  const hit = fields.find((x) => x.type === type);
+  return hit ? hit.name : "";
+}
 const TPL = {{TPL_JS}};
 const LICENCE = "{{LICENCE}}";
 
 /* ------------------------------ state ------------------------------ */
 const S = {
+  pattern: "",
   idea: "", name: "", accent: "#7c9cff",
   features: ["crud", "export", "theme"],
   entity: {name: "item", label: "Item", fields: [
@@ -190,6 +227,78 @@ function closeOver(list) {
 }
 
 /* ------------------------------ features --------------------------- */
+function fillPickers() {
+  const ps = $("#pattern");
+  ps.innerHTML = '<option value="">none</option>' + PATTERNS.map((p) =>
+    '<option value="' + esc(p.id) + '">' + esc(p.name) +
+    (p.status === "emitted" ? "" : " (not built)") + "</option>").join("");
+  ps.value = S.pattern || "";
+  ps.onchange = () => applyPattern(ps.value);
+
+  const gs = $("#gallery");
+  gs.innerHTML = '<option value="">none</option>' + GALLERY.map((g) =>
+    '<option value="' + esc(g.file) + '">' + esc(g.name) + " — " + esc(g.pattern) +
+    "</option>").join("");
+  gs.onchange = () => {
+    const g = GALLERY.find((x) => x.file === gs.value);
+    if (g) { applySpec(g.spec, ["loaded " + g.file]); $("#status").innerHTML =
+      '<span class="ok">loaded ' + esc(g.file) + "</span>"; }
+    drawFeatures(); drawFields(); explainNow();
+  };
+}
+
+function applyPattern(id) {
+  S.pattern = id;
+  const p = PATTERNS.find((x) => x.id === id);
+  const hint = $("#patternhint");
+  if (!p) { hint.textContent = ""; drawFeatures(); explainNow(); return; }
+  /* the pattern brings its capabilities and the fields it needs */
+  /* an array, like the rest of the state */
+  S.features = closeOver((p.defaults && p.defaults.features) || p.requires || []);
+  for (const t of p.requires_fields) {
+    if (!S.entity.fields.some((f) => f.type === t)) {
+      S.entity.fields.push({name: "field_" + t, label: t.charAt(0).toUpperCase() + t.slice(1),
+                            type: t, required: false,
+                            options: t === "select" ? ["one", "two"] : []});
+    }
+  }
+  const keys = PATTERN_KEY[id];
+  if (keys) S[patternKeyName(id)] = keys(S.entity.fields);
+  hint.innerHTML = p.status === "emitted"
+    ? "needs " + p.requires.join(", ") + (p.requires_fields.length
+        ? " · a " + p.requires_fields.join(" and ") + " field" : "")
+    : '<span class="bad">this pattern is not built yet: naming it will fail verification</span>';
+  drawFeatures(); drawFields(); explainNow();
+}
+
+function patternKeyName(id) {
+  return id;
+}
+
+function explainNow() {
+  const box = $("#explain");
+  if (!box) return;
+  let spec;
+  try { spec = buildSpec(); } catch (e) { box.innerHTML = '<span class="bad">' + esc(e.message) + "</span>"; return; }
+  let html, dropped = [];
+  try {
+    const htmlOut = buildApp(spec);
+    html = "renders to <b>" + (new Blob([htmlOut]).size / 1024).toFixed(1) + " KB</b>";
+    dropped = buildApp.lastDropped || [];
+  } catch (e) {
+    box.innerHTML = '<span class="bad">' + esc(e.message) + "</span>";
+    return;
+  }
+  const uniq = dropped.filter((d, i) => dropped.indexOf(d) === i);
+  box.innerHTML = [
+    "<b>" + esc(spec.pattern || "no pattern") + "</b> · " +
+      spec.features.length + " capabilities · " + spec.entities.length + " entity · " +
+      (spec.entities[0] ? spec.entities[0].fields.length : 0) + " fields",
+    html,
+    uniq.length ? "left out: " + esc(uniq.join(", ")) : "nothing left out"
+  ].join("<br>");
+}
+
 function drawFeatures() {
   const box = $("#features");
   box.innerHTML = "";
@@ -283,7 +392,7 @@ function buildSpec() {
     });
   const feats = closeOver(S.features);
   const asserts = assertionsFor(feats);
-  return {
+  const spec = {
     id: id,
     name: name,
     tier: 1,
@@ -300,6 +409,14 @@ function buildSpec() {
     done_means: asserts.slice(0, 4).length ? asserts.slice(0, 4) : ["the app opens and shows its empty state"],
     not: ["network calls", "accounts", "sync"]
   };
+  if (S.pattern) {
+    spec.pattern = S.pattern;
+    for (const k of ["tracker", "progress", "calculator", "converter", "wizard",
+                     "detail", "totals", "board", "calendar", "i18n"]) {
+      if (S[k] !== undefined) spec[k] = S[k];
+    }
+  }
+  return spec;
 }
 function specDoc(spec) {
   const ent = spec.entities[0];
@@ -339,10 +456,15 @@ function buildApp(spec) {
     accent: spec.accent, features: feats, entities: spec.entities,
     assertions: assertionsFor(feats), not: spec.not
   };
+  /* every optional key the spec carries goes into the model, the same as the CLI */
+  for (const k of ["pattern", "currency", "i18n", "tracker", "progress", "calculator",
+                   "converter", "wizard", "detail", "totals", "board", "calendar"]) {
+    if (spec[k] !== undefined) model[k] = spec[k];
+  }
   const ent = spec.entities[0];
   const canonModel = canon(model);
   const build = {
-    tier: "free", version: "{{KILN_VERSION}}", fp: fnv(canonModel), spec: spec.id,
+    tier: "personal", version: "{{KILN_VERSION}}", fp: fnv(canonModel), spec: spec.id,
     licensee: "", licence: LICENCE,
     licence_url: "https://polyformproject.org/licenses/noncommercial/1.0.0/",
     home: "https://github.com/drsamonline/KILN",
@@ -363,7 +485,7 @@ function buildApp(spec) {
     NOT: spec.not.map((n) => "- " + n).join("\n"),
     LICENCE: LICENCE, LICENCE_ID: "PolyForm-Noncommercial-1.0.0",
     SPEC_PATH: spec.id + ".md",
-    KILN_VERSION: "{{KILN_VERSION}}", TIER: "free", FINGERPRINT: build.fp,
+    KILN_VERSION: "{{KILN_VERSION}}", TIER: "personal", FINGERPRINT: build.fp,
     YEAR: String(new Date().getFullYear()), OWNER: "Dr Sohil Momin",
     LICENCE_URL: build.licence_url,
     BUILD_JSON: JSON.stringify(build, null, 2),
@@ -373,7 +495,9 @@ function buildApp(spec) {
   Object.keys(map).forEach((k) => { out = out.split("{{" + k + "}}").join(String(map[k])); });
   const left = out.match(/\{\{[A-Z_]+\}\}/);
   if (left) throw new Error("unsubstituted " + left[0]);
-  return out;
+  const [stripped, dropped] = stripUnused(out, feats);
+  buildApp.lastDropped = dropped;
+  return stripped;
 }
 /* the same canonical form and hash the CLI uses, so both builds agree */
 function canon(v) {
@@ -391,6 +515,27 @@ function fnv(str) {
   }
   return h.toString(16).padStart(16, "0");
 }
+/* the same strip the CLI does: a line scanner, so a marker can never ship */
+const ONLY_LINE = /^(?:\/\*|<!--)\s*@only ([a-z0-9_]+)\s*(?:\*\/|-->)$/;
+const END_LINE = /^(?:\/\*|<!--)\s*@end only\s*(?:\*\/|-->)$/;
+function stripUnused(text, features) {
+  const keep = new Set(features);
+  const out = [], stack = [], dropped = [];
+  for (const line of text.split("\n")) {
+    const probe = line.trim();
+    const m = probe.match(ONLY_LINE);
+    if (m) {
+      const n = m[1];
+      stack.push([n, keep.has(n)]);
+      if (!keep.has(n)) dropped.push(n);
+      continue;
+    }
+    if (END_LINE.test(probe)) { stack.pop(); continue; }
+    if (stack.every((s) => s[1])) out.push(line);
+  }
+  return [out.join("\n"), dropped];
+}
+
 function download(name, text, mime) {
   const blob = new Blob([text], {type: mime || "text/plain"});
   const url = URL.createObjectURL(blob);
@@ -652,8 +797,10 @@ document.addEventListener("DOMContentLoaded", () => {
       report(["build failed: " + e.message]);
     }
   };
+  fillPickers();
   drawFeatures();
   drawFields();
+  explainNow();
 });
 </script>
 </body>

@@ -4,6 +4,22 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.18 — 2026-11-13
+
+The studio catches up with the compiler.
+
+| Area | Change |
+|---|---|
+| Pattern picker | choose one of the ten archetypes; it brings its capabilities, adds the field type it needs, and fills its spec key (`tracker`, `progress`, `board`, `calendar`, `detail`, `totals`, `calculator`, `converter`, `wizard`, `journal`, `log`) |
+| Gallery | the ten sample specs are embedded, so the browser can load one without a filesystem |
+| Explain panel | live: pattern, capability count, entity and field count, **the real rendered size**, and what is left out |
+| Parity | the studio now runs the same line-scanner strip as the CLI, so a browser build no longer ships `@only` markers or capabilities the spec cannot use |
+| Parity test | the JS strip and the Python strip are compared on the same input — same text, same dropped list |
+| Model | every optional key (`pattern`, `tracker`, `progress`, `board`, `calendar`, `i18n` …) reaches the model, the same as the CLI |
+| Edition | the studio builds the Personal edition and now says so in the build record |
+| Size | studio.html 118 KB, carrying 10 gallery specs and 10 archetypes |
+| Counts | 274 tests, 248 guards |
+
 ## v0.17 — 2026-11-13
 
 The size policy relaxed, and the Phase C tooling.
