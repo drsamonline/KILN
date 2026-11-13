@@ -25,8 +25,8 @@
     "kits": 5
   },
   "verification": {
-    "tests": 475,
-    "guards": 450,
+    "tests": 480,
+    "guards": 451,
     "ci": ".github/workflows/kiln.yml"
   },
   "topics": [
@@ -65,7 +65,13 @@
     "docs_flag": "--with-docs",
     "size_typical_kb": "38-43",
     "size_ceiling_kb": 100,
-    "policy": "lenient: the ceiling is a backstop, not a target"
+    "policy": "lenient: the ceiling is a backstop, not a target",
+    "perf": {
+      "100 rows": "25 ms",
+      "1000 rows": "104 ms",
+      "2000 rows": "213 ms",
+      "policy": "derived figures are computed once per render (guard C19)"
+    }
   },
   "registry": {
     "path": "catalogue/features/",

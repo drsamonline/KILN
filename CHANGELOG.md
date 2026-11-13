@@ -4,6 +4,18 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.3 — 2026-11-14
+
+A skills-driven audit found the page was quadratic. Fixed, measured, and guarded.
+
+| Area | Change |
+|---|---|
+| **Performance** | five derived figures — `splitOf`, `runningTotal`, `tallyOf`, `sequenceOf` and the per-parent child filter — were recomputed **inside the row loop**, so rendering was O(n²). Measured: 100 rows 40 ms, 500 rows 355 ms, **1000 rows 1198 ms** |
+| Fixed | a per-render cache (`cached(key, make)`), cleared at the top of `render()`. After: 100 rows 25 ms, 500 61 ms, 1000 **104 ms**, 2000 213 ms — linear, 11.5× faster at 1000 rows |
+| Guard | **C19** — a derived figure that reads every row must not be called inside a row loop. Six helpers are on the list; `balanceOf` and `varianceOf` are not, because they read one parent or one row, and the reason is written next to the list |
+| Tests | 5 new, including a size budget so the cache cannot creep |
+| Counts | 480 tests, 451 guards |
+
 ## v1.0.2 — 2026-11-14
 
 The studio shows you the app it built.

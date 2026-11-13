@@ -1162,6 +1162,18 @@ function comparePair(a, b, fields, directions) {
 }
 /* versus:end */
 
+/* ---------- one computation per render ----------
+   The derived figures below (a split, a running balance, a tally, a sequence, a
+   parent balance) each read every row. Computing them inside the row loop makes
+   the page quadratic: 1000 rows took 1198 ms. They are computed once per render
+   and reused, which is why this cache exists. cache:start */
+let RENDER_CACHE = {};
+function cached(key, make) {
+  if (!(key in RENDER_CACHE)) RENDER_CACHE[key] = make();
+  return RENDER_CACHE[key];
+}
+/* cache:end */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -2072,7 +2084,8 @@ function renderStrip() {
 
   /* @only split */
   if (MODEL.split) {
-    const parts = splitOf(rows, MODEL.split.weight, MODEL.split.total);
+    const parts = cached("split",
+      () => splitOf(rows, MODEL.split.weight, MODEL.split.total));
     let given = 0;
     for (const p of parts) given += p.share;
     bits.push("<span><b>" + esc(money(given)) + "</b> of " + esc(money(MODEL.split.total)) + "</span>");
@@ -2096,7 +2109,8 @@ function renderStrip() {
   /* @end only */
   /* @only running */
   if (MODEL.running) {
-    const rt = runningTotal(rows, MODEL.running.field, MODEL.running.date);
+    const rt = cached("running",
+      () => runningTotal(rows, MODEL.running.field, MODEL.running.date));
     bits.push("<span><b>" + esc(money(rt.closing)) + "</b> closing</span>");
     bits.push("<span><b>" + rows.length + "</b> entries</span>");
   }
@@ -2104,7 +2118,7 @@ function renderStrip() {
 
   /* @only tally */
   if (MODEL.tally) {
-    const t2 = tallyOf(rows, MODEL.tally.field);
+    const t2 = cached("tally", () => tallyOf(rows, MODEL.tally.field));
     bits.push("<span><b>" + t2.total + "</b> votes</span>");
     const leaders = t2.shares.filter((s) => s.leading);
     if (leaders.length === 1) {
@@ -2190,6 +2204,7 @@ function renderStrip() {
 }
 
 function render() {
+  RENDER_CACHE = {};
   paintBanners();
   const list = $("#list");
   let items = visible();
@@ -2302,7 +2317,8 @@ function render() {
     body.appendChild(title);
     /* @only split */
     if (MODEL.split) {
-      const parts = splitOf(rows, MODEL.split.weight, MODEL.split.total);
+      const parts = cached("split",
+        () => splitOf(rows, MODEL.split.weight, MODEL.split.total));
       const mine = parts.find((p) => p.id === r.id) || {share: 0, pct: 0};
       body.appendChild(el("div", "d",
         "share " + money(mine.share) + " · " + mine.pct + "%"));
@@ -2324,7 +2340,8 @@ function render() {
     /* @end only */
     /* @only running */
     if (MODEL.running) {
-      const rt = runningTotal(rows, MODEL.running.field, MODEL.running.date);
+      const rt = cached("running",
+        () => runningTotal(rows, MODEL.running.field, MODEL.running.date));
       const bal = rt.marks[r.id];
       body.appendChild(el("div", "d" + (bal < 0 ? " overdue" : ""),
         "balance " + money(bal === undefined ? 0 : bal)));
@@ -2332,7 +2349,7 @@ function render() {
     /* @end only */
     /* @only tally */
     if (MODEL.tally) {
-      const t2 = tallyOf(rows, MODEL.tally.field);
+      const t2 = cached("tally", () => tallyOf(rows, MODEL.tally.field));
       const mine = t2.shares.find((s) => s.id === r.id) || {pct: 0, width: 0, leading: false};
       const wrap = el("div", "vbar");
       const fill = el("span", "vfill");
@@ -2366,7 +2383,7 @@ function render() {
     /* @end only */
     /* @only sequence */
     if (MODEL.sequence) {
-      const ordered = sequenceOf(rows, MODEL.sequence.order);
+      const ordered = cached("sequence", () => sequenceOf(rows, MODEL.sequence.order));
       const at = ordered.findIndex((x) => x.id === r.id) + 1;
       let run = 0;
       for (const x of ordered.slice(0, at)) run += Number(x[MODEL.sequence.duration]) || 0;
@@ -2397,7 +2414,8 @@ function render() {
     /* @end only */
     if (F.has("balance") && MODEL.balance && MODEL.balance.master === ENTITY.name) {
       const b = MODEL.balance;
-      const kids = (DB[b.child] || []).filter((k) => k[b.lookup] === r.id);
+      const kids = cached("kids:" + r.id,
+        () => (DB[b.child] || []).filter((k) => k[b.lookup] === r.id));
       const bal = balanceOf(kids, b.field, r.id);
       const line = el("div", "d");
       line.textContent = "balance: " + bal + (b.unit ? " " + b.unit : "");

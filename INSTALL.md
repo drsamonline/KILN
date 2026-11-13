@@ -52,9 +52,9 @@ There is no `pip install`, no virtualenv requirement, no PATH change, no service
 ## Verify the install
 
 ```bash
-python3 -m unittest discover -s tests     # 475 tests
+python3 -m unittest discover -s tests     # 480 tests
 python3 -m kiln verify --all              # every spec builds
-python3 -m kiln audit                     # 450 guards
+python3 -m kiln audit                     # 451 guards
 ```
 
 All three should pass on a clean checkout. If `node` is absent, one check reports `SKIP`

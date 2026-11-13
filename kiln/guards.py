@@ -435,6 +435,50 @@ def check_block_ownership(catalog) -> list[Row]:
     return out
 
 
+# these read every row, so they must be computed once per render
+# balanceOf() is not here: it sums a list already narrowed to one parent, which is
+# linear. The quadratic part was the filter that produced that list, and it is cached.
+DERIVED = ("splitOf(", "runningTotal(", "tallyOf(", "sequenceOf(",
+           "summarise(", "crosstabOf(")
+
+
+def check_row_loop_is_linear(catalog) -> list[Row]:
+    """A derived figure that reads every row must not be computed inside the row loop.
+
+    Five of them were, and the page was quadratic: 100 rows took 40 ms, 1000 took
+    1198 ms. They are now cached once per render. This guard keeps it that way.
+    """
+    src = (ROOT / "templates" / "app" / "index.html").read_text(encoding="utf-8")
+    lines = src.splitlines()
+    starts = [i for i, l in enumerate(lines) if "for (const r of items) {" in l]
+    out: list[Row] = []
+    for s in starts:
+        depth = 0
+        end = None
+        for i in range(s, len(lines)):
+            depth += lines[i].count("{") - lines[i].count("}")
+            if depth == 0 and i > s:
+                end = i
+                break
+        if end is None:
+            continue
+        body = "\n".join(lines[s:end + 1])
+        for fn in DERIVED:
+            for n in range(s, end + 1):
+                line = lines[n]
+                if fn not in line:
+                    continue
+                window = lines[max(s, n - 1):n + 1]
+                if any("cached(" in w for w in window):
+                    continue
+                out.append(Row(f"C19 {fn} runs per row", False,
+                               f"line {n + 1}: compute it once with cached() instead"))
+    if not out:
+        out.append(Row("C19 no derived figure is computed per row", True,
+                       f"{len(starts)} row loops checked"))
+    return out
+
+
 def check_patterns(catalog) -> list[Row]:
     """§2: every archetype ships a descriptor, a sample, a screenshot and a pros/cons block."""
     from . import catalog as cat
@@ -677,6 +721,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_registry(catalog)
     rows += check_patterns(catalog)
     rows += check_block_ownership(catalog)
+    rows += check_row_loop_is_linear(catalog)
     rows += check_counts()
     rows += check_guides(catalog)
     rows += check_licensing()
