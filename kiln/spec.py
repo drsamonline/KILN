@@ -89,6 +89,7 @@ NEEDS_KEY = {
     "balance": "balance", "timeline": "timeline",
     "quiz": "quiz", "gallery": "gallery",
     "variance": "variance", "amount": "amount",
+    "recur": "recur", "sequence": "sequence",
     "dashboard": "dashboard", "multi": "entities",
 }
 
@@ -194,6 +195,38 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
         p.append("the 'multi' capability needs at least two entities")
     if len(ents) > 1 and "multi" not in (spec.get("features") or []):
         p.append(f"{len(ents)} entities need the 'multi' capability in features")
+
+    if "recur" in spec:
+        rc = spec["recur"]
+        if not isinstance(rc, dict):
+            p.append("recur must be an object")
+        else:
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            if rc.get("last") not in types:
+                p.append(f"recur.last '{rc.get('last')}' is not a field on any entity")
+            elif types[rc["last"]]["type"] != "date":
+                p.append("recur.last must be a date field")
+            if rc.get("every") not in types:
+                p.append(f"recur.every '{rc.get('every')}' is not a field on any entity")
+            elif types[rc["every"]]["type"] != "number":
+                p.append("recur.every must be a number field, in days")
+
+    if "sequence" in spec:
+        sq = spec["sequence"]
+        if not isinstance(sq, dict):
+            p.append("sequence must be an object")
+        else:
+            types = {f["name"]: f for e in ents for f in (e.get("fields") or [])}
+            if sq.get("order") not in types:
+                p.append(f"sequence.order '{sq.get('order')}' is not a field on any entity")
+            elif types[sq["order"]]["type"] != "number":
+                p.append("sequence.order must be a number field")
+            if sq.get("duration") is not None:
+                d0 = sq["duration"]
+                if d0 not in types:
+                    p.append(f"sequence.duration '{d0}' is not a field on any entity")
+                elif types[d0]["type"] not in ("duration", "number"):
+                    p.append("sequence.duration must be a duration or number field")
 
     for cap, keys in (("variance", ("planned", "actual")), ("amount", ("qty", "rate"))):
         if cap in spec:

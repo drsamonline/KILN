@@ -1,0 +1,11 @@
+{
+  "id": "metric-recur",
+  "family": "F7",
+  "name": "recur",
+  "spec_keys": ["features[]", "recur.last", "recur.every"],
+  "emitter_hook": "templates/app/index.html::nextDue",
+  "verify_check": "last done 2026-11-01 every 30 days shows next 2026-12-01",
+  "docs_anchor": "docs/PATTERNS.md#scheduler",
+  "status": "emitted",
+  "note": "pure UTC date arithmetic on YYYY-MM-DD strings; no library, no timezone"
+}

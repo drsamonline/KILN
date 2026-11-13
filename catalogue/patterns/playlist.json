@@ -1,0 +1,35 @@
+{
+  "id": "playlist",
+  "name": "Playlist",
+  "archetype": 19,
+  "status": "emitted",
+  "descriptor": "An explicit order, the position of each item, and the running time to reach the end.",
+  "view": "ordered list",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "sequence", "theme"],
+  "requires_fields": ["text", "number"],
+  "requires_keys": ["sequence"],
+  "spec_defaults": {"tier": 1, "features": ["crud", "sequence", "search", "export", "theme"]},
+  "verify_checks": [
+    "pattern playlist: required features present",
+    "sequence: the ordering is emitted",
+    "sequence: the running total is emitted",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/playlist.md",
+  "screenshot": "docs/gallery/playlist.png",
+  "pros": [
+    "an explicit order field survives edits, unlike the record order",
+    "the position and the time remaining answer the only two questions a queue raises",
+    "the total is derived, so it is right after every edit",
+    "it is the same rows as any list, so search and export still work"
+  ],
+  "cons": [
+    "the order is a number you type: no drag and drop",
+    "gaps in the order are tolerated, not tidied",
+    "no shuffle, no repeat, no playback",
+    "one duration per item, no chapters"
+  ],
+  "best_for": "a queue you decide once and then follow",
+  "avoid_if": "the order must be rearranged by hand often"
+}

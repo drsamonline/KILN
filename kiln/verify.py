@@ -199,6 +199,17 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 bool(model["calculator"].get("formula")))
         res.add("L5", "calculator: no entity, as the pattern declares",
                 model.get("entities") == [])
+    if "recur" in model["features"]:
+        res.add("L5", "recur: the next-due maths is emitted", "function nextDue(" in html)
+        res.add("L5", "recur: date arithmetic is UTC", "Date.UTC(" in html)
+        res.add("L5", "recur: due rows are flagged", "due since " in html)
+        res.add("L5", "recur: the config reached the model",
+                bool((model.get("recur") or {}).get("every")))
+    if "sequence" in model["features"]:
+        res.add("L5", "sequence: the ordering is emitted", "function sequenceOf(" in html)
+        res.add("L5", "sequence: the running total is emitted", "fmtDuration(run)" in html)
+        res.add("L5", "sequence: the config reached the model",
+                bool((model.get("sequence") or {}).get("order")))
     if "variance" in model["features"]:
         res.add("L5", "variance: the remaining maths is emitted", "function varianceOf(" in html)
         res.add("L5", "variance: the bar is emitted", "vfill" in html)

@@ -771,6 +771,78 @@ total is the sum of the amounts that are shown.
 
 ---
 
+## scheduler
+
+| | |
+|---|---|
+| Archetype | 18 |
+| Status | **emitted** |
+| View | the list, with a computed next date |
+| Requires | `crud`, `recur`, `theme` |
+| Requires fields | a `text`, a `date`, a `number` |
+| Spec keys | `pattern`, `recur.last`, `recur.every` |
+| Sample | [`specs/gallery/scheduler.md`](../specs/gallery/scheduler.md) |
+| Screenshot | [`docs/gallery/scheduler.png`](gallery/scheduler.png) |
+
+**Pros**
+
+- the next date is computed, so it cannot go stale when you skip a week
+- the due count in the strip turns the list into a worklist
+- one interval per task, in days: no cron, no rules to learn
+- it works entirely offline, which is when you actually do the chore
+
+**Cons**
+
+- days only: no weekly, monthly or business-day rules
+- one interval per task, no seasonal variation
+- no history: only the last time is kept, not the previous ones
+- a missed task does not shift its own schedule
+
+**Best for:** maintenance you do at a rough interval.
+
+**Avoid if:** the schedule needs calendar rules or a history.
+
+**The rule:** next due is `last + every days`, computed in UTC on plain date strings. A
+malformed date or a zero interval produces no next date rather than a wrong one.
+
+---
+
+## playlist
+
+| | |
+|---|---|
+| Archetype | 19 |
+| Status | **emitted** |
+| View | an ordered list with a running time |
+| Requires | `crud`, `sequence`, `theme` |
+| Requires fields | a `text`, a `number` |
+| Spec keys | `pattern`, `sequence.order`, `sequence.duration` |
+| Sample | [`specs/gallery/playlist.md`](../specs/gallery/playlist.md) |
+| Screenshot | [`docs/gallery/playlist.png`](gallery/playlist.png) |
+
+**Pros**
+
+- an explicit order field survives edits, unlike the record order
+- the position and the time remaining answer the only two questions a queue raises
+- the total is derived, so it is right after every edit
+- it is the same rows as any list, so search and export still work
+
+**Cons**
+
+- the order is a number you type: no drag and drop
+- gaps in the order are tolerated, not tidied
+- no shuffle, no repeat, no playback
+- one duration per item, no chapters
+
+**Best for:** a queue you decide once and then follow.
+
+**Avoid if:** the order must be rearranged by hand often.
+
+**The rule:** the order field wins over the record order. A row with no order goes last, and a
+tie is broken by id, so the sort is stable and the same rows always appear in the same order.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -802,6 +874,8 @@ spec naming it fails verification rather than silently building something else.
 | gallery | visual, scannable | verbose for data-heavy | **emitted** |
 | budget | planned against actual | no ledger | **emitted** |
 | invoice | a printable bill | no tax or numbering | **emitted** |
+| scheduler | maintenance cycles | days only | **emitted** |
+| playlist | an explicit order | no drag and drop | **emitted** |
 | Print / Report | shareable artefact | layout brittle across browsers | planned |
 
 ---

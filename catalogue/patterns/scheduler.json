@@ -1,0 +1,35 @@
+{
+  "id": "scheduler",
+  "name": "Scheduler",
+  "archetype": 18,
+  "status": "emitted",
+  "descriptor": "Things that come round again: when you last did it, how often it should be done, and the date it is next due.",
+  "view": "list + next due",
+  "requires_entities": true,
+  "requires_capabilities": ["crud", "recur", "theme"],
+  "requires_fields": ["text", "date", "number"],
+  "requires_keys": ["recur"],
+  "spec_defaults": {"tier": 2, "features": ["crud", "recur", "search", "sort", "export", "theme"]},
+  "verify_checks": [
+    "pattern scheduler: required features present",
+    "recur: the next-due maths is emitted",
+    "recur: due rows are flagged",
+    "layout: exactly one file"
+  ],
+  "sample": "specs/gallery/scheduler.md",
+  "screenshot": "docs/gallery/scheduler.png",
+  "pros": [
+    "the next date is computed, so it cannot go stale when you skip a week",
+    "the due count in the strip turns the list into a worklist",
+    "one interval per task, in days: no cron, no rules to learn",
+    "it works entirely offline, which is when you actually do the chore"
+  ],
+  "cons": [
+    "days only: no weekly, monthly or business-day rules",
+    "one interval per task, no seasonal variation",
+    "no history: only the last time is kept, not the previous ones",
+    "a missed task does not shift its own schedule"
+  ],
+  "best_for": "maintenance you do at a rough interval",
+  "avoid_if": "the schedule needs calendar rules or a history"
+}

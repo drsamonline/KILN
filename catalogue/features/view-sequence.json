@@ -1,0 +1,11 @@
+{
+  "id": "view-sequence",
+  "family": "F4",
+  "name": "sequence",
+  "spec_keys": ["features[]", "sequence.order", "sequence.duration"],
+  "emitter_hook": "templates/app/index.html::sequenceOf",
+  "verify_check": "three tracks of 3, 4 and 5 minutes show 12 minutes in total",
+  "docs_anchor": "docs/PATTERNS.md#playlist",
+  "status": "emitted",
+  "note": "an explicit order field wins over the record order; the running total is derived"
+}

@@ -86,6 +86,10 @@ FIELD RULES
   Include the steps feature.
 - If the work MOVES THROUGH STAGES (new → done), use "pattern": "kanban" with
   "board": {"field": "<select field>"}. The columns are that field's options, in order.
+- If the app REPEATS (maintenance, servicing, renewals), use "pattern": "scheduler" with
+  "recur": {"last": "<date field>", "every": "<number field, days>"}.
+- If the app is a QUEUE or PLAYLIST, use "pattern": "playlist" with
+  "sequence": {"order": "<number field>", "duration": "<duration field>"}.
 - If the app is a BUDGET, use "pattern": "budget" with "variance": {"planned", "actual"}
   over two currency_cents fields.
 - If the app is a BILL, use "pattern": "invoice" with "amount": {"qty", "rate"} over a
@@ -173,6 +177,8 @@ FEATURE CATALOGUE — the only features that exist
 | gallery | a grid of cards, each with an image | crud |
 | variance | planned against actual, with what is left | crud |
 | amount | quantity times rate, and the total | crud |
+| recur | a next-due date from a last date and an interval | crud |
+| sequence | an explicit order, with position and running time | crud |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees

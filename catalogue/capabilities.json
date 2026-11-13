@@ -643,6 +643,40 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "three lines of 2 x 500, 1 x 1200 and 3 x 250 total 3150"
+    },
+    "recur": {
+      "label": "A next-due date, computed from the last time and an interval",
+      "aliases": [
+        "recurring",
+        "every n days",
+        "next due",
+        "maintenance schedule",
+        "reminder cycle"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "last done 2026-11-01 every 30 days shows next 2026-12-01"
+    },
+    "sequence": {
+      "label": "An explicit order, with the position and the running time",
+      "aliases": [
+        "playlist",
+        "queue",
+        "ordered",
+        "running order",
+        "next up"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "widgets-kit",
+      "emitter": "runtime",
+      "assertion": "three tracks of 3, 4 and 5 minutes show 3 of 3 and 12 minutes in total"
     }
   }
 }

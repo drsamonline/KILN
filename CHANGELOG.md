@@ -4,6 +4,21 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.25 — 2026-11-13
+
+Two archetypes in one batch: `scheduler` and `playlist`. Both are ordered by something other
+than the record order.
+
+| Area | Change |
+|---|---|
+| Archetype | `scheduler` — last done + interval in days, a computed next date, and a due count in the strip |
+| Archetype | `playlist` — an explicit order field, the position of each row, and the running time to reach it |
+| Capabilities | `recur` and `sequence` — 42 in total |
+| Registry | `metric-recur` and `view-sequence` (F4/F7) — 76 entries |
+| Correctness | date arithmetic is UTC on plain `YYYY-MM-DD` strings; a malformed date or a zero interval gives **no** next date rather than a wrong one |
+| Correctness | the sequence sort is stable: a missing order goes last, a tie is broken by id, and the input array is not mutated |
+| Counts | 396 tests, 370 guards, 25 specs verifying |
+
 ## v0.24 — 2026-11-13
 
 Two archetypes in one batch: `budget` and `invoice`. Money across rows.

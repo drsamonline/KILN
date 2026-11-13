@@ -70,6 +70,14 @@
   .spark .axis{stroke:var(--line);stroke-width:1}
   .spark .lbl{fill:var(--muted);font-size:9px}
   /* @end only */
+  /* @only sequence */
+  if (MODEL.sequence) {
+    let total = 0;
+    for (const r of rows) total += Number(r[MODEL.sequence.duration]) || 0;
+    bits.push("<span><b>" + esc(fmtDuration(total)) + "</b> total</span>");
+    bits.push("<span><b>" + rows.length + "</b> items</span>");
+  }
+  /* @end only */
   /* @only variance */
   .vbar{height:7px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);
     margin:7px 0 5px;overflow:hidden}
@@ -930,6 +938,39 @@ function amountOf(qty, rate) {
 /* amount:end */
 /* @end only */
 
+/* ---------- the next due date ---------- */
+/* @only recur */
+/* due:start */
+function addDays(iso, n) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+  if (!m) return "";
+  const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]) + Number(n)));
+  return d.toISOString().slice(0, 10);
+}
+function nextDue(last, every) {
+  const n = Number(every);
+  if (!isFinite(n) || n <= 0) return "";
+  return addDays(last, n);
+}
+/* due:end */
+/* @end only */
+
+/* ---------- an explicit order ----------
+   Pure: rows and an order field in; the same rows in that order. seq:start */
+function sequenceOf(rows, orderField) {
+  const out = rows.slice();
+  out.sort((a, b) => {
+    const x = Number(a[orderField]);
+    const y = Number(b[orderField]);
+    const nx = isFinite(x) ? x : Infinity;
+    const ny = isFinite(y) ? y : Infinity;
+    if (nx !== ny) return nx - ny;
+    return String(a.id) < String(b.id) ? -1 : 1;
+  });
+  return out;
+}
+/* seq:end */
+
 /* ---------- rendering ---------- */
 /* @only feedback */
 const SIZE_WARN = 2000;
@@ -1637,6 +1678,23 @@ function renderStrip() {
   const strip = $("#strip");
   const items = visible();
   const bits = [];
+  /* @only recur */
+  if (MODEL.recur) {
+    let due = 0, soon = 0;
+    const now = today();
+    const inWeek = addDays(now, 7);
+    for (const r of rows) {
+      const nd = nextDue(r[MODEL.recur.last], r[MODEL.recur.every]);
+      if (!nd) continue;
+      if (nd <= now) due += 1;
+      else if (nd <= inWeek) soon += 1;
+    }
+    if (due) bits.push('<span class="bad"><b>' + due + "</b> due</span>");
+    if (soon) bits.push("<span><b>" + soon + "</b> due this week</span>");
+    if (!due && !soon) bits.push("<span><b>nothing</b> due this week</span>");
+  }
+  /* @end only */
+
   if (F.has("balance") && MODEL.balance) {
     const b = MODEL.balance;
     const kids = DB[b.child] || [];
@@ -1689,7 +1747,10 @@ function renderStrip() {
 function render() {
   paintBanners();
   const list = $("#list");
-  const items = visible();
+  let items = visible();
+  /* @only sequence */
+  if (MODEL.sequence) items = sequenceOf(items, MODEL.sequence.order);
+  /* @end only */
   const boardOn = F.has("board") && MODEL.board && typeof renderBoard === "function";
   const calOn = F.has("calendar") && MODEL.calendar && typeof renderCalendar === "function";
   const dirOn = F.has("directory") && MODEL.directory && typeof renderDirectory === "function";
@@ -1782,6 +1843,25 @@ function render() {
       title.innerHTML = esc(r[FIELDS[0].name] || "(untitled)");
     }
     body.appendChild(title);
+    /* @only recur */
+    if (MODEL.recur) {
+      const nd = nextDue(r[MODEL.recur.last], r[MODEL.recur.every]);
+      const due = nd && nd <= today();
+      const line = el("div", "d" + (due ? " overdue" : ""),
+        nd ? (due ? "due since " : "next ") + nd : "no interval");
+      body.appendChild(line);
+    }
+    /* @end only */
+    /* @only sequence */
+    if (MODEL.sequence) {
+      const ordered = sequenceOf(rows, MODEL.sequence.order);
+      const at = ordered.findIndex((x) => x.id === r.id) + 1;
+      let run = 0;
+      for (const x of ordered.slice(0, at)) run += Number(x[MODEL.sequence.duration]) || 0;
+      body.appendChild(el("div", "d",
+        at + " of " + ordered.length + " · " + fmtDuration(run) + " in"));
+    }
+    /* @end only */
     /* @only variance */
     if (MODEL.variance) {
       const v = varianceOf(r[MODEL.variance.planned], r[MODEL.variance.actual]);
