@@ -10,13 +10,13 @@ no package manager, no key, no network.
 | Thing | Where it lives | How it gets in |
 |---|---|---|
 | The runtime (CRUD, storage, search, export, theme) | `templates/app/index.html` | it is the template |
-| The five kits | regions of that same file, named in `catalog/kits.json` | nothing to fetch |
-| The feature catalogue | `catalog/features.json` | read at runtime by the CLI |
+| The five kits | regions of that same file, named in `catalogue/kits.json` | nothing to fetch |
+| The feature catalogue | `catalogue/capabilities.json` | read at runtime by the CLI |
 | The spec schema | `schema/spec.schema.json` + `kiln/spec.py` | one shape, checked in code |
 | The prompt | `PROMPT.md` | one text file you can copy by hand |
 | The browser version | `studio.html`, generated from the two above | `kiln studio` |
 
-`catalog/kits.json` names no repository. That was a defect in v0.1 and it is
+`catalogue/kits.json` names no repository. That was a defect in v0.1 and it is
 gone: a kit is a capability of the template, not a repo to clone.
 
 ---

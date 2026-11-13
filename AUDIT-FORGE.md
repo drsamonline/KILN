@@ -15,8 +15,8 @@ Every row below is a defect with a named source. Every guard is code in this rep
 | A3 | A thing that is not wired looks wired (10 recorded) | `LEARNINGS.md` lesson 1 | No reference check between declared and used | `verify` fails on: declared feature with no emitter, emitted file not referenced, unused storage key, form field with no column | `kiln/verify.py::check_wiring` |
 | A4 | Read-back lies (7 recorded) | `LEARNINGS.md` lesson 2 | Verifying `main` after writing elsewhere | `verify --at <sha>` reads the artifact at the commit, not the working tree; prints the sha it read | `kiln/verify.py::read_at` |
 | A5 | Measuring the wrong thing (9 recorded) | `LEARNINGS.md` lesson 3 | Counting bytes instead of behaviour | Smoke assertions test outcomes (row saved, row found, export parses), never size | `tests/smoke.py` in every emitted app |
-| A6 | Duplicate kit copies across repos | `BACKLOG.md` F-100 | Kits vendored by copy, not referenced | Kit references resolve through `catalog/kits.json`; an unknown kit is a hard error | `kiln/catalog.py::resolve_kits` |
-| A7 | Hand-rolled reimplementation of kit capability | `LESSONS.md` harvest queue — `web-kit` hand-rolled in 38 repos | No capability lookup before coding | Every feature maps to exactly one kit in `catalog/features.json`; `kiln catalog --feature <id>` is the lookup | `kiln/guards.py::check_kit_coverage` |
+| A6 | Duplicate kit copies across repos | `BACKLOG.md` F-100 | Kits vendored by copy, not referenced | Kit references resolve through `catalogue/kits.json`; an unknown kit is a hard error | `kiln/catalog.py::resolve_kits` |
+| A7 | Hand-rolled reimplementation of kit capability | `LESSONS.md` harvest queue — `web-kit` hand-rolled in 38 repos | No capability lookup before coding | Every feature maps to exactly one kit in `catalogue/capabilities.json`; `kiln catalog --feature <id>` is the lookup | `kiln/guards.py::check_kit_coverage` |
 
 ---
 
@@ -40,7 +40,7 @@ Every row below is a defect with a named source. Every guard is code in this rep
 | C2 | Three cycles reported the system blocked on a 404 that was a credential | `forge/README.md` | 404 not distinguished from permission denial | `kiln preflight` probes with an explicit authenticated call and reports which of the two it is | `kiln/guards.py::preflight` |
 | C3 | 10 false completions recorded | `LESSONS.md` | "Done" claimed without a command and its output | A completion is a recorded command plus its output in `RUNS.jsonl`; nothing else counts | `kiln/verify.py::record` |
 | C4 | All schedules stopped, nothing observed itself | `LESSONS.md` | Silence read as health | Heartbeat writes a dated row; a missing row is reported as `STALE`, never as OK | `kiln/guards.py::heartbeat` |
-| C5 | Licence claims diverge from licence files | `DIAGNOSE.md` — 14 policies, 4 MIT | Badges and docs written by hand | One `catalog/licence.json`; README badge and LICENSE generated from it | `kiln/guards.py::check_licence` |
+| C5 | Licence claims diverge from licence files | `DIAGNOSE.md` — 14 policies, 4 MIT | Badges and docs written by hand | One `catalogue/categories.json`; README badge and LICENSE generated from it | `kiln/guards.py::check_licence` |
 | C6 | Shell bugs from unquoted variables and wrong-file picks | `PROMPTS/shellcheck.md` exists but is a prompt, not a gate | Lint treated as guidance | `shellcheck` runs as a CI gate on every script in this repo | `kiln.yml` job `lint` |
 
 ---
@@ -86,8 +86,8 @@ The first version of this repo repeated two of the mistakes it criticises. Both 
 
 | # | Defect in v0.1 | Why it was wrong | Fix in v0.2 | Enforced by |
 |---|---|---|---|---|
-| G1 | `catalog/kits.json` named five other repositories | A "self-contained" compiler that needs five clones is not self-contained. It also reintroduced A6 (duplicate copies) and A7 (kits drifting) | Kits are regions of `templates/app/index.html`, declared `"bundled": true`, with no repo field | `catalog.load()` requires the kit to exist; `docs/SELF-CONTAINED.md` |
-| G2 | The prompt existed only as prose in a doc | Nothing checked that it offered features the compiler has, so a model could be asked for something that cannot build | `PROMPT.md` carries the catalogue table, and a guard compares it to `catalog/features.json` row by row | `guards.check_prompt_catalog` |
+| G1 | `catalogue/kits.json` named five other repositories | A "self-contained" compiler that needs five clones is not self-contained. It also reintroduced A6 (duplicate copies) and A7 (kits drifting) | Kits are regions of `templates/app/index.html`, declared `"bundled": true`, with no repo field | `catalog.load()` requires the kit to exist; `docs/SELF-CONTAINED.md` |
+| G2 | The prompt existed only as prose in a doc | Nothing checked that it offered features the compiler has, so a model could be asked for something that cannot build | `PROMPT.md` carries the catalogue table, and a guard compares it to `catalogue/capabilities.json` row by row | `guards.check_prompt_catalog` |
 | G3 | A model's reply had to be hand-massaged into a spec | The whole point of a bridge is that the other side can be sloppy | `kiln adopt` extracts, repairs and refuses; 24 repairs on the fixture, 0 on its own output | `tests/test_bridge.py` |
 | G4 | No way to build without Python | "Any OS" was true; "any device" was not | `studio.html`, generated from the same template and catalogue, runs in a phone browser | `guards.check_studio`, `tests/test_bridge.py` |
 | G5 | The studio could silently drift from the CLI | Two copies of one truth is the F-100 pattern again | The studio is generated and byte-compared in `kiln audit` and in CI | `guards.check_studio` |

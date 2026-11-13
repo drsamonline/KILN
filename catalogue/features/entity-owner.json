@@ -1,0 +1,13 @@
+{
+  "id": "entity-owner",
+  "family": "F1",
+  "name": "owner",
+  "spec_keys": [
+    "entities[]"
+  ],
+  "emitter_hook": null,
+  "verify_check": null,
+  "docs_anchor": "docs/SPEC-REFERENCE.md#entities-and-fields",
+  "status": "planned",
+  "note": "multi-profile is not built"
+}

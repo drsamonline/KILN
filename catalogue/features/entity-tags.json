@@ -1,0 +1,13 @@
+{
+  "id": "entity-tags",
+  "family": "F1",
+  "name": "tags",
+  "spec_keys": [
+    "entities[]"
+  ],
+  "emitter_hook": "templates/app/index.html::render",
+  "verify_check": "layout: exactly one file",
+  "docs_anchor": "docs/SPEC-REFERENCE.md#entities-and-fields",
+  "status": "emitted",
+  "note": "field type tags"
+}

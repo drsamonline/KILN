@@ -1,0 +1,35 @@
+{
+  "id": "crud-list",
+  "name": "CRUD list",
+  "archetype": 1,
+  "status": "emitted",
+  "descriptor": "One entity, one list, one form. The shape every small app starts from: contacts, inventory, issues, tickets.",
+  "view": "table",
+  "requires_capabilities": ["crud", "search", "sort", "stats", "export", "theme"],
+  "requires_fields": ["text"],
+  "spec_defaults": {
+    "tier": 1,
+    "features": ["crud", "search", "sort", "stats", "export", "theme"]
+  },
+  "verify_checks": [
+    "layout: exactly one file",
+    "every feature has an assertion",
+    "every field is wired",
+    "no file changed (golden, when a baseline exists)"
+  ],
+  "sample": "specs/gallery/crud-list.md",
+  "screenshot": "docs/gallery/crud-list.png",
+  "pros": [
+    "the fastest shape to build and to use",
+    "one form, one list, nothing to learn",
+    "search and sort come free from the runtime",
+    "prints and exports without extra work"
+  ],
+  "cons": [
+    "linear search: fine to a few thousand rows, slow beyond",
+    "no relations, so a second entity needs a second app",
+    "one view, so comparison across records is manual"
+  ],
+  "best_for": "a single flat list of records that one person maintains",
+  "avoid_if": "records point at other records, or the app needs two lists at once"
+}

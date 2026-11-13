@@ -9,9 +9,11 @@ import re
 from pathlib import Path
 
 BLOCK = re.compile(r"```json\s+kiln\s*\n(.*?)\n```", re.S)
-FIELD_TYPES = {"text", "longtext", "number", "date", "bool", "select", "tags"}
+FIELD_TYPES = {"text", "longtext", "number", "date", "bool", "select", "tags",
+               "currency_cents"}
 REQUIRED_KEYS = ["id", "name", "tier", "category", "pitch", "features",
                  "entities", "storage", "done_means", "not"]
+OPTIONAL_KEYS = ["pattern", "accent", "currency"]
 
 # A done-means must name something a person can watch happen.
 # Stems, not inflections: "reloading" must match "reload".
@@ -124,6 +126,10 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", str(st.get("namespace", ""))):
         p.append("storage.namespace must be lowercase letters, digits and hyphens")
 
+    if "pattern" in spec and not re.fullmatch(r"[a-z][a-z0-9-]*", str(spec["pattern"])):
+        p.append("pattern must be a slug, e.g. crud-list")
+    if "currency" in spec and not (isinstance(spec["currency"], str) and 1 <= len(spec["currency"]) <= 3):
+        p.append("currency must be a short symbol, e.g. \u20b9")
     if "accent" in spec and not re.fullmatch(r"#[0-9a-fA-F]{6}", str(spec["accent"])):
         p.append("accent must be #rrggbb")
 
@@ -172,10 +178,18 @@ def sections(text) -> dict:
     return out
 
 
+def spec_paths(root=None) -> list[Path]:
+    """Every spec in the repository, gallery included. One list, used everywhere."""
+    from pathlib import Path as _P
+    base = _P(root) if root else _P(__file__).resolve().parent.parent
+    out = sorted(base.glob("specs/*.md")) + sorted(base.glob("specs/gallery/*.md"))
+    return [f for f in out if f.name.lower() != "readme.md"]
+
+
 def load_all(spec_dir, catalog=None) -> list[dict]:
     """Every spec in a directory. A broken spec is an error, not a skip."""
     specs, problems = [], []
-    for f in sorted(Path(spec_dir).glob("app-*.md")):
+    for f in sorted(Path(spec_dir).glob("*.md")):
         try:
             specs.append(load(f, catalog))
         except SpecError as e:

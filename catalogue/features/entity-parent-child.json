@@ -1,0 +1,13 @@
+{
+  "id": "entity-parent-child",
+  "family": "F1",
+  "name": "parent-child",
+  "spec_keys": [
+    "entities[]"
+  ],
+  "emitter_hook": null,
+  "verify_check": null,
+  "docs_anchor": "docs/SPEC-REFERENCE.md#entities-and-fields",
+  "status": "planned",
+  "note": "needs relations"
+}

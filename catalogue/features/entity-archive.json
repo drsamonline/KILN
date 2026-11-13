@@ -1,0 +1,13 @@
+{
+  "id": "entity-archive",
+  "family": "F1",
+  "name": "archive",
+  "spec_keys": [
+    "entities[]"
+  ],
+  "emitter_hook": null,
+  "verify_check": null,
+  "docs_anchor": "docs/SPEC-REFERENCE.md#entities-and-fields",
+  "status": "planned",
+  "note": "delete is final today"
+}

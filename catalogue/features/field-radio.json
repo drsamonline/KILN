@@ -1,0 +1,14 @@
+{
+  "id": "field-radio",
+  "family": "F2",
+  "name": "radio",
+  "runtime_type": "select",
+  "spec_keys": [
+    "entities[].fields[].type"
+  ],
+  "emitter_hook": "templates/app/index.html::fieldInput",
+  "verify_check": "field <entity>.<field> is wired",
+  "docs_anchor": "docs/SPEC-REFERENCE.md#field-types",
+  "status": "emitted",
+  "note": "one of a short fixed list, as radios"
+}

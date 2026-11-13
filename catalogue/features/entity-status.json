@@ -1,0 +1,13 @@
+{
+  "id": "entity-status",
+  "family": "F1",
+  "name": "status",
+  "spec_keys": [
+    "entities[]"
+  ],
+  "emitter_hook": null,
+  "verify_check": null,
+  "docs_anchor": "docs/SPEC-REFERENCE.md#entities-and-fields",
+  "status": "planned",
+  "note": "select works, no workflow"
+}

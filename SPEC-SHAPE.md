@@ -75,9 +75,9 @@ Restate each `done_means` entry as the check a person would run.
 | `id` | string | yes | `app-<slug>`, matches the filename |
 | `name` | string | yes | 1–40 chars |
 | `tier` | int 1–3 | yes | 1 = small utility, 3 = large |
-| `category` | string | yes | from `catalog/categories.json` |
+| `category` | string | yes | from `catalogue/categories.json` |
 | `pitch` | string | yes | one sentence, ≤ 140 chars |
-| `features` | string[] | yes | every entry must exist in `catalog/features.json`; no duplicates |
+| `features` | string[] | yes | every entry must exist in `catalogue/capabilities.json`; no duplicates |
 | `entities` | object[] | yes | at least one; names unique |
 | `entities[].fields` | object[] | yes | at least one; `name` unique per entity |
 | `fields[].type` | enum | yes | `text`, `longtext`, `number`, `date`, `bool`, `select`, `tags` |

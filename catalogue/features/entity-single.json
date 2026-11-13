@@ -1,0 +1,13 @@
+{
+  "id": "entity-single",
+  "family": "F1",
+  "name": "single",
+  "spec_keys": [
+    "entities[]"
+  ],
+  "emitter_hook": "templates/app/index.html::render",
+  "verify_check": "layout: exactly one file",
+  "docs_anchor": "docs/SPEC-REFERENCE.md#entities-and-fields",
+  "status": "emitted",
+  "note": "the runtime renders one entity"
+}

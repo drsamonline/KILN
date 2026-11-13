@@ -17,10 +17,12 @@ from pathlib import Path
 from . import catalog as cat
 from . import compose, emit, spec as specmod
 
-REQUIRED_FILES = [
-    "index.html", "app.json", "README.md", "LICENSE", "CHANGELOG.md",
-    "tests/smoke.py", ".github/workflows/build-apps.yml",
-]
+ROOT = Path(__file__).resolve().parent.parent
+
+# §1.3: the output is one file. The rest is optional furniture, emitted with --with-docs.
+REQUIRED_FILES = ["index.html"]
+DOCS_FILES = ["app.json", "README.md", "LICENSE", "CHANGELOG.md",
+              "tests/smoke.py", ".github/workflows/build-apps.yml"]
 # The app may link out from About; it may never load anything from anywhere.
 EXTERNAL = ['src="http', "src='http", "url(http", "@import", "fetch(", "XMLHttpRequest",
             "<script src", 'rel="stylesheet" href="http', "import(", "//cdn"]
@@ -75,6 +77,30 @@ def check_wiring(model, html, res=None) -> Result:
     return res
 
 
+def check_pattern(spec, catalog, res=None) -> Result:
+    """A spec that names a pattern must satisfy what that pattern promises."""
+    res = res or Result()
+    pid = spec.get("pattern")
+    if not pid:
+        return res
+    pats = cat.patterns()
+    if pid not in pats:
+        res.add("L2", f"pattern {pid} exists", False, "catalogue/patterns/")
+        return res
+    pat = pats[pid]
+    res.add("L2", f"pattern {pid} is emitted", pat.get("status") == "emitted")
+    missing = [f for f in pat.get("requires_capabilities", []) if f not in spec["features"]]
+    res.add("L2", f"pattern {pid}: required features present", not missing, ", ".join(missing))
+    types = {f["type"] for e in spec["entities"] for f in e["fields"]}
+    need = [t for t in pat.get("requires_fields", []) if t not in types]
+    res.add("L2", f"pattern {pid}: required field types present", not need, ", ".join(need))
+    sample = ROOT / pat.get("sample", "")
+    res.add("L2", f"pattern {pid}: the sample spec exists", sample.exists(), str(pat.get("sample")))
+    shot = ROOT / pat.get("screenshot", "")
+    res.add("L2", f"pattern {pid}: the screenshot exists", shot.exists(), str(pat.get("screenshot")))
+    return res
+
+
 def check_app(d, catalog, res=None, run_smoke=True) -> Result:
     d = Path(d)
     res = res or Result()
@@ -85,6 +111,16 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
                 "missing or empty" if not p.exists() else "")
     if not (d / "index.html").exists():
         return res
+
+    files = sorted(str(p.relative_to(d)) for p in d.rglob("*") if p.is_file())
+    if (d / "app.json").exists():
+        for f in DOCS_FILES:
+            p = d / f
+            res.add("L3", f"docs file {f}", p.exists() and p.stat().st_size > 0)
+        res.add("L3", "layout: single file plus docs", True, f"{len(files)} files")
+    else:
+        res.add("L3", "layout: exactly one file", files == ["index.html"],
+                ", ".join(files))
 
     html = (d / "index.html").read_text(encoding="utf-8")
 
@@ -99,12 +135,12 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
             man = json.loads((d / "app.json").read_text(encoding="utf-8"))
         except json.JSONDecodeError:
             man = None
-    res.add("L3", "app.json parses", man is not None)
-    if man:
-        res.add("L3", "manifest and model agree", man["id"] == model["id"],
-                f"{man.get('id')} vs {model.get('id')}")
-        res.add("L3", "manifest features match model",
-                man["features"] == model["features"])
+        res.add("L3", "app.json parses", man is not None)
+        if man:
+            res.add("L3", "manifest and model agree", man["id"] == model["id"],
+                    f"{man.get('id')} vs {model.get('id')}")
+            res.add("L3", "manifest features match model",
+                    man["features"] == model["features"])
 
     unknown = [f for f in model["features"] if f not in catalog["features"]]
     res.add("L2", "every feature is in the catalog", not unknown, ", ".join(unknown))
@@ -170,11 +206,14 @@ def check_app(d, catalog, res=None, run_smoke=True) -> Result:
     return res
 
 
-def build_and_check(spec_path, catalog, outdir, tier="personal", licensee="") -> Result:
+def build_and_check(spec_path, catalog, outdir, tier="personal", licensee="",
+                    with_docs=False) -> Result:
     s = specmod.load(spec_path, catalog)
-    plan = compose.plan(s, catalog, tier=tier, licensee=licensee)
+    plan = compose.plan(s, catalog, tier=tier, licensee=licensee, with_docs=with_docs)
     emit.write(plan, outdir)
-    return check_app(outdir, catalog)
+    res = check_pattern(s, catalog)
+    check_app(outdir, catalog, res=res)
+    return res
 
 
 def read_at(sha, path, repo="."):

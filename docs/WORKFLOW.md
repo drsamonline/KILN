@@ -76,7 +76,7 @@ A completion with no command and no output is not a completion.
 
 | Order | Step |
 |---|---|
-| 1 | Add the entry to `catalog/features.json` — aliases, requires, kit, assertion |
+| 1 | Add the entry to `catalogue/capabilities.json` — aliases, requires, kit, assertion |
 | 2 | Add the row to the table in `PROMPT.md` |
 | 3 | Gate the behaviour in `templates/app/index.html` on `F.has("<id>")` |
 | 4 | Add the assertion to `templates/app/smoke.py` if it is new behaviour |

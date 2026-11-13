@@ -62,6 +62,8 @@ The file name must be `<id>.md`.
 | `entities` | object[] | yes | at least one |
 | `storage` | object | yes | `{"kind": "localstorage", "namespace": "<slug>"}` |
 | `accent` | string | no | `#rrggbb`; default `#7c9cff` |
+| `pattern` | string | no | an archetype from `catalogue/patterns/`; verification then checks conformance |
+| `currency` | string | no | a short symbol shown before money; default `₹` |
 | `done_means` | string[] | yes | at least one, each must pass the lint below |
 | `not` | string[] | yes | at least one thing the app refuses to do |
 
@@ -97,6 +99,7 @@ The **first field is the row title** in the list. Keep it `text`.
 | `bool` | checkbox | boolean |
 | `select` | dropdown from `options` | string |
 | `tags` | comma-separated input | array of strings |
+| `currency_cents` | amount input, step 0.01 | **integer cents**; formatted at view time only |
 
 ---
 
@@ -150,6 +153,13 @@ Stems are matched, so "reloading" passes and "as expected" does not.
 `kiln adopt` generates any section that is missing. `kiln new` writes all of them.
 
 ---
+
+## Output layout
+
+| Mode | Files | When |
+|---|---|---|
+| default | `index.html` only | always — the output is one file |
+| `--with-docs` | plus `README.md`, `app.json`, `CHANGELOG.md`, `LICENSE`, a workflow, `tests/smoke.py` | when you want the furniture |
 
 ## Checking a spec
 

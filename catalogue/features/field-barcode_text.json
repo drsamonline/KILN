@@ -1,0 +1,14 @@
+{
+  "id": "field-barcode_text",
+  "family": "F2",
+  "name": "barcode_text",
+  "runtime_type": null,
+  "spec_keys": [
+    "entities[].fields[].type"
+  ],
+  "emitter_hook": null,
+  "verify_check": null,
+  "docs_anchor": "docs/SPEC-REFERENCE.md#field-types",
+  "status": "planned",
+  "note": "a code as text"
+}

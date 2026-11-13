@@ -73,7 +73,7 @@ Status date: 2026-11-13. Owner: Dr Sohil Momin. Builder: Kiln build session.
 | Compiles an app from a spec | `kiln build` output tree in CI artifact |
 | App works offline | No `http://`, `https://`, `cdn` or `fetch(` in emitted `index.html` — asserted by `verify` |
 | No model needed | every command except copying the prompt by hand runs with no key and no network |
-| Nothing else installed | `kiln doctor` lists no required package; `catalog/kits.json` names no repository |
+| Nothing else installed | `kiln doctor` lists no required package; `catalogue/kits.json` names no repository |
 | Works on a phone | `studio.html` opens from local storage and downloads a working app |
 | Every Forge defect has a guard | `AUDIT-FORGE.md` row ↔ code symbol, checked by `kiln audit` |
 | Tests exist and pass | `tests/` green on 3.9–3.12 |

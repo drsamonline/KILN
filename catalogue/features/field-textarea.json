@@ -1,0 +1,14 @@
+{
+  "id": "field-textarea",
+  "family": "F2",
+  "name": "textarea",
+  "runtime_type": "longtext",
+  "spec_keys": [
+    "entities[].fields[].type"
+  ],
+  "emitter_hook": "templates/app/index.html::fieldInput",
+  "verify_check": "field <entity>.<field> is wired",
+  "docs_anchor": "docs/SPEC-REFERENCE.md#field-types",
+  "status": "emitted",
+  "note": "multi-line text"
+}

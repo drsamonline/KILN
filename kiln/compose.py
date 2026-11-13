@@ -24,7 +24,7 @@ def canonical(model) -> str:
     return json.dumps(model, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
-def plan(spec, catalog, tier="personal", licensee="") -> list[dict]:
+def plan(spec, catalog, tier="personal", licensee="", with_docs=False) -> list[dict]:
     """The full file plan. Deterministic: same spec and tier, same plan, byte for byte."""
     features = cat.expand(spec["features"], catalog)
     if tier == "demo":
@@ -42,6 +42,7 @@ def plan(spec, catalog, tier="personal", licensee="") -> list[dict]:
         "namespace": spec["storage"]["namespace"],
         "version": 1,
         "accent": spec.get("accent", "#7c9cff"),
+        "currency": spec.get("currency", "\u20b9"),
         "features": features,
         "entities": spec["entities"],
         "assertions": [catalog["features"][f]["assertion"] for f in features],
@@ -88,8 +89,11 @@ def plan(spec, catalog, tier="personal", licensee="") -> list[dict]:
         "MODEL_CANON": json.dumps(canon).replace("</", "<\\/"),
     }
 
-    return [
-        {"path": "index.html", "template": "index.html", "ctx": ctx},
+    app = [{"path": "index.html", "template": "index.html", "ctx": ctx}]
+    if not with_docs:
+        # §1.3: the output is one file. Everything else is optional furniture.
+        return app
+    return app + [
         {"path": "README.md", "template": "README.md", "ctx": ctx},
         {"path": "app.json", "inline": json.dumps(model, indent=2) + "\n", "ctx": ctx},
         {"path": "CHANGELOG.md", "template": "CHANGELOG.md", "ctx": ctx},

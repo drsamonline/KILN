@@ -8,7 +8,7 @@
 - [ ] `python3 -m kiln verify --all` passes
 - [ ] `python3 -m kiln audit` passes
 - [ ] `python3 -m kiln studio && python3 -m kiln demo` produces no unintended diff
-- [ ] if a feature was added: `catalog/features.json`, `PROMPT.md`, the runtime gate, the
+- [ ] if a feature was added: `catalogue/capabilities.json`, `PROMPT.md`, the runtime gate, the
       assertion and a test are all in this pull request
 - [ ] no new dependency
 

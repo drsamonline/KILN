@@ -26,7 +26,7 @@ The catalogue is the design space. Adding to it means touching five places, in t
 
 | # | File | Change |
 |---|---|---|
-| 1 | `catalog/features.json` | the entry: id, label, aliases, requires, kit, assertion |
+| 1 | `catalogue/capabilities.json` | the entry: id, label, aliases, requires, kit, assertion |
 | 2 | `PROMPT.md` | the row in the catalogue table — a guard fails without it |
 | 3 | `templates/app/index.html` | gate the behaviour on `F.has("<id>")` |
 | 4 | `templates/app/smoke.py` | the assertion, if it is new behaviour |

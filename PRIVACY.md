@@ -18,7 +18,7 @@ no cookies and no network code. Everything it does happens on the machine you ru
 | Does it send anything anywhere? | No. There is no HTTP client in the compiler, and no `fetch` in the pages |
 | Does it phone home on first run? | No |
 | Does it create an account or identifier? | No |
-| Does it read files outside the folder you run it in? | No. It reads `specs/`, `catalog/`, `templates/` and writes where you tell it |
+| Does it read files outside the folder you run it in? | No. It reads `specs/`, `catalogue/`, `templates/` and writes where you tell it |
 | Does it log what you do? | Only to `RUNS.jsonl` in the repository, on your own disk, and only build results |
 | Does the prompt bridge call a model? | No. It prints text. You paste it wherever you choose |
 

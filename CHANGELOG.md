@@ -4,6 +4,22 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v0.8 — 2026-11-13
+
+Phase A of the master prompt: determinism, one file, integer money, and the first archetype.
+
+| Area | Change |
+|---|---|
+| §1.1 determinism | no build date, no `Date.now`, no `Math.random`, no uuid in emitted code; ids come from the data. Two builds are byte-identical, and a test says so |
+| §1.3 single file | `kiln build` emits **one** `index.html`; the docs and smoke test move behind `--with-docs` |
+| §1.6 money | new field type `currency_cents`: stored as integer cents, formatted only at view time |
+| §1.5 evidence | `kiln verify --json` prints a machine-readable report |
+| A2 registry | `catalogue/features/` — 41 entries across F1 (entity) and F2 (field), each with spec keys, emitter hook, verify check, docs anchor and status |
+| A3 archetype | `crud-list`: descriptor, sample spec, screenshot, verify conformance, pros/cons block |
+| Layout | `catalog/` renamed `catalogue/`; `features.json` renamed `capabilities.json` |
+| Guards | `C14` registry, `C15` pattern integrity |
+| Counts | 112 tests, 123 guards |
+
 ## v0.7 — 2026-11-13
 
 Golden builds, a key ledger, and a studio that can open a spec.

@@ -1,7 +1,7 @@
 """Deterministic intent parsing. No model, no network, no key.
 
 Three signals, combined and reported separately so a wrong guess is debuggable:
-  1. alias match   - an exact phrase from catalog/features.json appears in the text
+  1. alias match   - an exact phrase from catalogue/capabilities.json appears in the text
   2. tf-idf cosine - token overlap against the feature's own description
   3. slot fill     - nouns and adjectives that become entities and fields
 """

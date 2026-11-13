@@ -116,7 +116,7 @@ is the backup.
 | see every key issued from this machine | `python3 -m kiln licence list` |
 
 Owner-only, once per machine: `python3 -m kiln licence keygen` writes the private key to
-`~/.kiln/private.key` and pins the public half in `catalog/licence-key.json`. Then
+`~/.kiln/private.key` and pins the public half in `catalogue/licence-key.json`. Then
 `kiln licence issue --to "Name" --tier commercial --days 365` prints the key to send.
 Two editions only: Personal (free, sponsor block in the app) and Commercial (paid, no
 sponsor block). Full table: [`LICENSING.md`](LICENSING.md).
@@ -140,7 +140,7 @@ sponsor block). Full table: [`LICENSING.md`](LICENSING.md).
 
 | Limit | Reality |
 |---|---|
-| 14 features | a feature not in `catalog/features.json` cannot be used. Fork it if you need more |
+| 14 features | a feature not in `catalogue/capabilities.json` cannot be used. Fork it if you need more |
 | one entity per spec | the runtime renders one list. Multi-entity apps are not supported yet |
 | `localStorage` only | no SQLite, no files, no sync |
 | a few thousand rows | linear search is fine up to that; beyond it, export and start a new file |

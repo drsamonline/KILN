@@ -1,0 +1,13 @@
+{
+  "id": "entity-order",
+  "family": "F1",
+  "name": "order",
+  "spec_keys": [
+    "entities[]"
+  ],
+  "emitter_hook": null,
+  "verify_check": null,
+  "docs_anchor": "docs/SPEC-REFERENCE.md#entities-and-fields",
+  "status": "planned",
+  "note": "sort is by field only"
+}

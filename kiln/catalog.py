@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-CATALOG_DIR = ROOT / "catalog"
+CATALOG_DIR = ROOT / "catalogue"
 
 
 class CatalogError(Exception):
@@ -19,7 +19,7 @@ def _read(name):
 
 
 def load() -> dict:
-    feats = _read("features.json")["features"]
+    feats = _read("capabilities.json")["features"]
     kits = _read("kits.json")["kits"]
     cats = _read("categories.json")
     problems = []
@@ -76,6 +76,66 @@ def resolve_kits(features, catalog) -> dict:
             raise CatalogError([f"feature '{f}' names unknown kit '{kit}'"])
         out.setdefault(kit, []).append(f)
     return out
+
+
+REGISTRY_DIR = CATALOG_DIR / "features"
+FAMILIES = {
+    "F1": "entity", "F2": "field", "F3": "validate", "F4": "view", "F5": "table",
+    "F6": "form", "F7": "dashboard", "F8": "nav", "F9": "data-ops", "F10": "schedule",
+    "F11": "users", "F12": "feedback", "F13": "settings", "F14": "a11y-i18n",
+    "F15": "help-integrity",
+}
+REQUIRED_KEYS = ["id", "family", "name", "spec_keys", "emitter_hook",
+                 "verify_check", "docs_anchor", "status"]
+
+
+def registry() -> dict:
+    """catalogue/features/<id>.json, loaded. A broken entry raises, never skips."""
+    out, problems = {}, []
+    if not REGISTRY_DIR.exists():
+        return {}
+    for f in sorted(REGISTRY_DIR.glob("*.json")):
+        try:
+            e = json.loads(f.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            problems.append(f"{f.name}: not JSON ({exc})")
+            continue
+        missing = [k for k in REQUIRED_KEYS if k not in e]
+        if missing:
+            problems.append(f"{f.name}: missing {', '.join(missing)}")
+            continue
+        if e["id"] != f.stem:
+            problems.append(f"{f.name}: id '{e['id']}' does not match the filename")
+        if e["family"] not in FAMILIES:
+            problems.append(f"{f.name}: unknown family '{e['family']}'")
+        if e["status"] not in ("emitted", "planned"):
+            problems.append(f"{f.name}: status must be emitted or planned")
+        out[e["id"]] = e
+    if problems:
+        raise CatalogError(problems)
+    return out
+
+
+PATTERN_DIR = CATALOG_DIR / "patterns"
+
+
+def patterns() -> dict:
+    """catalogue/patterns/<id>.json — an archetype, with the checks it implies."""
+    out = {}
+    if not PATTERN_DIR.exists():
+        return out
+    for f in sorted(PATTERN_DIR.glob("*.json")):
+        e = json.loads(f.read_text(encoding="utf-8"))
+        if e.get("id") != f.stem:
+            raise CatalogError([f"{f.name}: id does not match the filename"])
+        out[e["id"]] = e
+    return out
+
+
+def emitted_types(reg) -> set:
+    """Runtime field types that a registry entry claims, and that exist."""
+    return {e["runtime_type"] for e in reg.values()
+            if e["family"] == "F2" and e["status"] == "emitted" and e.get("runtime_type")}
 
 
 def coverage(catalog) -> list[tuple[str, str, str]]:

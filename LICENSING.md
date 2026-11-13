@@ -50,7 +50,7 @@ Buys one thing: the author block disappears and the credit shrinks to a single l
 
 | Step | Who | Command |
 |---|---|---|
-| 1 | owner, once per machine | `kiln licence keygen` — private key to `~/.kiln/private.key` (chmod 600), public half pinned in `catalog/licence-key.json` |
+| 1 | owner, once per machine | `kiln licence keygen` — private key to `~/.kiln/private.key` (chmod 600), public half pinned in `catalogue/licence-key.json` |
 | 2 | owner, per customer | `kiln licence issue --to "Acme Clinic Pvt Ltd" --tier commercial --days 365` |
 | 3 | customer | `kiln licence activate KILN1.…` |
 | 4 | customer | `kiln build specs/app-x.md` — the edition comes from the licence |

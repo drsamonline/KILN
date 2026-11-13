@@ -22,7 +22,7 @@ from pathlib import Path
 from . import ed25519
 
 ROOT = Path(__file__).resolve().parent.parent
-PIN = ROOT / "catalog" / "licence-key.json"
+PIN = ROOT / "catalogue" / "licence-key.json"
 HOME = Path(os.environ.get("KILN_HOME", Path.home() / ".kiln"))
 STORE = HOME / "licence.json"
 PRIVATE = HOME / "private.key"
@@ -165,7 +165,7 @@ def decode(key: str) -> dict:
     pub = pinned()
     if not pub:
         raise LicenceError([
-            "no public key is pinned in catalog/licence-key.json",
+            "no public key is pinned in catalogue/licence-key.json",
             "the owner must run: kiln licence keygen",
         ])
     try:

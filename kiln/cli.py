@@ -42,12 +42,13 @@ def _write_spec(s, catalog, dest) -> Path:
     return dest
 
 
-def _build(spec_path, catalog, out_root, quiet=False, tier=None):
+def _build(spec_path, catalog, out_root, quiet=False, tier=None, with_docs=False):
     s = specmod.load(spec_path, catalog)
     tier, licensee, source = lic.resolve(tier)
     if not quiet:
-        print(f"  tier {tier} ({source})" + (f" for {licensee}" if licensee else ""))
-    plan = compose.plan(s, catalog, tier=tier, licensee=licensee)
+        print(f"  edition {tier} ({source})" + (f" for {licensee}" if licensee else ""))
+        print(f"  layout  {'index.html plus docs' if with_docs else 'one file (index.html)'}")
+    plan = compose.plan(s, catalog, tier=tier, licensee=licensee, with_docs=with_docs)
     out = Path(out_root) / s["id"]
     written = emit.write(plan, out)
     if not quiet:
@@ -84,6 +85,18 @@ def cmd_intake(args, catalog) -> int:
 
 def cmd_new(args, catalog) -> int:
     s = intent.to_spec(args.text, catalog, spec_id=args.id)
+    pattern = getattr(args, "pattern", None)
+    if pattern:
+        pats = cat.patterns()
+        if pattern not in pats:
+            return _fail(cat.CatalogError([f"unknown pattern '{pattern}'; "
+                                           f"have: {', '.join(sorted(pats)) or 'none'}"]))
+        defaults = pats[pattern].get("spec_defaults", {})
+        s["pattern"] = pattern
+        for k in ("features", "tier"):
+            if k in defaults:
+                s[k] = defaults[k]
+        s["tier"] = defaults.get("tier", s.get("tier", 1))
     reasons = s.pop("_intent", {}).get("reasons", [])
     dest = Path(args.out or ROOT / "specs") / f"{s['id']}.md"
     _write_spec(s, catalog, dest)
@@ -109,16 +122,18 @@ def cmd_compose(args, catalog) -> int:
 def cmd_build(args, catalog) -> int:
     if args.all:
         bad = 0
-        for f in sorted((ROOT / "specs").glob("app-*.md")):
+        for f in specmod.spec_paths(ROOT):
             s, out, ok = _build(f, catalog, args.out or ROOT / "out", quiet=True,
-                                tier=getattr(args, "tier", None))
+                                tier=getattr(args, "tier", None),
+                                with_docs=getattr(args, "with_docs", False))
             print(f"{'ok  ' if ok else 'FAIL'} {f.name:<24} {out}")
             bad += (not ok)
-        print(f"\n{len(list((ROOT / 'specs').glob('app-*.md')))} apps, {bad} failing")
+        print(f"\n{len(specmod.spec_paths(ROOT))} apps, {bad} failing")
         return 1 if bad else 0
 
     s, out, ok = _build(args.spec, catalog, args.out or ROOT / "out",
-                        quiet=args.quiet, tier=getattr(args, "tier", None))
+                        quiet=args.quiet, tier=getattr(args, "tier", None),
+                        with_docs=getattr(args, "with_docs", False))
     if ok and not args.no_verify:
         verify.record({"cmd": "build", "spec": s["id"], "out": str(out), "result": "ok"})
     return 0 if ok else 1
@@ -127,7 +142,7 @@ def cmd_build(args, catalog) -> int:
 def cmd_verify(args, catalog) -> int:
     if args.all:
         bad = 0
-        for f in sorted((ROOT / "specs").glob("app-*.md")):
+        for f in specmod.spec_paths(ROOT):
             with tempfile.TemporaryDirectory() as td:
                 res = verify.build_and_check(f, catalog, td)
                 fails = res.failed
@@ -136,12 +151,26 @@ def cmd_verify(args, catalog) -> int:
                 for r in fails:
                     print(f"     - {r['level']} {r['name']} {r['detail']}")
                 bad += bool(fails)
-        print(f"\n{len(list((ROOT / 'specs').glob('app-*.md')))} specs, {bad} failing")
+        print(f"\n{len(specmod.spec_paths(ROOT))} specs, {bad} failing")
         return 1 if bad else 0
     res = verify.check_app(args.dir, catalog)
     if getattr(args, "golden", False) or getattr(args, "update_golden", False):
         g = verify.golden(args.dir, update=getattr(args, "update_golden", False))
         res.rows.extend(g.rows)
+    if getattr(args, "json", False):
+        report = {
+            "app": str(args.dir),
+            "ok": not res.failed,
+            "counts": {
+                "checks": len(res.rows),
+                "passed": sum(1 for r in res.rows if r["ok"] and not r["skip"]),
+                "failed": len(res.failed),
+                "skipped": sum(1 for r in res.rows if r["skip"]),
+            },
+            "checks": res.rows,
+        }
+        print(json.dumps(report, indent=2))
+        return 1 if res.failed else 0
     res.print(verbose=True)
     if res.failed:
         print(f"\n{len(res.failed)} of {len(res.rows)} checks failed")
@@ -317,6 +346,18 @@ def cmd_licence(args, catalog) -> int:
 
 
 def cmd_catalog(args, catalog) -> int:
+    if getattr(args, "registry", False):
+        reg = cat.registry()
+        want = args.family
+        rows = [e for e in reg.values() if not want or e["family"] == want]
+        print(f"{'id':<26} {'family':<7} {'status':<9} note")
+        for e in sorted(rows, key=lambda x: (x["family"], x["id"])):
+            print(f"{e['id']:<26} {e['family']:<7} {e['status']:<9} {e.get('note','')}")
+        print(f"\n{len(rows)} entries; "
+              f"{sum(1 for e in rows if e['status']=='emitted')} emitted, "
+              f"{sum(1 for e in rows if e['status']=='planned')} planned")
+        return 0
+
     if args.feature:
         f = catalog["features"].get(args.feature)
         if not f:
@@ -385,6 +426,7 @@ def main(argv=None) -> int:
     p = sub.add_parser("new", help="phrase -> spec file")
     p.add_argument("text")
     p.add_argument("--id")
+    p.add_argument("--pattern", help="an archetype from catalogue/patterns/")
     p.add_argument("--out")
     p.set_defaults(fn=cmd_new)
 
@@ -415,7 +457,9 @@ def main(argv=None) -> int:
     p.add_argument("--no-verify", action="store_true")
     p.add_argument("--quiet", action="store_true")
     p.add_argument("--tier", choices=["personal", "commercial"],
-                   help="what the build carries; paid tiers need a licence")
+                   help="what the build carries; paid editions need a licence")
+    p.add_argument("--with-docs", action="store_true",
+                   help="also emit README, app.json, CHANGELOG, LICENSE, workflow, smoke test")
     p.set_defaults(fn=cmd_build)
 
     p = sub.add_parser("pipeline", help="idea -> spec -> app -> verify -> zip")
@@ -431,6 +475,7 @@ def main(argv=None) -> int:
     p.add_argument("--all", action="store_true")
     p.add_argument("--golden", action="store_true", help="compare with the accepted build")
     p.add_argument("--update-golden", action="store_true", help="accept this build as the baseline")
+    p.add_argument("--json", action="store_true", help="evidence report, machine-readable")
     p.set_defaults(fn=cmd_verify)
 
     p = sub.add_parser("demo", help="build demo.html, a real app inlined in a page")
@@ -454,8 +499,10 @@ def main(argv=None) -> int:
     p.add_argument("--no-pin", action="store_true", help="do not write the public key")
     p.set_defaults(fn=cmd_licence)
 
-    p = sub.add_parser("catalog", help="features and kits")
+    p = sub.add_parser("catalogue", aliases=["catalog"], help="capabilities, kits, registry")
     p.add_argument("--feature")
+    p.add_argument("--registry", action="store_true", help="the F1-F15 feature registry")
+    p.add_argument("--family", help="filter the registry, e.g. F2")
     p.set_defaults(fn=cmd_catalog)
 
     p = sub.add_parser("audit", help="run the Forge-defect guards")

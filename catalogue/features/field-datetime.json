@@ -1,0 +1,14 @@
+{
+  "id": "field-datetime",
+  "family": "F2",
+  "name": "datetime",
+  "runtime_type": null,
+  "spec_keys": [
+    "entities[].fields[].type"
+  ],
+  "emitter_hook": null,
+  "verify_check": null,
+  "docs_anchor": "docs/SPEC-REFERENCE.md#field-types",
+  "status": "planned",
+  "note": "date and time"
+}

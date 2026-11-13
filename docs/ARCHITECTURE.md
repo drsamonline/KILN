@@ -42,7 +42,7 @@ The LLM, when present, sits **beside** `intake` and may write only into `specs/`
 | Layer | Files | Rule |
 |---|---|---|
 | Contract | `SPEC-SHAPE.md`, `schema/spec.schema.json` | One shape. A second shape is an error |
-| Catalog | `catalog/*.json` | A feature without an emitter and an assertion cannot exist |
+| Catalogue | `catalogue/*.json` | A feature without an emitter and an assertion cannot exist |
 | Compiler | `kiln/*.py` | No I/O except read spec, write files |
 | Runtime | `templates/app/index.html` | One file. No external reference. Handles all four failure paths |
 | Proof | `templates/app/smoke.py`, `kiln/verify.py` | Behaviour, not size |
@@ -68,7 +68,7 @@ The LLM, when present, sits **beside** `intake` and may write only into `specs/`
 
 | To add | Touch |
 |---|---|
-| A feature | `catalog/features.json` + a gate in the runtime + an assertion |
+| A feature | `catalogue/capabilities.json` + a gate in the runtime + an assertion |
 | A field type | `FIELD_TYPES` in `spec.py`, `fieldInput` and `readForm` in the runtime |
 | An output format (EXE, APK) | a new entry in `compose.plan`, never a change to `emit` |
 | A new stack | a second template directory; `compose` picks by `spec["target"]` when that key lands |
