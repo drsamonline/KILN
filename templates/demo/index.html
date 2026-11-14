@@ -22,6 +22,11 @@
   header a:hover{color:var(--ink)}
   main{max-width:1240px;margin:0 auto;padding:18px;display:grid;
     grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:18px;align-items:start}
+  /* a grid child defaults to min-width:auto, so an unbreakable line of JSON inside
+     the spec panel made the whole page 636 px wide on a 375 px phone */
+  main>*{min-width:0}
+  pre{max-width:100%}
+  iframe{max-width:100%}
   @media (max-width:960px){main{grid-template-columns:1fr}}
   h1{font-size:21px;margin:0 0 4px}
   .sub{color:var(--muted);font-size:13px;margin:0 0 14px}
@@ -36,6 +41,27 @@
   .dot{width:10px;height:10px;border-radius:50%;background:#2b3240}
   .bar span{margin-left:8px;color:var(--muted);font-size:11px;font-family:ui-monospace,monospace}
   iframe{display:block;width:100%;height:620px;border:0;background:#0f1116}
+  .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:18px 0 10px}
+  .search{position:relative;flex:1 1 260px;display:block}
+  .search input{width:100%;padding:10px 34px 10px 12px;border-radius:10px;
+    border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:14px}
+  .search input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .search kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    font:11px ui-monospace,Menlo,monospace;color:var(--muted);
+    border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);background:var(--panel);color:var(--muted);
+    border-radius:999px;padding:6px 12px;font-size:12px;cursor:pointer}
+  .chip[aria-pressed="true"]{border-color:var(--accent);color:var(--ink);background:var(--panel2)}
+  .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .hint{color:var(--muted);font-size:13px}
+  .empty{color:var(--muted);font-size:13px;margin:10px 0}
+  .link{background:none;border:0;color:var(--accent);cursor:pointer;font-size:13px;
+    padding:0;text-decoration:underline}
+  .app[hidden]{display:none}
+  .app .row{align-items:center}
+  .why{display:block;margin-top:8px;color:var(--muted);font-size:12px;line-height:1.4}
   .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
   .app{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
     padding:13px;display:flex;flex-direction:column;gap:8px}
@@ -92,6 +118,19 @@
       Export, import, filters, printing and reminders are switched off, and the app says so in a
       banner. Run <code>kiln build</code> locally for the full feature set.</p>
 
+    <div class="toolbar">
+      <label class="search">
+        <span class="vh">Search the specs</span>
+        <input id="q" type="search" autocomplete="off" spellcheck="false"
+               placeholder="Search {{TOTAL}} specs: name, pitch, capability">
+        <kbd>/</kbd>
+      </label>
+      <div class="chips" id="chips" role="group" aria-label="filter by category"></div>
+      <span class="hint" id="count" aria-live="polite"></span>
+    </div>
+    <div class="gallery" id="gallery"></div>
+    <p class="empty" id="noresults" hidden>Nothing matches that. <button class="link" id="clearq">Clear the search</button>.</p>
+
     <div class="frame">
       <div class="bar">
         <i class="dot"></i><i class="dot"></i><i class="dot"></i>
@@ -101,9 +140,8 @@
               srcdoc="{{FIRST_HTML}}"></iframe>
     </div>
 
-    <h2 style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:18px 0 8px">
-      All specs</h2>
     <div class="gallery" id="gallery"></div>
+    <p class="empty" id="noresults" hidden>Nothing matches that. <button class="link" id="clearq">Clear the search</button>.</p>
   </div>
 
   <aside>
@@ -139,6 +177,37 @@ const esc = (s) => String(s === null || s === undefined ? "" : s)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
   .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
+/* pure: which apps match a query and a category. Tested in node. */
+function matches(a, q, cat) {
+  if (cat && a.category !== cat) return false;
+  if (!q) return true;
+  const hay = (a.name + " " + a.pitch + " " + a.features.join(" ") + " " + a.category +
+               " " + a.id).toLowerCase();
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every((w) => hay.indexOf(w) >= 0);
+}
+
+function categories() {
+  const seen = [];
+  DATA.apps.forEach((a) => { if (seen.indexOf(a.category) < 0) seen.push(a.category); });
+  return seen.sort();
+}
+
+function applyFilter() {
+  const q = ($("#q").value || "").trim();
+  const cat = applyFilter.cat || "";
+  let shown = 0;
+  document.querySelectorAll(".app").forEach((card) => {
+    const a = DATA.apps.find((x) => x.id === card.dataset.id);
+    const ok = a && matches(a, q, cat);
+    card.hidden = !ok;
+    if (ok) shown += 1;
+  });
+  $("#count").textContent = shown === DATA.apps.length
+    ? DATA.apps.length + " specs"
+    : shown + " of " + DATA.apps.length;
+  $("#noresults").hidden = shown !== 0;
+}
+
 function draw() {
   const box = $("#gallery");
   box.innerHTML = "";
@@ -167,11 +236,11 @@ function draw() {
       btn.title = a.reason;
     }
     row.appendChild(btn);
+    let why = null;
     if (!a.runnable && a.reason) {
-      const why = document.createElement("span");
-      why.className = "feat";
+      why = document.createElement("span");
+      why.className = "why";
       why.textContent = a.reason;
-      row.appendChild(why);
     }
 
     const badge = document.createElement("span");
@@ -180,8 +249,36 @@ function draw() {
     row.appendChild(badge);
 
     card.appendChild(h); card.appendChild(p); card.appendChild(f); card.appendChild(row);
+    if (why) card.appendChild(why);
     box.appendChild(card);
   });
+  const chips = $("#chips");
+  chips.innerHTML = "";
+  const mk = (label, value) => {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = label;
+    b.setAttribute("aria-pressed", String((applyFilter.cat || "") === value));
+    b.onclick = () => {
+      applyFilter.cat = (applyFilter.cat || "") === value ? "" : value;
+      document.querySelectorAll(".chip").forEach((c) => {
+        c.setAttribute("aria-pressed", String(c.textContent === label &&
+          applyFilter.cat === value));
+      });
+      applyFilter();
+    };
+    return b;
+  };
+  chips.appendChild(mk("all", ""));
+  categories().forEach((c) => chips.appendChild(mk(c, c)));
+  $("#q").oninput = applyFilter;
+  $("#clearq").onclick = () => { $("#q").value = ""; applyFilter.cat = ""; draw(); applyFilter(); $("#q").focus(); };
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
+      e.preventDefault(); $("#q").focus();
+    }
+  });
+  applyFilter();
 }
 
 function select(id) {

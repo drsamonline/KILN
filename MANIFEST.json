@@ -25,7 +25,7 @@
     "kits": 5
   },
   "verification": {
-    "tests": 518,
+    "tests": 533,
     "guards": 454,
     "ci": ".github/workflows/kiln.yml"
   },
@@ -151,7 +151,9 @@
   "demo": {
     "lists": "every spec on disk",
     "runs_live": 4,
-    "policy": "all listed, a capped few run, the page says the ratio"
+    "policy": "all listed, a capped few run, the page says the ratio",
+    "search": "name, pitch, capability, category; all words must match",
+    "filters": "one chip per category, plus all"
   },
   "editions": {
     "personal": {

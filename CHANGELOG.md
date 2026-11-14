@@ -4,6 +4,20 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.9 — 2026-11-14
+
+The gallery became searchable, and the page stopped breaking on a phone.
+
+| Area | Change |
+|---|---|
+| Demo | a search box over name, pitch, capability and category. Every word must match, so "tea log" narrows and "tea quiz" empties |
+| Demo | one chip per category, with the count of what is shown: `7 of 33` |
+| Demo | an empty state that offers the way out, and `/` focuses the search from anywhere |
+| Fixed | the page was **636 px wide on a 375 px phone**: a grid child defaults to `min-width:auto`, so one long line of JSON in the spec panel stretched every column. `main>*{min-width:0}` fixed it, verified at 360, 375, 753 and 1265 px |
+| Fixed | three items were crammed into one row of a 260 px card. The reason now sits under the button |
+| Tests | 15: the filter in node, and the page's controls |
+| Counts | 533 tests, 454 guards |
+
 ## v1.0.8 — 2026-11-14
 
 A prose pass, and a guard so the tell cannot come back.
