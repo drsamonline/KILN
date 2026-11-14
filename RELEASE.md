@@ -1,6 +1,7 @@
 # Releases
 
-**No releases are published until the owner says so.**
+**Releases are published on the owner's instruction.** The first is `v1.0.14`, on
+2026-11-14.
 
 ---
 
@@ -10,12 +11,12 @@
 |---|---|
 | Who publishes | the owner, by hand |
 | What a release needs | the owner's explicit instruction, in writing |
-| What CI does | tests, verify, audit — and stops there |
-| What a tag means right now | nothing. There are no published releases |
+| What CI does | tests, verify, audit, status page, status feed — and stops there |
+| What a tag means | the tree that passed every gate, published under a version |
 
-The reason is simple: a release is a promise about a version, and this compiler is still
-changing fast enough that a version number would be a guess. The repository is the delivery
-mechanism until that changes.
+The policy was written when the compiler was changing daily and a version number would have
+been a guess. It has since settled: 24 archetypes, 50 capabilities, 33 specs and 566 tests,
+all green. The owner released `v1.0.14` on 2026-11-14.
 
 ---
 
@@ -26,8 +27,17 @@ mechanism until that changes.
 | Source | yes — clone the repository |
 | Generated apps | yes — `kiln build` |
 | The landing page and demo | yes — Pages, on `main` |
-| Tagged releases, zips, binaries | **no** |
+| Tagged releases, source zip | **yes — `v1.0.14`** |
+| Printable changelog | yes — attached to the release, and at `docs/changelog.html` |
 | EXE / APK builds | not wired |
+
+---
+
+## Published releases
+
+| Version | Date | Commit | What it was |
+|---|---|---|---|
+| v1.0.14 | 2026-11-14 | first release | the 24-archetype catalogue complete, the handover written, every gate green |
 
 ---
 
