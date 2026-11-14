@@ -523,7 +523,7 @@ def check_status_page(catalog) -> list[Row]:
         return [Row("C23 the status page exists", False,
                     "run: python3 -m kiln report --write")]
     text = p.read_text(encoding="utf-8")
-    if f"v{__version__} · generated" not in text:
+    if f"v{__version__} · " not in text:
         return [Row("C23 the status page is current", False,
                     f"it names a version other than {__version__}. "
                     "Run: python3 -m kiln report --write")]

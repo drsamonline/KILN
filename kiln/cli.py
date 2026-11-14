@@ -253,7 +253,7 @@ def cmd_report(args, catalog) -> int:
         reportmod.TARGET.write_text(html, encoding="utf-8")
         print(f"wrote {reportmod.TARGET}")
     g = reportmod.gather(catalog, run_verify=False)
-    print(f"  version   {g['version']}  commit {g['commit']}  {g['date']}")
+    print(f"  version   {g['version']}  {g['date']}")
     print(f"  guards    {g['guards_total'] - g['guards_failed'] - g['guards_skipped']} "
           f"of {g['guards_total']} pass, {g['guards_skipped']} skipped")
     for f in g["failures"]:

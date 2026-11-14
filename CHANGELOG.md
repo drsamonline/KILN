@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.11 — 2026-11-14
+
+The status page is rebuilt by CI, and it can finally match its own tree.
+
+| Area | Change |
+|---|---|
+| CI | a **status page** job: regenerate, `git diff --exit-code docs/status.html`, run the gates, upload the page as an artefact |
+| CI | `fetch-depth: 0` in that job, because a shallow clone cannot see the history the page used to state |
+| **Fixed** | the page stated the **commit count**, which changes on every commit, so the diff check could never pass. The page now carries **no commit hash and no commit count**, and its date is the version's own changelog date |
+| Guard | C23 checks the version string only |
+| Tests | 13 |
+| Counts | 546 tests, 455 guards |
+
 ## v1.0.10 — 2026-11-14
 
 One command runs every gate and writes one page.

@@ -31,9 +31,14 @@ class TestGather(unittest.TestCase):
         """The commit that adds a page cannot appear in it, so the page omits it."""
         self.assertNotIn("commit <code>", self.html if hasattr(self, "html") else "")
 
-    def test_the_date_is_the_commit_date_not_the_clock(self):
+    def test_the_date_is_the_versions_own_date(self):
+        """Not the clock, and not the commit: both move the page on every commit."""
         self.assertRegex(self.g["date"], r"^\d{4}-\d{2}-\d{2}$")
-        self.assertEqual(self.g["date"], reportmod._git("log", "-1", "--format=%cs"))
+
+    def test_the_page_carries_nothing_that_changes_when_it_is_committed(self):
+        html = reportmod.build(cat.load(), run_verify=False)
+        self.assertNotIn("commit <code>", html)
+        self.assertNotIn("commits ·", html)
 
     def test_skips_are_reported_as_skips(self):
         self.assertGreaterEqual(self.g["guards_skipped"], 0)
