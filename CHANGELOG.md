@@ -4,6 +4,16 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.14 — 2026-11-14
+
+The repository closes with a handover.
+
+| Area | Change |
+|---|---|
+| Added | [`HANDOVER.md`](HANDOVER.md): the measured state, the five things to know first, where everything lives, the bug classes and the guard that stops each, the rules learned the hard way, what is deliberately not done, and the next three things worth doing |
+| Guard | **C25** fails the audit if the handover goes missing, is not linked from the README, or names a version nobody is on |
+| Counts | 458 guards |
+
 ## v1.0.13 — 2026-11-14
 
 The status JSON is published, so a dashboard can read it without cloning anything.

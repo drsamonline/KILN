@@ -22,6 +22,7 @@ offline application: one HTML file. No model in the loop, no network, nothing to
 [Studio](studio.html) ·
 [User guide](USAGE.md) ·
 [All docs](docs/README.md) ·
+[Handover](HANDOVER.md) ·
 [Prompt](PROMPT.md)
 
 <img src="assets/screenshot-app.png" alt="A generated offline notes app: search, tags, export, all stored on the device" width="880">

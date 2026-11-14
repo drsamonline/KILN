@@ -8,6 +8,7 @@
 | [GUIDE-COOKBOOK.md](../GUIDE-COOKBOOK.md) | one recipe per archetype |
 | [GUIDE-PATTERNS.md](../GUIDE-PATTERNS.md) | choosing an archetype |
 | [GUIDE-CONTRIBUTE.md](../GUIDE-CONTRIBUTE.md) | the five touches for a capability |
+| [../HANDOVER.md](../HANDOVER.md) | start here if you are picking this up |
 | [status.html](status.html) | every gate, measured, on one page |
 | [status.json](https://raw.githubusercontent.com/drsamonline/KILN/status/status.json) | the same numbers, for a dashboard. Republished by CI on every push to main |
 | [changelog.html](changelog.html) | every version, print-ready |

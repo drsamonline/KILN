@@ -232,6 +232,22 @@ LEGAL = ["LICENSE", "NOTICE", "PRIVACY.md", "TERMS.md", "DISCLAIMER.md", "SECURI
 GUIDES = ["USAGE.md", "INSTALL.md", "CHANGELOG.md", "docs/SPEC-REFERENCE.md", "docs/FAQ.md"]
 
 
+def check_handover() -> list[Row]:
+    """A handover that nobody links to, or that names a version nobody is on, is dead weight."""
+    from . import __version__
+    p = ROOT / "HANDOVER.md"
+    if not p.exists():
+        return [Row("C25 the handover exists", False, "write HANDOVER.md")]
+    text = p.read_text(encoding="utf-8")
+    out = [Row("C25 the handover exists", True, f"{len(text.splitlines())} lines")]
+    out.append(Row("C25 the handover is linked from the README",
+                   "HANDOVER.md" in (ROOT / "README.md").read_text(encoding="utf-8")))
+    out.append(Row("C25 the handover names the current version",
+                   f"v{__version__}" in text,
+                   f"it should mention v{__version__}"))
+    return out
+
+
 def check_legal_set() -> list[Row]:
     rows = []
     for f in LEGAL:
@@ -824,6 +840,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_studio(catalog)
     rows += check_site(catalog)
     rows += check_legal_set()
+    rows += check_handover()
     rows += check_links()
     rows += check_support()
     rows += check_registry(catalog)
