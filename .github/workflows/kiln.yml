@@ -104,6 +104,41 @@ jobs:
           name: kiln-status
           path: docs/status.html
 
+  publish-status:
+    name: publish status json
+    runs-on: ubuntu-latest
+    needs: [test, audit]
+    # only from main, and only on a push: a pull request from a fork must never
+    # be able to write a branch here
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Measure
+        run: python3 -m kiln report --json > "$RUNNER_TEMP/status.json"
+      - name: Show it
+        run: cat "$RUNNER_TEMP/status.json"
+      # a plain orphan branch and a force-push: no third-party action, and the
+      # branch carries one file and no history to grow
+      - name: Publish to the status branch
+        run: |
+          set -e
+          git config user.name "kiln-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git checkout --orphan status-publish
+          git rm -rf . --quiet
+          cp "$RUNNER_TEMP/status.json" status.json
+          git add status.json
+          git commit --quiet -m "status: v$(python3 -c 'import kiln; print(kiln.__version__)')"
+          git push --force origin status-publish:status
+
   lint:
     name: shellcheck and syntax
     runs-on: ubuntu-latest

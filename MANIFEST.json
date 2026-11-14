@@ -25,7 +25,7 @@
     "kits": 5
   },
   "verification": {
-    "tests": 558,
+    "tests": 566,
     "guards": 455,
     "ci": ".github/workflows/kiln.yml"
   },
@@ -168,5 +168,6 @@
     },
     "flow": "keygen -> issue -> activate -> build",
     "pinned_key": "owner-generated: run `kiln licence keygen` once and commit catalogue/licence-key.json. Not shipped with the repo."
-  }
+  },
+  "status_feed": "https://raw.githubusercontent.com/drsamonline/KILN/status/status.json \u2014 republished by CI on every push to main"
 }

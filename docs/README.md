@@ -9,6 +9,7 @@
 | [GUIDE-PATTERNS.md](../GUIDE-PATTERNS.md) | choosing an archetype |
 | [GUIDE-CONTRIBUTE.md](../GUIDE-CONTRIBUTE.md) | the five touches for a capability |
 | [status.html](status.html) | every gate, measured, on one page |
+| [status.json](https://raw.githubusercontent.com/drsamonline/KILN/status/status.json) | the same numbers, for a dashboard. Republished by CI on every push to main |
 | [changelog.html](changelog.html) | every version, print-ready |
 | [PORTABILITY.md](PORTABILITY.md) | what runs where, and the measured sizes |
 | [GUIDE-LIMITS.md](../GUIDE-LIMITS.md) | what it will not do, in one page |

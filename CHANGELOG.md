@@ -4,6 +4,18 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.13 — 2026-11-14
+
+The status JSON is published, so a dashboard can read it without cloning anything.
+
+| Area | Change |
+|---|---|
+| CI | a **publish-status** job writes `kiln report --json` to a `status` branch on every push to main. Read it at `raw.githubusercontent.com/drsamonline/KILN/status/status.json` |
+| Safety | that job holds `contents: write`; every other job stays `contents: read`. It runs only on a push to main, so a fork's pull request cannot write a branch |
+| Safety | an orphan branch force-pushed, carrying one file: no third-party action, no history to grow |
+| Tests | 8 that check the workflow itself: only one writer, no write on a pull request, the push never targets main, every shell block passes `bash -n`, every action is version-pinned |
+| Counts | 566 tests, 455 guards |
+
 ## v1.0.12 — 2026-11-14
 
 The status page speaks JSON, and the badge stopped being hand-written.
