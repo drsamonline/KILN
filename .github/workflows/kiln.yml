@@ -90,12 +90,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      # the page is generated from the tree, so a diff means the committed copy is
-      # older than the code it describes
-      - name: Regenerate and compare
-        run: |
-          python3 -m kiln report --write
-          git diff --exit-code docs/status.html
+      # No diff against the committed copy: the page records which gates were
+      # skipped, and a skip depends on what the machine has (shellcheck here, not
+      # in a bare container). Two machines cannot produce the same page, so the
+      # comparison would fail for a reason that has nothing to do with the code.
+      # Guard C23 keeps the committed page on the current version instead.
+      - name: Regenerate the page
+        run: python3 -m kiln report --write
       - name: The gates it reports on
         run: python3 -m kiln report
       - uses: actions/upload-artifact@v4

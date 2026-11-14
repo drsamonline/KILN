@@ -10,8 +10,9 @@ The status page is rebuilt by CI, and it can finally match its own tree.
 
 | Area | Change |
 |---|---|
-| CI | a **status page** job: regenerate, `git diff --exit-code docs/status.html`, run the gates, upload the page as an artefact |
+| CI | a **status page** job: regenerate, run the gates, upload the page as an artefact |
 | CI | `fetch-depth: 0` in that job, because a shallow clone cannot see the history the page used to state |
+| **Withdrawn** | the job first ran `git diff --exit-code docs/status.html`. The page records which gates were skipped, and a skip depends on the machine: shellcheck is present in CI and absent here. Two machines cannot produce the same page, so the comparison failed for a reason unrelated to the code. Guard C23 keeps the committed page on the current version instead |
 | **Fixed** | the page stated the **commit count**, which changes on every commit, so the diff check could never pass. The page now carries **no commit hash and no commit count**, and its date is the version's own changelog date |
 | Guard | C23 checks the version string only |
 | Tests | 13 |
