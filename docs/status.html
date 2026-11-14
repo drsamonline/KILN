@@ -27,26 +27,26 @@ h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 </style></head>
 <body><main>
 <h1>KILN status</h1>
-<p class="sub">v1.0.11 · 2026-11-14 · every number below was produced by
+<p class="sub">v1.0.12 · 2026-11-14 · every number below was produced by
 running the gate, and none is copied from a document</p>
 
-<div class="verdict pass">
-  <b class="ok">PASS</b>
-  <span>Everything passes: 454 of
-  455 guards, 33 of 33
+<div class="verdict fail">
+  <b class="bad">FAIL</b>
+  <span>Something fails: 454 of
+  456 guards, 33 of 33
   specs.</span>
 </div>
 
 <h2>Gates</h2>
 <table><tbody>
-<tr><td>guards</td><td class="n ok">0 failed</td><td class="n">455 run</td></tr>
+<tr><td>guards</td><td class="n bad">1 failed</td><td class="n">456 run</td></tr>
 <tr><td>specs</td><td class="n ok">0 failed</td><td class="n">33 built</td></tr>
 <tr><td>skipped</td><td class="n muted">1</td><td class="muted">a skipped gate is a decision, not a pass</td></tr>
-<tr><td>changelog versions</td><td class="n">40</td><td class="muted">one entry per release</td></tr>
+<tr><td>changelog versions</td><td class="n">41</td><td class="muted">one entry per release</td></tr>
 </tbody></table>
 
 <h2>Every failure</h2>
-<table><thead><tr><th>Guard</th><th>Detail</th></tr></thead><tbody><tr><td class="ok">none</td><td class="muted">every guard passed</td></tr></tbody></table>
+<table><thead><tr><th>Guard</th><th>Detail</th></tr></thead><tbody><tr><td class="bad">C23 the status page is current</td><td class="muted">it names a version other than 1.0.12. Run: python3 -m kiln report --write</td></tr></tbody></table>
 
 <h2>Every skip</h2>
 <table><thead><tr><th>Guard</th><th>Detail</th></tr></thead><tbody><tr><td class="muted">C6 shellcheck on scripts</td><td class="muted">shellcheck not installed</td></tr></tbody></table>

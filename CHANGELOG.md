@@ -4,6 +4,20 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.12 — 2026-11-14
+
+The status page speaks JSON, and the badge stopped being hand-written.
+
+| Area | Change |
+|---|---|
+| Command | `kiln report --json` prints the same numbers the page shows: guards, specs, sizes, failures, skips, `ok`. Sorted keys, so a diff is readable |
+| Command | `kiln report --badge` writes `docs/badge.json` in the shields.io endpoint format |
+| README | the guards badge was hand-written and had drifted to **452** against a real 455, twice over. It now reads the endpoint, so it cannot drift |
+| Guard | **C24** fails the audit when the badge disagrees with the status page |
+| **Fixed** | the first C24 called `gather()`, which calls the audit, which calls C24: the audit hung and was killed at 300 s. It now compares the badge with the page instead |
+| Tests | 12, including one that fails if the guard ever calls the audit again |
+| Counts | 558 tests, 456 guards |
+
 ## v1.0.11 — 2026-11-14
 
 The status page is rebuilt by CI, and it can finally match its own tree.

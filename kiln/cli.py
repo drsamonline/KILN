@@ -247,12 +247,20 @@ def cmd_completions(args, catalog=None) -> int:
 
 def cmd_report(args, catalog) -> int:
     """Run every gate and write one page. Nothing on it is copied from a doc."""
-    html = reportmod.build(catalog, run_verify=not args.no_verify)
+    g = reportmod.gather(catalog, run_verify=not args.no_verify)
+    if args.json:
+        print(reportmod.as_json(g), end="")
+        return 0 if g["guards_failed"] == 0 else 1
     if args.write:
         reportmod.TARGET.parent.mkdir(parents=True, exist_ok=True)
-        reportmod.TARGET.write_text(html, encoding="utf-8")
+        reportmod.TARGET.write_text(reportmod.build(catalog, run_verify=False)
+                                    if args.no_verify else reportmod.build(catalog),
+                                    encoding="utf-8")
         print(f"wrote {reportmod.TARGET}")
-    g = reportmod.gather(catalog, run_verify=False)
+    if args.badge:
+        reportmod.BADGE.parent.mkdir(parents=True, exist_ok=True)
+        reportmod.BADGE.write_text(reportmod.badge(g), encoding="utf-8")
+        print(f"wrote {reportmod.BADGE}")
     print(f"  version   {g['version']}  {g['date']}")
     print(f"  guards    {g['guards_total'] - g['guards_failed'] - g['guards_skipped']} "
           f"of {g['guards_total']} pass, {g['guards_skipped']} skipped")
@@ -612,6 +620,8 @@ def main(argv=None) -> int:
     p.add_argument("--write", action="store_true")
     p.add_argument("--no-verify", action="store_true",
                    help="skip building the specs (faster, less evidence)")
+    p.add_argument("--json", action="store_true", help="machine-readable summary")
+    p.add_argument("--badge", action="store_true", help="write docs/badge.json")
     p.set_defaults(fn=cmd_report)
 
     p = sub.add_parser("changelog", help="render CHANGELOG.md as a printable page")

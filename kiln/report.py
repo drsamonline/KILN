@@ -16,6 +16,7 @@ from . import guards, sizes, spec as specmod, verify
 
 ROOT = Path(__file__).resolve().parent.parent
 TARGET = ROOT / "docs" / "status.html"
+BADGE = ROOT / "docs" / "badge.json"
 
 
 def _git(*args) -> str:
@@ -60,6 +61,40 @@ def gather(catalog, run_verify: bool = True) -> dict:
         "sizes": m,
         "versions": len(versions),
     }
+
+
+def as_json(g: dict) -> str:
+    """The same numbers the page shows, for a machine."""
+    import json as _json
+    return _json.dumps({
+        "version": g["version"],
+        "date": g["date"],
+        "guards": {"total": g["guards_total"], "failed": g["guards_failed"],
+                   "skipped": g["guards_skipped"],
+                   "passed": g["guards_total"] - g["guards_failed"] - g["guards_skipped"]},
+        "specs": {"total": len(g["specs"]), "failed": g["specs_failed"],
+                  "checks": sum(s["checks"] for s in g["specs"])},
+        "sizes_kb": {"app": g["sizes"]["app"], "smallest": g["sizes"]["smallest"],
+                     "largest": g["sizes"]["largest"], "studio": g["sizes"]["studio"],
+                     "demo": g["sizes"]["demo"], "ceiling": g["sizes"]["ceiling"]},
+        "versions": g["versions"],
+        "failures": g["failures"],
+        "skips": g["skips"],
+        "ok": g["guards_failed"] == 0 and g["specs_failed"] == 0,
+    }, indent=2, sort_keys=True) + "\n"
+
+
+def badge(g: dict) -> str:
+    """A shields.io endpoint document, so the badge cannot go stale on its own."""
+    import json as _json
+    ok = g["guards_failed"] == 0 and g["specs_failed"] == 0
+    passed = g["guards_total"] - g["guards_failed"] - g["guards_skipped"]
+    return _json.dumps({
+        "schemaVersion": 1,
+        "label": "gates",
+        "message": f"{passed}/{g['guards_total']} guards, {g['specs_failed']} spec failures",
+        "color": "brightgreen" if ok else "red",
+    }, indent=2) + "\n"
 
 
 CSS = """

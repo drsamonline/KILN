@@ -515,6 +515,37 @@ def check_prose_punctuation() -> list[Row]:
     return bad
 
 
+def check_badge(catalog) -> list[Row]:
+    """The badge must agree with the status page, because one command writes both.
+
+    It does not re-run the audit to compare numbers: the audit calls this guard, so
+    that would recurse until the process died.
+    """
+    import json as _json
+    from . import report as reportmod
+    p = reportmod.BADGE
+    if not p.exists():
+        return [Row("C24 the badge exists", False,
+                    "run: python3 -m kiln report --badge")]
+    try:
+        doc = _json.loads(p.read_text(encoding="utf-8"))
+    except Exception as e:
+        return [Row("C24 the badge parses", False, str(e))]
+    page = reportmod.TARGET
+    if not page.exists():
+        return [Row("C24 the badge agrees with the status page", False,
+                    "no status page to compare against")]
+    html = page.read_text(encoding="utf-8")
+    page_pass = 'class="verdict pass"' in html
+    badge_pass = doc.get("color") == "brightgreen"
+    if page_pass != badge_pass:
+        return [Row("C24 the badge agrees with the status page", False,
+                    f"page says {'pass' if page_pass else 'fail'}, badge says "
+                    f"{doc.get('color')}. Run: python3 -m kiln report --write --badge")]
+    return [Row("C24 the badge agrees with the status page", True,
+                str(doc.get("message", "")))]
+
+
 def check_status_page(catalog) -> list[Row]:
     """A status page from an older version is worse than no status page."""
     from . import __version__, report as reportmod
@@ -802,6 +833,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_sizes(catalog)
     rows += check_changelog_report(catalog)
     rows += check_status_page(catalog)
+    rows += check_badge(catalog)
     rows += check_prose_punctuation()
     rows += check_counts()
     rows += check_guides(catalog)
