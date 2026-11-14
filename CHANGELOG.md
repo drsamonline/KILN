@@ -6,6 +6,16 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ## v1.0.14 — 2026-11-14
 
+The repository closes with a handover, and the version stops disagreeing with itself.
+
+| Area | Change |
+|---|---|
+| Added | [`HANDOVER.md`](HANDOVER.md): the measured state, the five things to know first, where everything lives, the bug classes and the guard that stops each, the rules learned the hard way, what is deliberately not done, and the next three things worth doing |
+| Guard | **C25** fails the audit if the handover goes missing, is not linked from the README, or names a version nobody is on |
+| **Fixed** | `MANIFEST.json` said **0.9.0** while the code said 1.0.14. The release policy told the owner to bump both; nothing checked that they agreed |
+| Guard | **C26** fails the audit when the manifest and the code disagree |
+| Counts | 459 guards |
+
 The repository closes with a handover.
 
 | Area | Change |

@@ -1,7 +1,7 @@
 {
   "name": "KILN",
   "tagline": "Spec in. Finished app out.",
-  "version": "0.9.0",
+  "version": "1.0.14",
   "kind": "compiler",
   "language": "Python",
   "runtime": "python>=3.9",
@@ -26,7 +26,7 @@
   },
   "verification": {
     "tests": 566,
-    "guards": 458,
+    "guards": 459,
     "ci": ".github/workflows/kiln.yml"
   },
   "topics": [

@@ -232,6 +232,22 @@ LEGAL = ["LICENSE", "NOTICE", "PRIVACY.md", "TERMS.md", "DISCLAIMER.md", "SECURI
 GUIDES = ["USAGE.md", "INSTALL.md", "CHANGELOG.md", "docs/SPEC-REFERENCE.md", "docs/FAQ.md"]
 
 
+def check_manifest_version() -> list[Row]:
+    """Two places state the version. On 2026-11-14 they disagreed by fourteen releases."""
+    import json as _json
+    from . import __version__
+    p = ROOT / "MANIFEST.json"
+    if not p.exists():
+        return [Row("C26 the manifest exists", False, "MANIFEST.json is missing")]
+    try:
+        d = _json.loads(p.read_text(encoding="utf-8"))
+    except Exception as e:
+        return [Row("C26 the manifest parses", False, str(e))]
+    v = d.get("version")
+    return [Row("C26 the manifest names the same version as the code", v == __version__,
+                f"manifest {v}, code {__version__}")]
+
+
 def check_handover() -> list[Row]:
     """A handover that nobody links to, or that names a version nobody is on, is dead weight."""
     from . import __version__
@@ -841,6 +857,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_site(catalog)
     rows += check_legal_set()
     rows += check_handover()
+    rows += check_manifest_version()
     rows += check_links()
     rows += check_support()
     rows += check_registry(catalog)
