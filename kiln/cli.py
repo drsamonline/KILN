@@ -12,6 +12,7 @@ from pathlib import Path
 from . import adopt as adoptmod
 from . import catalog as cat
 from . import changelog as chlogmod
+from . import report as reportmod
 from . import completions as compmod
 from . import sizes as sizesmod
 from . import compose, demo as demomod, emit, explain as explainmod
@@ -242,6 +243,25 @@ def cmd_completions(args, catalog=None) -> int:
         print(str(e))
         return 2
     return 0
+
+
+def cmd_report(args, catalog) -> int:
+    """Run every gate and write one page. Nothing on it is copied from a doc."""
+    html = reportmod.build(catalog, run_verify=not args.no_verify)
+    if args.write:
+        reportmod.TARGET.parent.mkdir(parents=True, exist_ok=True)
+        reportmod.TARGET.write_text(html, encoding="utf-8")
+        print(f"wrote {reportmod.TARGET}")
+    g = reportmod.gather(catalog, run_verify=False)
+    print(f"  version   {g['version']}  commit {g['commit']}  {g['date']}")
+    print(f"  guards    {g['guards_total'] - g['guards_failed'] - g['guards_skipped']} "
+          f"of {g['guards_total']} pass, {g['guards_skipped']} skipped")
+    for f in g["failures"]:
+        print(f"    FAIL {f['name']}  {f['detail']}")
+    ok = g["guards_failed"] == 0
+    if not args.write:
+        print("  (nothing written: pass --write to save docs/status.html)")
+    return 0 if ok else 1
 
 
 def cmd_changelog(args, catalog) -> int:
@@ -587,6 +607,12 @@ def main(argv=None) -> int:
     p = sub.add_parser("completions", help="shell completions for bash, zsh or fish")
     p.add_argument("shell", choices=sorted(compmod.SHELLS))
     p.set_defaults(fn=cmd_completions)
+
+    p = sub.add_parser("report", help="run every gate and write one status page")
+    p.add_argument("--write", action="store_true")
+    p.add_argument("--no-verify", action="store_true",
+                   help="skip building the specs (faster, less evidence)")
+    p.set_defaults(fn=cmd_report)
 
     p = sub.add_parser("changelog", help="render CHANGELOG.md as a printable page")
     p.add_argument("--write", action="store_true")

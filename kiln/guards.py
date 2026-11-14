@@ -515,6 +515,26 @@ def check_prose_punctuation() -> list[Row]:
     return bad
 
 
+def check_status_page(catalog) -> list[Row]:
+    """A status page from an older version is worse than no status page."""
+    from . import __version__, report as reportmod
+    p = reportmod.TARGET
+    if not p.exists():
+        return [Row("C23 the status page exists", False,
+                    "run: python3 -m kiln report --write")]
+    text = p.read_text(encoding="utf-8")
+    head = reportmod._git("rev-parse", "--short", "HEAD")
+    bad = []
+    if f"v{__version__}" not in text:
+        bad.append(f"it says a different version than {__version__}")
+    if head and f"commit <code>{head}</code>" not in text:
+        bad.append(f"it was generated at a different commit than {head}")
+    if bad:
+        return [Row("C23 the status page is current", False,
+                    "; ".join(bad) + ". Run: python3 -m kiln report --write")]
+    return [Row("C23 the status page is current", True, f"v{__version__} at {head}")]
+
+
 def check_changelog_report(catalog) -> list[Row]:
     """The printable changelog must be the changelog, not a stale copy of it."""
     from . import changelog as chlogmod
@@ -786,6 +806,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_row_loop_is_linear(catalog)
     rows += check_sizes(catalog)
     rows += check_changelog_report(catalog)
+    rows += check_status_page(catalog)
     rows += check_prose_punctuation()
     rows += check_counts()
     rows += check_guides(catalog)

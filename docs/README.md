@@ -8,6 +8,7 @@
 | [GUIDE-COOKBOOK.md](../GUIDE-COOKBOOK.md) | one recipe per archetype |
 | [GUIDE-PATTERNS.md](../GUIDE-PATTERNS.md) | choosing an archetype |
 | [GUIDE-CONTRIBUTE.md](../GUIDE-CONTRIBUTE.md) | the five touches for a capability |
+| [status.html](status.html) | every gate, measured, on one page |
 | [changelog.html](changelog.html) | every version, print-ready |
 | [PORTABILITY.md](PORTABILITY.md) | what runs where, and the measured sizes |
 | [GUIDE-LIMITS.md](../GUIDE-LIMITS.md) | what it will not do, in one page |

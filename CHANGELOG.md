@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.10 — 2026-11-14
+
+One command runs every gate and writes one page.
+
+| Area | Change |
+|---|---|
+| Command | `kiln report` runs the 455 guards, builds all 33 specs, measures every size, then prints the verdict. `--write` saves `docs/status.html` |
+| Page | a PASS or FAIL banner, every failure by name, every skip by name, the measured sizes, and the checks each spec passed |
+| Honesty | nothing on the page is copied from a document. The date is the last commit's, not the clock, so the same tree gives the same page |
+| Guard | **C23** fails the audit when the page names an older version or commit than the tree |
+| Tests | 11 |
+| Counts | 544 tests, 455 guards |
+
 ## v1.0.9 — 2026-11-14
 
 The gallery became searchable, and the page stopped breaking on a phone.
