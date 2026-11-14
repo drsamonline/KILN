@@ -833,7 +833,10 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_sizes(catalog)
     rows += check_changelog_report(catalog)
     rows += check_status_page(catalog)
-    rows += check_badge(catalog)
+    # check_badge() is deliberately not here: the badge's colour is decided by
+    # the page's verdict, and the page's verdict would include this guard, so
+    # the audit would judge each generated file by the other one. The tests
+    # compare them, after both have been written.
     rows += check_prose_punctuation()
     rows += check_counts()
     rows += check_guides(catalog)

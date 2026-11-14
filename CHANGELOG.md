@@ -13,10 +13,10 @@ The status page speaks JSON, and the badge stopped being hand-written.
 | Command | `kiln report --json` prints the same numbers the page shows: guards, specs, sizes, failures, skips, `ok`. Sorted keys, so a diff is readable |
 | Command | `kiln report --badge` writes `docs/badge.json` in the shields.io endpoint format |
 | README | the guards badge was hand-written and had drifted to **452** against a real 455, twice over. It now reads the endpoint, so it cannot drift |
-| Guard | **C24** fails the audit when the badge disagrees with the status page |
-| **Fixed** | the first C24 called `gather()`, which calls the audit, which calls C24: the audit hung and was killed at 300 s. It now compares the badge with the page instead |
+| Guard | **C24** compares the badge with the status page. It lives in the tests, not the audit: the badge's colour is decided by the page's verdict, and the page's verdict would include the guard, so the audit would judge each generated file by the other |
+| **Fixed** | the first C24 called `gather()`, which calls the audit, which calls C24: the audit hung and was killed at 300 s. Then CI caught the second form of the same mistake: a red badge made the page fail, and a failing page made the badge red |
 | Tests | 12, including one that fails if the guard ever calls the audit again |
-| Counts | 558 tests, 456 guards |
+| Counts | 558 tests, 455 guards |
 
 ## v1.0.11 — 2026-11-14
 
