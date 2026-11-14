@@ -523,16 +523,11 @@ def check_status_page(catalog) -> list[Row]:
         return [Row("C23 the status page exists", False,
                     "run: python3 -m kiln report --write")]
     text = p.read_text(encoding="utf-8")
-    head = reportmod._git("rev-parse", "--short", "HEAD")
-    bad = []
-    if f"v{__version__}" not in text:
-        bad.append(f"it says a different version than {__version__}")
-    if head and f"commit <code>{head}</code>" not in text:
-        bad.append(f"it was generated at a different commit than {head}")
-    if bad:
+    if f"v{__version__} · generated" not in text:
         return [Row("C23 the status page is current", False,
-                    "; ".join(bad) + ". Run: python3 -m kiln report --write")]
-    return [Row("C23 the status page is current", True, f"v{__version__} at {head}")]
+                    f"it names a version other than {__version__}. "
+                    "Run: python3 -m kiln report --write")]
+    return [Row("C23 the status page is current", True, f"v{__version__}")]
 
 
 def check_changelog_report(catalog) -> list[Row]:

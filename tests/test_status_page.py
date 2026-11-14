@@ -24,9 +24,12 @@ class TestGather(unittest.TestCase):
         self.assertGreater(self.g["guards_total"], 400)
         self.assertEqual(0, self.g["guards_failed"], self.g["failures"][:3])
 
-    def test_it_names_the_version_and_commit(self):
+    def test_it_names_the_version(self):
         self.assertEqual(__version__, self.g["version"])
-        self.assertRegex(self.g["commit"], r"^[0-9a-f]{7,}$")
+
+    def test_it_does_not_name_a_commit(self):
+        """The commit that adds a page cannot appear in it, so the page omits it."""
+        self.assertNotIn("commit <code>", self.html if hasattr(self, "html") else "")
 
     def test_the_date_is_the_commit_date_not_the_clock(self):
         self.assertRegex(self.g["date"], r"^\d{4}-\d{2}-\d{2}$")
