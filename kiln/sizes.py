@@ -26,6 +26,7 @@ CLAIMS = {
     ],
     "index.html": [
         (r"A generated app — (\d+) KB", "app"),
+        (r"<b>\d+–\d+ KB</b> per app", "band_chip"),
     ],
     "INSTALL.md": [
         (r"copy `studio\.html` \((\d+) KB\)", "studio"),
@@ -88,6 +89,7 @@ def rewrite(text: str, m: dict) -> str:
         (r"KILN Studio: \d+ KB", f"KILN Studio: {m['studio']} KB"),
         (r"typically \d+–\d+ KB", f"typically {lo}–{hi} KB"),
         (r"A generated app — \d+ KB", f"A generated app — {m['app']} KB"),
+        (r"<b>\d+–\d+ KB</b> per app", f"<b>{lo}–{hi} KB</b> per app"),
         (r"copy `studio\.html` \(\d+ KB\)", f"copy `studio.html` ({m['studio']} KB)"),
         (r"About \d+ KB\. Under \d+ KB is the enforced budget\.",
          f"About {m['app']} KB. Under {m['ceiling']} KB is the enforced budget."),

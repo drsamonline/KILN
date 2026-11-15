@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.0.15 — 2026-11-15
+
+The catalogue's size is a file count now, and three documents had it wrong.
+
+| Area | Change |
+|---|---|
+| **Corrected** | the catalogue has **30 archetypes**, not 24. The v1.0.0 entry, `HANDOVER.md` and `RELEASE.md` all said 24. It is 30 files in `catalogue/patterns/`, 30 specs in `specs/gallery/` and 30 distinct `pattern` values, and it was already 30 at the commit that declared the catalogue complete |
+| Guard | **C27** fails the audit when a document's stated archetype count disagrees with the number of files in `catalogue/patterns/`. It reads totals only: "10 gallery specs and 10 archetypes" describes one old studio build and does not fire |
+| **Fixed** | `kiln verify <file>` printed `FAIL L3 file index.html (missing or empty)` when handed a spec or an html file, which reads as a broken emitter. It now names the argument as a file, shows the build-then-verify pair, and exits 2 |
+| **Fixed** | the v1.0.14 entry carried its table twice, once counting 458 guards and once 459 |
+| Tests | 6 for the count guard: a wrong total fails and names the document, every phrasing of a total is read, a subset is not a total, an empty catalogue is not a pass, and the guard is wired into the audit |
+| Counts | 574 tests, 462 guards |
+
 ## v1.0.14 — 2026-11-14
 
 The repository closes with a handover, and the version stops disagreeing with itself.
@@ -15,14 +28,6 @@ The repository closes with a handover, and the version stops disagreeing with it
 | **Fixed** | `MANIFEST.json` said **0.9.0** while the code said 1.0.14. The release policy told the owner to bump both; nothing checked that they agreed |
 | Guard | **C26** fails the audit when the manifest and the code disagree |
 | Counts | 459 guards |
-
-The repository closes with a handover.
-
-| Area | Change |
-|---|---|
-| Added | [`HANDOVER.md`](HANDOVER.md): the measured state, the five things to know first, where everything lives, the bug classes and the guard that stops each, the rules learned the hard way, what is deliberately not done, and the next three things worth doing |
-| Guard | **C25** fails the audit if the handover goes missing, is not linked from the README, or names a version nobody is on |
-| Counts | 458 guards |
 
 ## v1.0.13 — 2026-11-14
 
@@ -212,7 +217,7 @@ The last two archetypes, and the catalogue is complete.
 | Capabilities | `split` and `versus` — 50 in total |
 | Registry | `metric-split` and `view-versus` — 84 entries |
 | **Honesty** | the first cut marked the *lower* number as better in every field, which marked a 4 as better than a 5 on a rating. The direction is now stated per field in `versus.better`, and **nothing** is marked unless the spec says which way is better |
-| Version | 1.0.0: **all 24 archetypes emitted**, 30 sample specs, 33 verifying |
+| Version | 1.0.0: **all 30 archetypes emitted**, 30 sample specs, 33 verifying |
 | Counts | 463 tests, 450 guards |
 
 ## v0.28 — 2026-11-13
