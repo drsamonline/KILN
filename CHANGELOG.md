@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.3.2 — 2026-11-15
+
+The status feed now says when it was measured, and is republished daily.
+
+| Area | Change |
+|---|---|
+| `status.json` | carries `generated_at`, the instant the gate ran. A feed without it cannot be checked for freshness: a consumer cannot tell a healthy fleet from a dead cron |
+| The page | still carries **no clock**, deliberately. The page must be reproducible; the feed must be checkable. The two artefacts differ for a reason, and a test asserts both |
+| CI | the workflow gains a daily schedule, so the feed keeps moving when nothing is pushed |
+| Dashboard | the KILN panel shows the age and marks a feed older than 48 hours as historical, per `DATA_CONTRACTS.md` |
+| Tests | 599 in KILN; 49 in the dashboard, two of them about the age |
+| Counts | 465 guards, 37 specs |
+
 ## v1.3.1 — 2026-11-15
 
 The fleet backup now carries an encrypted app's salt, so a restored locked app can

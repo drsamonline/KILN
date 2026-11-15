@@ -63,12 +63,21 @@ def gather(catalog, run_verify: bool = True) -> dict:
     }
 
 
-def as_json(g: dict) -> str:
-    """The same numbers the page shows, for a machine."""
+def as_json(g: dict, now: str | None = None) -> str:
+    """The same numbers the page shows, for a machine.
+
+    This document carries one thing the page must not: `generated_at`, the instant the
+    gate ran. A page has to be reproducible, so it cannot hold a clock; a feed has to be
+    checkable for freshness, so it cannot omit one. A consumer that cannot see the age of
+    a figure cannot tell a healthy fleet from a dead cron.
+    """
+    import datetime as _dt
     import json as _json
+    stamp = now or _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     return _json.dumps({
         "version": g["version"],
         "date": g["date"],
+        "generated_at": stamp,
         "guards": {"total": g["guards_total"], "failed": g["guards_failed"],
                    "skipped": g["guards_skipped"],
                    "passed": g["guards_total"] - g["guards_failed"] - g["guards_skipped"]},

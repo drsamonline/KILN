@@ -44,6 +44,18 @@ class TestWorkflow(unittest.TestCase):
                    if (j.get("permissions") or {}).get("contents") == "write"]
         self.assertEqual(["publish-status"], writers)
 
+    def test_the_feed_is_republished_on_a_schedule(self):
+        """A feed with no scheduled refresh ages silently: a consumer cannot tell a
+        healthy fleet from a dead cron. The daily run exists to keep the stamp moving."""
+        if self.doc is None:
+            self.skipTest("pyyaml is not installed")
+        triggers = self.doc.get("on") or self.doc.get(True) or {}
+        self.assertIn("schedule", triggers)
+        cron = triggers["schedule"][0]["cron"]
+        self.assertRegex(cron, r"^\d+ \d+ \* \* \*$", "a daily cron, not a per-minute one")
+        cond = self.doc["jobs"]["publish-status"]["if"]
+        self.assertIn("github.event_name == 'schedule'", cond)
+
     def test_publishing_never_runs_on_a_pull_request(self):
         if self.doc is None:
             self.skipTest("pyyaml is not installed")

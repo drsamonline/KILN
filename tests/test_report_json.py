@@ -37,9 +37,25 @@ class TestJson(unittest.TestCase):
         expected = self.doc["guards"]["failed"] == 0 and self.doc["specs"]["failed"] == 0
         self.assertEqual(expected, self.doc["ok"])
 
-    def test_it_is_deterministic(self):
-        again = json.loads(reportmod.as_json(reportmod.gather(cat.load(), run_verify=False)))
-        self.assertEqual(self.doc, again)
+    def test_it_is_deterministic_apart_from_the_timestamp(self):
+        """The page must be reproducible; the feed must be checkable for freshness."""
+        a = json.loads(reportmod.as_json(self.g, now="2026-11-15T00:00:00Z"))
+        b = json.loads(reportmod.as_json(self.g, now="2026-11-16T00:00:00Z"))
+        self.assertNotEqual(a["generated_at"], b["generated_at"])
+        del a["generated_at"], b["generated_at"]
+        self.assertEqual(a, b)
+
+    def test_it_carries_the_instant_the_gate_ran(self):
+        import datetime as dt
+        stamp = self.doc["generated_at"]
+        self.assertRegex(stamp, r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+        # and it parses, so a consumer can subtract it from now
+        dt.datetime.strptime(stamp, "%Y-%m-%dT%H:%M:%SZ")
+
+    def test_the_page_does_not_carry_a_clock(self):
+        """The page is the reproducible artefact; the clock belongs in the feed only."""
+        html = reportmod.build(cat.load(), run_verify=False)
+        self.assertNotIn("generated_at", html)
 
     def test_keys_are_sorted_so_a_diff_is_readable(self):
         text = reportmod.as_json(self.g)

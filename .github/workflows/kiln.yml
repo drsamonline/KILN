@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  schedule:
+    # daily at 04:17 UTC, off the hour. The point is not to rebuild the world: it is to
+    # republish status.json so its generated_at keeps moving. A consumer that sees a
+    # stale timestamp learns the schedule died, which no amount of green history tells it.
+    - cron: "17 4 * * *"
 
 permissions:
   contents: read
@@ -109,9 +114,9 @@ jobs:
     name: publish status json
     runs-on: ubuntu-latest
     needs: [test, audit]
-    # only from main, and only on a push: a pull request from a fork must never
-    # be able to write a branch here
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # only from main, on a push or the daily schedule: a pull request from a fork must
+    # never be able to write a branch here
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule')
     permissions:
       contents: write
     steps:
