@@ -1,0 +1,11 @@
+{
+  "id": "data-crypto",
+  "family": "F3",
+  "name": "crypto",
+  "spec_keys": ["crypto.iterations"],
+  "emitter_hook": "templates/app/index.html::unlockUi",
+  "verify_check": "an encrypted app asks for a passphrase before it renders, and stores a sealed blob rather than plaintext",
+  "docs_anchor": "docs/PATTERNS.md",
+  "status": "emitted",
+  "note": "PBKDF2-SHA256 derives the key, AES-GCM seals the JSON, and the passphrase is never stored"
+}

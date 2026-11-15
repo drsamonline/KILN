@@ -359,6 +359,23 @@
 </dialog>
 <!-- @end only -->
 
+<!-- @only crypto -->
+<dialog id="unlock" aria-labelledby="unlockTitle">
+  <strong id="unlockTitle">This file is locked</strong>
+  <p class="hint" id="unlockNote" style="margin:8px 0 12px"></p>
+  <label class="f">Passphrase
+    <input id="passphrase" type="password" autocomplete="new-password" spellcheck="false">
+  </label>
+  <label class="f" id="passphrase2Row" hidden>Again
+    <input id="passphrase2" type="password" autocomplete="new-password" spellcheck="false">
+  </label>
+  <p class="hint bad" id="unlockErr" role="alert" style="min-height:1.2em"></p>
+  <div class="row" style="justify-content:flex-end">
+    <button id="unlockGo" class="primary">Unlock</button>
+  </div>
+</dialog>
+<!-- @end only -->
+
 <dialog id="about">
   <strong>About {{TITLE}}</strong>
   <div id="aboutBody" style="margin-top:10px;font-size:13px;line-height:1.6"></div>
@@ -526,6 +543,13 @@ function load() {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
+    /* @only crypto */
+    if (parsed.enc) {
+      /* sealed: nothing is readable until the unlock screen supplies the passphrase */
+      SEALED = parsed;
+      return [];
+    }
+    /* @end only */
     if (parsed && parsed.data && typeof parsed.data === "object") {
       for (const name of Object.keys(DB)) {
         DB[name] = Array.isArray(parsed.data[name]) ? parsed.data[name] : [];
@@ -543,6 +567,21 @@ function load() {
 function save() {
   try {
     const payload = MULTI ? {v: MODEL.version, data: DB} : {v: MODEL.version, rows: rows};
+    /* @only crypto */
+    if (CRYPTO_KEY) {
+      /* the plaintext never touches localStorage: seal first, then write */
+      const salt = b64d(localStorage.getItem(KEY + ":salt") || b64e(crypto.getRandomValues(new Uint8Array(16))));
+      localStorage.setItem(KEY + ":salt", b64e(salt));
+      sealJson(payload, CRYPTO_KEY, salt).then((blob) => {
+        try { localStorage.setItem(KEY, JSON.stringify(blob)); }
+        catch (e) { banner = {kind: "bad", text: "Storage is full. Export now to keep this change."}; paintBanners(); }
+      }).catch((e) => {
+        banner = {kind: "bad", text: "Could not encrypt this change: " + e.message};
+        paintBanners();
+      });
+      return true;
+    }
+    /* @end only */
     localStorage.setItem(KEY, JSON.stringify(payload));
     return true;
   } catch (e) {
@@ -1171,6 +1210,52 @@ function cached(key, make) {
   return RENDER_CACHE[key];
 }
 /* cache:end */
+
+/* ---------- encryption at rest ---------- */
+/* @only crypto */
+/* WebCrypto only. PBKDF2-SHA256 derives the key from the passphrase and a random salt;
+   AES-GCM seals the JSON. The passphrase is never stored, and the plaintext never
+   reaches localStorage. crypto:start */
+let CRYPTO_KEY = null;
+let SEALED = null;
+const KDF_ITERATIONS = (MODEL.crypto && MODEL.crypto.iterations) || 250000;
+
+function b64e(bytes) {
+  let s = "";
+  const a = new Uint8Array(bytes);
+  for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]);
+  return btoa(s);
+}
+function b64d(text) {
+  const s = atob(text);
+  const out = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+  return out;
+}
+
+async function deriveKey(passphrase, salt) {
+  const raw = await crypto.subtle.importKey("raw", new TextEncoder().encode(passphrase),
+    "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    {name: "PBKDF2", salt: salt, iterations: KDF_ITERATIONS, hash: "SHA-256"},
+    raw, {name: "AES-GCM", length: 256}, false, ["encrypt", "decrypt"]);
+}
+
+async function sealJson(obj, key, salt) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name: "AES-GCM", iv: iv}, key,
+    new TextEncoder().encode(JSON.stringify(obj)));
+  return {v: MODEL.version, enc: "AES-GCM", kdf: "PBKDF2-SHA256",
+          it: KDF_ITERATIONS, salt: b64e(salt), iv: b64e(iv), data: b64e(ct)};
+}
+
+async function openSealed(blob, key) {
+  const pt = await crypto.subtle.decrypt(
+    {name: "AES-GCM", iv: b64d(blob.iv)}, key, b64d(blob.data));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+/* crypto:end */
+/* @end only */
 
 /* ---------- rendering ---------- */
 /* @only feedback */
@@ -2431,11 +2516,8 @@ function render() {
       } else if (f.type === "currency_cents") {
         body.appendChild(el("div", "d", (f.label + ": " + money(v))));
       } else if (f.type === "image") {
-    input = document.createElement("input");
-    input.type = "url";
-    input.placeholder = "https://… or data:image/…";
-    input.inputMode = "url";
-  } else if (f.type === "lookup") {
+        body.appendChild(el("div", "d", (f.label + ": " + (v ? "image" : "no image"))));
+      } else if (f.type === "lookup") {
         body.appendChild(el("div", "d", (f.label + ": " + (labelOf(f.entity, v) || "—"))));
       } else if (f.type === "duration") {
         body.appendChild(el("div", "d", (f.label + ": " + fmtDuration(v))));
@@ -2469,7 +2551,12 @@ function render() {
 /* @only crud */
 function fieldInput(f, value) {
   let input;
-  if (f.type === "longtext") {
+  if (f.type === "image") {
+    input = document.createElement("input");
+    input.type = "url";
+    input.placeholder = "https://… or data:image/…";
+    input.inputMode = "url";
+  } else if (f.type === "longtext") {
     input = document.createElement("textarea");
     input.rows = 4;
   } else if (f.type === "select") {
@@ -2702,6 +2789,80 @@ function doImport(file) {
   fr.readAsText(file);
 }
 
+/* ---------- the unlock screen ---------- */
+/* @only crypto */
+/* Nothing renders until the passphrase opens the file. A wrong passphrase is a
+   failed decrypt, not a string comparison, so there is nothing to guess at. unlock:start */
+function unlockUi(needSetup) {
+  const dlg = $("#unlock");
+  const title = $("#unlockTitle");
+  const note = $("#unlockNote");
+  const err = $("#unlockErr");
+  const pass = $("#passphrase");
+  const pass2 = $("#passphrase2");
+  const row2 = $("#passphrase2Row");
+  const go = $("#unlockGo");
+  err.textContent = "";
+  pass.value = "";
+  pass2.value = "";
+  title.textContent = needSetup ? "Set a passphrase" : "This file is locked";
+  note.textContent = needSetup
+    ? "It encrypts everything you save, on this device. There is no recovery: if you forget it, the data is gone."
+    : "Enter the passphrase to open it.";
+  row2.hidden = !needSetup;
+  go.textContent = needSetup ? "Encrypt and start" : "Unlock";
+  dlg.showModal();
+  pass.focus();
+
+  go.onclick = async () => {
+    const p1 = pass.value;
+    if (p1.length < 8) { err.textContent = "Use at least 8 characters."; return; }
+    if (needSetup && p1 !== pass2.value) { err.textContent = "The two passphrases differ."; return; }
+    go.disabled = true;
+    go.textContent = "Working…";
+    try {
+      let salt;
+      if (needSetup) {
+        salt = crypto.getRandomValues(new Uint8Array(16));
+        localStorage.setItem(KEY + ":salt", b64e(salt));
+      } else {
+        const stored = localStorage.getItem(KEY + ":salt");
+        if (!stored) throw new Error("the salt is missing from this device");
+        salt = b64d(stored);
+      }
+      CRYPTO_KEY = await deriveKey(p1, salt);
+      if (needSetup) {
+        SEALED = null;
+      } else {
+        const payload = await openSealed(SEALED, CRYPTO_KEY);
+        if (payload && payload.data) {
+          for (const name of Object.keys(DB)) {
+            DB[name] = Array.isArray(payload.data[name]) ? payload.data[name] : [];
+          }
+          rows = DB[(MODEL.entities[0] || {}).name] || [];
+        } else if (payload && Array.isArray(payload.rows)) {
+          rows = payload.rows;
+          DB[ENTITY.name] = rows;
+        }
+      }
+      dlg.close();
+      render();
+      save();
+    } catch (e) {
+      CRYPTO_KEY = null;
+      err.textContent = needSetup
+        ? "Could not set up encryption: " + e.message
+        : "That passphrase does not open this file.";
+      go.disabled = false;
+      go.textContent = needSetup ? "Encrypt and start" : "Unlock";
+    }
+  };
+  pass.onkeydown = (e) => { if (e.key === "Enter") go.click(); };
+  pass2.onkeydown = (e) => { if (e.key === "Enter") go.click(); };
+}
+/* unlock:end */
+/* @end only */
+
 /* ---------- about: what the licence put in this file ---------- */
 function aboutHtml() {
   const sp = BUILD.sponsor || {};
@@ -2811,6 +2972,17 @@ function boot() {
   bootTheme();
   bootPWA();
   bootAbout();
+  /* @only crypto */
+  /* an encrypted app renders nothing until the passphrase opens it */
+  {
+    const first = load();
+    if (SEALED) { unlockUi(false); return; }
+    rows = first;
+    DB[ENTITY.name] = rows;
+    unlockUi(true);
+    return;
+  }
+  /* @end only */
   if (MULTI) {
     const bar = document.createElement("div");
     bar.className = "row";

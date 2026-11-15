@@ -4,6 +4,21 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.1.0 — 2026-11-15
+
+Encryption at rest, and two bugs the gating exposed.
+
+| Area | Change |
+|---|---|
+| Capability | **`crypto`**: PBKDF2-SHA256 derives the key, AES-GCM seals the whole store on every save, and the passphrase is never stored |
+| Spec key | `crypto.iterations`, default 250000, floor 100000, ceiling 2000000 |
+| View | an unlock screen before anything renders. A fresh file asks you to set a passphrase; a returning one asks you to open it |
+| Sample | `specs/gallery/encrypted-log.md` — a sealed case log |
+| Verified | the emitted helpers run in Node: roundtrip exact, ciphertext contains no record, wrong passphrase refused, same plaintext with a new salt gives different ciphertext |
+| **Fixed** | the `image` field type had been spliced into the **display** chain instead of `fieldInput`, so an app with an image field would have thrown. Found by the size-budget test |
+| **Fixed** | the crypto helpers first shipped in **every** app. Now gated, with the base-side references gated too, so a plain notes app carries none of it |
+| Counts | 577 tests, 460 guards, 34 specs |
+
 ## v1.0.14 — 2026-11-14
 
 The repository closes with a handover, and the version stops disagreeing with itself.

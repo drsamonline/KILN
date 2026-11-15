@@ -309,6 +309,19 @@ def validate(spec, catalog=None, path="<spec>") -> list[str]:
             if ct.get("row") and ct.get("row") == ct.get("column"):
                 p.append("crosstab.row and crosstab.column cannot be the same field")
 
+    if "crypto" in spec:
+        cr = spec["crypto"]
+        if not isinstance(cr, dict):
+            p.append("crypto must be an object")
+        else:
+            it = cr.get("iterations", 250000)
+            if not isinstance(it, int) or it < 100000:
+                p.append("crypto.iterations must be an integer of at least 100000")
+            elif it > 2000000:
+                p.append("crypto.iterations above 2000000 makes unlocking slow enough to be a denial")
+        if "crud" not in (spec.get("features") or []):
+            p.append("crypto needs the 'crud' capability: there is nothing to encrypt without it")
+
     if "report" in spec:
         rp = spec["report"]
         if not isinstance(rp, dict):

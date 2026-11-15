@@ -203,6 +203,7 @@ FEATURE CATALOGUE — the only features that exist
 | running | a running balance in date order | crud |
 | split | one amount divided across rows by weight | crud |
 | versus | two records side by side | crud |
+| crypto | everything saved is encrypted with a passphrase | crud |
 
 FAILURE SECTION — required, one bullet each, no placeholders
 - **bad input** — what happens when a value cannot be used, and what the user sees

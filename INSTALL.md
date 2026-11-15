@@ -52,7 +52,7 @@ There is no `pip install`, no virtualenv requirement, no PATH change, no service
 ## Verify the install
 
 ```bash
-python3 -m unittest discover -s tests     # 566 tests
+python3 -m unittest discover -s tests     # 577 tests
 python3 -m kiln verify --all              # every spec builds
 python3 -m kiln audit                     # 452 guards
 ```
@@ -76,7 +76,7 @@ rather than passing. That is deliberate, and it does not fail the run.
 
 | Step | Detail |
 |---|---|
-| 1 | copy `studio.html` (209 KB) to the phone — email, AirDrop, USB, a local server |
+| 1 | copy `studio.html` (216 KB) to the phone — email, AirDrop, USB, a local server |
 | 2 | open it from local storage in the browser |
 | 3 | fill the form, tap **Build app** |
 | 4 | open the downloaded file, then *Add to Home Screen* |

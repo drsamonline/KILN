@@ -812,6 +812,23 @@
       "kit": "widgets-kit",
       "emitter": "runtime",
       "assertion": "two records differing on a price show which is cheaper and which fields match"
+    },
+    "crypto": {
+      "label": "Everything saved is encrypted on the device with a passphrase",
+      "aliases": [
+        "encrypted",
+        "encrypt",
+        "passphrase",
+        "locked",
+        "private"
+      ],
+      "requires": [
+        "crud"
+      ],
+      "conflicts": [],
+      "kit": "web-kit",
+      "emitter": "runtime",
+      "assertion": "a fresh app asks for a passphrase before it shows anything, and the stored value contains no readable record"
     }
   }
 }

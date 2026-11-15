@@ -11,7 +11,8 @@
 |---|---|---|
 | No server, no API, no sync | the output is one file opened from disk | [`GUIDE-PATTERNS.md`](GUIDE-PATTERNS.md) |
 | No accounts, no login | there is nobody to authenticate against | — |
-| No encryption at rest | a single HTML file cannot hold a key safely | use full-disk encryption |
+| No key rotation or recovery with `crypto` | there is one passphrase and no reset |
+| No encryption at rest without `crypto` | a single HTML file cannot hold a key safely | use full-disk encryption |
 | No rich text or images | plain text keeps the file small and the diff readable | — |
 | No multi-entity apps | one list per app, except where a pattern adds a view | `dashboard` and `master-detail` are not built |
 | No conditionals in forms | every field in a step is always shown | [`GUIDE-PATTERNS.md`](GUIDE-PATTERNS.md) |

@@ -1132,6 +1132,41 @@ A field where both agree is dimmed; text is never marked.
 
 ---
 
+## encrypted log
+
+| | |
+|---|---|
+| Capability | `crypto`, on top of any archetype |
+| Status | **emitted** |
+| View | an unlock screen before anything else |
+| Requires | `crud` |
+| Spec keys | `crypto.iterations` (default 250000, floor 100000) |
+| Sample | [`specs/gallery/encrypted-log.md`](../specs/gallery/encrypted-log.md) |
+
+**Pros**
+
+- PBKDF2-SHA256 derives the key; AES-GCM seals the whole store on every save
+- the passphrase is never stored, and there is no recovery route to get wrong
+- a wrong passphrase is a failed decrypt, not a string comparison
+- the salt is per-device, so the same data sealed twice gives different ciphertext
+
+**Cons**
+
+- **forget the passphrase and the data is gone.** There is no reset, by design
+- the whole store is one blob, so one record cannot be read out of it
+- a shared browser profile that is already unlocked stays unlocked until the tab closes
+- the export is the sealed blob: it is not a readable backup
+
+**Best for:** patient notes on a shared machine, and anything you would not want read
+out of a stolen laptop.
+
+**Avoid if:** you need key rotation, multiple users, or a recovery route.
+
+**The rule:** nothing renders until the passphrase opens the file, and nothing readable
+reaches storage. Both are checked in `tests/test_crypto.py` against the emitted code.
+
+---
+
 ## The seed table
 
 Filled in as each archetype lands. "Planned" means the descriptor does not exist yet, so a
@@ -1173,6 +1208,7 @@ spec naming it fails verification rather than silently building something else.
 | register | a statement that adds up | no reconciliation | **emitted** |
 | splitter | a fair split | no round shares | **emitted** |
 | comparison-of-records | two options, one screen | two at a time | **emitted** |
+| encrypted log | notes that stay unreadable | no recovery, by design | **emitted** |
 | Print / Report | shareable artefact | layout brittle across browsers | planned |
 
 ---
