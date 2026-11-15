@@ -69,6 +69,28 @@ class TestPage(unittest.TestCase):
         for word in ("guards", "specs", "skipped", "changelog", "Sizes", "Specs built"):
             self.assertIn(word, self.html)
 
+    def test_the_landing_page_states_the_guard_count_it_has(self):
+        """A chip in HTML is a hand-maintained badge: C24's failure in another medium.
+
+        It said 452 while the audit ran 462, and nothing read it. This is the test
+        that reads it, and it costs nothing because the audit already ran above.
+        """
+        page = (ROOT / "index.html").read_text(encoding="utf-8")
+        m = re.search(r"<b>(\d+)</b>\s*guards", page)
+        self.assertIsNotNone(m, "the landing page states no guard count")
+        total = TestGather.g["guards_total"]
+        self.assertEqual(total, int(m.group(1)),
+                         f"the landing page says {m.group(1)}, the audit runs {total}")
+
+    def test_the_handover_states_the_guard_count_it_has(self):
+        """The handover's first table is a claim about this tree, not about a past one."""
+        doc = (ROOT / "HANDOVER.md").read_text(encoding="utf-8")
+        m = re.search(r"\*\*(\d+) guards, 0 failed\*\*", doc)
+        self.assertIsNotNone(m, "the handover states no guard count")
+        total = TestGather.g["guards_total"]
+        self.assertEqual(total, int(m.group(1)),
+                         f"the handover says {m.group(1)}, the audit runs {total}")
+
 
 class TestGuard(unittest.TestCase):
     def test_the_committed_page_is_current(self):

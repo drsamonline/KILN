@@ -667,6 +667,59 @@ def check_counts() -> list[Row]:
     wrong = {f: sorted(v) for f, v in stated.items() if real not in v}
     rows.append(Row("C16 every stated test count matches", not wrong,
                     "; ".join(f"{f}: {v}" for f, v in wrong.items())))
+    # The README's tests badge is hand-maintained and no test read it: it said 566
+    # while discovery ran 572. A badge is a stated number like any other.
+    readme = ROOT / "README.md"
+    if readme.exists():
+        m = re.search(r"tests-(\d+)%20passing", readme.read_text(encoding="utf-8"))
+        rows.append(Row("C16 the README tests badge matches",
+                        bool(m) and int(m.group(1)) == real,
+                        f"badge says {m.group(1)}, is {real}" if m
+                        else "no tests badge found"))
+    return rows
+
+
+# ------------------------------------------------ C27 the archetype count is a file count
+# The catalogue's size is a directory listing, so there is no reason for prose to
+# remember it. Three documents said 24 while the directory held 30, and the number
+# had already been wrong at the commit that claimed the catalogue was complete.
+ARITY_DOCS = ("README.md", "HANDOVER.md", "RELEASE.md", "USAGE.md", "INSTALL.md",
+              "CHANGELOG.md")
+# Only phrases that claim a total. "10 gallery specs and 10 archetypes" describes one
+# old studio build, and "A3 archetype" is a guard id; neither is a claim about the
+# catalogue, and a guard that fires on them teaches people to ignore it.
+ARITY_RES = (
+    re.compile(r"all\s+(\d+)\s+archetypes", re.I),
+    re.compile(r"(\d+)-archetype", re.I),
+    re.compile(r"(\d+)\s+pattern descriptors", re.I),
+    re.compile(r"(\d+)\s+archetypes\s*,\s*\d+\s+capabilities", re.I),
+)
+
+
+def check_stated_archetypes(root=None) -> list[Row]:
+    """Every stated archetype count must equal the number of pattern files."""
+    root = Path(root) if root else ROOT
+    real = len(sorted((root / "catalogue" / "patterns").glob("*.json")))
+    rows = [Row("C27 archetypes were counted", real > 0, f"{real} pattern descriptors")]
+    if not real:
+        return rows
+    checked, wrong = 0, {}
+    for name in ARITY_DOCS:
+        p = root / name
+        if not p.exists():
+            continue
+        checked += 1
+        text = p.read_text(encoding="utf-8")
+        for rx in ARITY_RES:
+            for m in rx.finditer(text):
+                n = int(m.group(1))
+                if n != real:
+                    wrong.setdefault(name, set()).add(n)
+    rows.append(Row("C27 every stated archetype count matches the catalogue",
+                    not wrong,
+                    "; ".join(f"{f}: says {sorted(v)}, is {real}"
+                              for f, v in sorted(wrong.items()))
+                    if wrong else f"{checked} documents checked, all say {real}"))
     return rows
 
 
@@ -873,6 +926,7 @@ def audit(catalog, write=False) -> list[Row]:
     # compare them, after both have been written.
     rows += check_prose_punctuation()
     rows += check_counts()
+    rows += check_stated_archetypes()
     rows += check_guides(catalog)
     rows += check_licensing()
     rows += check_gallery(catalog)

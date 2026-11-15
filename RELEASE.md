@@ -15,7 +15,7 @@
 | What a tag means | the tree that passed every gate, published under a version |
 
 The policy was written when the compiler was changing daily and a version number would have
-been a guess. It has since settled: 24 archetypes, 50 capabilities, 33 specs and 566 tests,
+been a guess. It has since settled: 30 archetypes, 50 capabilities, 33 specs and 574 tests,
 all green. The owner released `v1.0.14` on 2026-11-14.
 
 ---
@@ -37,7 +37,7 @@ all green. The owner released `v1.0.14` on 2026-11-14.
 
 | Version | Date | Commit | What it was |
 |---|---|---|---|
-| v1.0.14 | 2026-11-14 | first release | the 24-archetype catalogue complete, the handover written, every gate green |
+| v1.0.14 | 2026-11-14 | first release | the 30-archetype catalogue complete, the handover written, every gate green |
 
 ---
 

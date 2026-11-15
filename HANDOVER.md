@@ -1,6 +1,6 @@
 # Handover
 
-Written 2026-11-14 at v1.0.14. This file is for whoever picks the repository up next,
+Written 2026-11-15 at v1.0.15. This file is for whoever picks the repository up next,
 human or model. It says where things are, what is true, and what is deliberately not done.
 
 ---
@@ -9,9 +9,9 @@ human or model. It says where things are, what is true, and what is deliberately
 
 | Gate | Result |
 |---|---|
-| `kiln audit` | **455 guards, 0 failed**, 1 skipped (shellcheck, when the machine lacks it) |
+| `kiln audit` | **462 guards, 0 failed**, 1 skipped (shellcheck, when the machine lacks it) |
 | `kiln verify --all` | **33 specs, 0 failing** |
-| `python3 -m unittest discover -s tests` | **566 tests, OK** |
+| `python3 -m unittest discover -s tests` | **574 tests, OK** |
 | CI | **10 jobs, all green** |
 | Releases and tags | **zero**, by policy in [`RELEASE.md`](RELEASE.md) |
 | Largest generated app | 57 KB, against a 100 KB ceiling |
@@ -45,9 +45,9 @@ Reproduce all of it with one command: `python3 -m kiln report`.
 | `templates/app/index.html` | the single-file runtime, sliced per capability |
 | `templates/studio/index.html` | the browser builder, 209 KB, one file |
 | `templates/demo/index.html` | the gallery, 355 KB, 33 specs listed, 4 run live |
-| `catalogue/` | 50 capabilities, 84 registry entries, 24 pattern descriptors |
+| `catalogue/` | 50 capabilities, 84 registry entries, 30 pattern descriptors |
 | `specs/gallery/` | 30 working specs, one per archetype |
-| `tests/` | 566 tests; `tests/_extract.py` pulls a JS function out by boundary |
+| `tests/` | 574 tests; `tests/_extract.py` pulls a JS function out by boundary |
 | `docs/status.html` | every gate, measured. `kiln report --write` |
 | `docs/changelog.html` | every version, print-ready. `kiln changelog --write` |
 | `docs/badge.json` | shields endpoint. `kiln report --badge` |
@@ -62,6 +62,7 @@ Reproduce all of it with one command: `python3 -m kiln report`.
 | a name used by a capability that does not declare it | the app rendered blank, four times | **C18** |
 | a derived figure computed inside the row loop | 1000 rows took 1198 ms | **C19** |
 | a stated size that drifted | the README claimed 21 KB for a 50 KB app | **C20** |
+| a stated count that drifted | three documents said 24 archetypes against 30 files | **C27** |
 | a generated page that went stale | the printable changelog | **C21** |
 | an em dash used as a connector | 77 of them across 30 documents | **C22** |
 | a status page from an older version | — | **C23** |

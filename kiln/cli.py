@@ -158,6 +158,20 @@ def cmd_verify(args, catalog) -> int:
                 bad += bool(fails)
         print(f"\n{len(specmod.spec_paths(ROOT))} specs, {bad} failing")
         return 1 if bad else 0
+    target = Path(args.dir)
+    if not target.exists():
+        print(f"{args.dir}: no such file or directory")
+        return 2
+    if target.is_file():
+        # A wrong argument must never read as a defective app. Handed a spec or an
+        # html file, check_app() found no index.html and reported "FAIL L3 file
+        # index.html (missing or empty)", which looks like a bug in the emitter.
+        print(f"{args.dir} is a file. verify reads the directory a build wrote.")
+        if target.suffix in (".md", ".json"):
+            print(f"  build it first:  python3 -m kiln build {args.dir} --out <dir>")
+            print(f"  then:            python3 -m kiln verify <dir>")
+        print(f"  or check every spec at once:  python3 -m kiln verify --all")
+        return 2
     res = verify.check_app(args.dir, catalog)
     if getattr(args, "golden", False) or getattr(args, "update_golden", False):
         g = verify.golden(args.dir, update=getattr(args, "update_golden", False))
