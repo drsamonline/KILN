@@ -28,6 +28,8 @@ all green. The owner released `v1.0.14` on 2026-11-14.
 | Generated apps | yes — `kiln build` |
 | The landing page and demo | yes — Pages, on `main` |
 | Tagged releases, source zip | **yes — `v1.0.14`** |
+| **The apps themselves, pre-built** | **yes — `KILN-apps-1.0.14.zip`, 33 apps and an index** |
+| The studio as one file | yes — `studio-1.0.14.html` |
 | Printable changelog | yes — attached to the release, and at `docs/changelog.html` |
 | EXE / APK builds | not wired |
 
@@ -35,9 +37,18 @@ all green. The owner released `v1.0.14` on 2026-11-14.
 
 ## Published releases
 
-| Version | Date | Commit | What it was |
+| Version | Date | Assets | What it was |
 |---|---|---|---|
-| v1.0.14 | 2026-11-14 | first release | the 24-archetype catalogue complete, the handover written, every gate green |
+| v1.0.14 | 2026-11-14 | source zip, **33 built apps**, studio, printable changelog | the 24-archetype catalogue complete, the handover written, every gate green |
+
+### What each asset is for
+
+| Asset | Who it is for | What to do with it |
+|---|---|---|
+| `KILN-1.0.14.zip` | anyone building their own | unzip, `python3 -m kiln build spec.md` |
+| `KILN-apps-1.0.14.zip` | anyone who just wants the apps | unzip, open `index.html`, click an app. No Python, no server |
+| `studio-1.0.14.html` | anyone who wants to build without a terminal | open it in a browser, pick capabilities, download the app. Works on a phone, offline |
+| `KILN-changelog.pdf` | anyone checking the history | 22 A4 pages, every version |
 
 ---
 
