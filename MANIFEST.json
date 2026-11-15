@@ -1,7 +1,7 @@
 {
   "name": "KILN",
   "tagline": "Spec in. Finished app out.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "kind": "compiler",
   "language": "Python",
   "runtime": "python>=3.9",
@@ -25,7 +25,7 @@
     "kits": 5
   },
   "verification": {
-    "tests": 577,
+    "tests": 583,
     "guards": 460,
     "ci": ".github/workflows/kiln.yml"
   },
@@ -169,5 +169,11 @@
     "flow": "keygen -> issue -> activate -> build",
     "pinned_key": "owner-generated: run `kiln licence keygen` once and commit catalogue/licence-key.json. Not shipped with the repo."
   },
-  "status_feed": "https://raw.githubusercontent.com/drsamonline/KILN/status/status.json \u2014 republished by CI on every push to main"
+  "status_feed": "https://raw.githubusercontent.com/drsamonline/KILN/status/status.json \u2014 republished by CI on every push to main",
+  "specs": {
+    "top_level": 3,
+    "gallery": 30,
+    "fleet": 3,
+    "total": 37
+  }
 }

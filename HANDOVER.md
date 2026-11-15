@@ -1,6 +1,6 @@
 # Handover
 
-Written 2026-11-15 at v1.1.0. This file is for whoever picks the repository up next,
+Written 2026-11-15 at v1.2.0. This file is for whoever picks the repository up next,
 human or model. It says where things are, what is true, and what is deliberately not done.
 
 ---
@@ -10,8 +10,8 @@ human or model. It says where things are, what is true, and what is deliberately
 | Gate | Result |
 |---|---|
 | `kiln audit` | **460 guards, 0 failed**, 1 skipped (shellcheck, when the machine lacks it) |
-| `kiln verify --all` | **34 specs, 0 failing** |
-| `python3 -m unittest discover -s tests` | **577 tests, OK** |
+| `kiln verify --all` | **37 specs, 0 failing** |
+| `python3 -m unittest discover -s tests` | **583 tests, OK** |
 | CI | **10 jobs, all green** |
 | Releases and tags | **zero**, by policy in [`RELEASE.md`](RELEASE.md) |
 | Largest generated app | 57 KB, against a 100 KB ceiling |
@@ -99,9 +99,8 @@ Reproduce all of it with one command: `python3 -m kiln report`.
 
 ## The next three things worth doing
 
-1. **`specs/fleet/`.** Three fleet apps were rebuilt as specs on 2026-11-14 and all three
-   compiled: `today-card`, the BMI calculator, and the NTET quiz. They are not in the
-   repository yet. Adding them proves the absorption path on real code.
+1. ~~`specs/fleet/`~~ — **done at v1.2.0.** `today-card`, the BMI calculator and the NTET
+   quiz are in `specs/fleet/`, build in CI, and are described in `docs/FLEET-SPECS.md`.
 2. **The fleet index.** Every generated app in one page, installable as a PWA. The pieces
    exist in three repos; nothing joins them.
 

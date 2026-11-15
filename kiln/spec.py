@@ -805,7 +805,8 @@ def spec_paths(root=None) -> list[Path]:
     """Every spec in the repository, gallery included. One list, used everywhere."""
     from pathlib import Path as _P
     base = _P(root) if root else _P(__file__).resolve().parent.parent
-    out = sorted(base.glob("specs/*.md")) + sorted(base.glob("specs/gallery/*.md"))
+    out = (sorted(base.glob("specs/*.md")) + sorted(base.glob("specs/gallery/*.md"))
+           + sorted(base.glob("specs/fleet/*.md")))
     return [f for f in out if f.name.lower() != "readme.md"]
 
 

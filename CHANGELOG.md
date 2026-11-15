@@ -4,6 +4,17 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.2.0 — 2026-11-15
+
+Three fleet apps became specs, so the absorption claim is now a build.
+
+| Area | Change |
+|---|---|
+| Added | `specs/fleet/`: `today-card` (journal + detail), the BMI calculator (`calculator`), the NTET quiz (`quiz`). Each names the repository it came from, and each builds in CI |
+| Added | [`docs/FLEET-SPECS.md`](docs/FLEET-SPECS.md): what each one proves, and what each one leaves out |
+| Fixed | `spec_paths` did not look in `specs/fleet/`, so the new specs were invisible to `verify --all` |
+| Counts | **37 specs**, 583 tests, 460 guards |
+
 ## v1.1.0 — 2026-11-15
 
 Encryption at rest, and two bugs the gating exposed.
