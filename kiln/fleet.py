@@ -161,14 +161,30 @@ function pick(id) {{
   pick.current = a;
 }}
 
-/* one backup for the whole fleet: read each app's own storage key */
+/* one backup for the whole fleet.
+   Every key an app owns is copied, not just its data key: an encrypted app keeps its
+   salt under <key>:salt, and a blob restored without its salt cannot be opened on
+   another machine. The backup is the app's whole corner of storage. */
+function keysOf(ns) {{
+  const prefix = "kiln:" + ns;
+  const out = [];
+  for (let i = 0; i < localStorage.length; i++) {{
+    const k = localStorage.key(i);
+    if (k === prefix || (k && k.indexOf(prefix + ":") === 0)) out.push(k);
+  }}
+  return out;
+}}
+
 function backup() {{
   const out = {{kiln: DATA.version, exported: new Date().toISOString(), apps: {{}}}};
-  let n = 0;
+  let n = 0, keys = 0;
   DATA.apps.forEach((a) => {{
-    const key = "kiln:" + a.ns;
-    const v = localStorage.getItem(key);
-    if (v !== null) {{ out.apps[a.id] = {{namespace: a.ns, value: v}}; n += 1; }}
+    const own = keysOf(a.ns);
+    if (!own.length) return;
+    const entries = {{}};
+    own.forEach((k) => {{ entries[k] = localStorage.getItem(k); keys += 1; }});
+    out.apps[a.id] = {{namespace: a.ns, keys: entries}};
+    n += 1;
   }});
   const blob = new Blob([JSON.stringify(out, null, 2)], {{type: "application/json"}});
   const url = URL.createObjectURL(blob);
@@ -178,7 +194,7 @@ function backup() {{
   link.click();
   URL.revokeObjectURL(url);
   el("status").innerHTML = '<span class="ok">Backed up ' + n + " of " + DATA.apps.length +
-    " apps that hold data.</span>";
+    " apps that hold data (" + keys + " storage keys, salt included).</span>";
 }}
 
 function restore(file) {{
@@ -187,15 +203,24 @@ function restore(file) {{
     try {{
       const doc = JSON.parse(fr.result);
       if (!doc || !doc.apps) throw new Error("not a fleet backup");
-      let n = 0;
+      let n = 0, keys = 0;
       Object.keys(doc.apps).forEach((id) => {{
         const entry = doc.apps[id];
-        if (!entry || typeof entry.value !== "string") return;
-        localStorage.setItem("kiln:" + entry.namespace, entry.value);
-        n += 1;
+        if (!entry) return;
+        if (entry.keys && typeof entry.keys === "object") {{
+          Object.keys(entry.keys).forEach((k) => {{
+            const v = entry.keys[k];
+            if (typeof v === "string") {{ localStorage.setItem(k, v); keys += 1; }}
+          }});
+          n += 1;
+        }} else if (typeof entry.value === "string") {{
+          /* a backup from before 1.3.1 carried the data key only */
+          localStorage.setItem("kiln:" + entry.namespace, entry.value);
+          keys += 1; n += 1;
+        }}
       }});
-      el("status").innerHTML = '<span class="ok">Restored ' + n +
-        " apps. Open one to see its data.</span>";
+      el("status").innerHTML = '<span class="ok">Restored ' + n + " apps (" + keys +
+        " storage keys). A locked app still asks for its passphrase.</span>";
       if (pick.current) pick(pick.current.id);
     }} catch (e) {{
       el("status").innerHTML = '<span class="bad">' + e.message + "</span>";

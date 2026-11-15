@@ -57,6 +57,16 @@ class TestBuild(unittest.TestCase):
         self.assertIn("kiln:", self.html)          # the storage key prefix
         self.assertIn("Restore", self.html)
 
+    def test_the_backup_copies_every_key_an_app_owns(self):
+        """A sealed app keeps its salt under <key>:salt; without it the blob cannot
+        be opened on another machine, so the backup must take the whole corner."""
+        self.assertIn("function keysOf(ns)", self.html)
+        self.assertIn('k.indexOf(prefix + ":") === 0', self.html)
+        self.assertIn("keys: entries", self.html)
+
+    def test_the_restore_accepts_the_older_single_key_shape(self):
+        self.assertIn("typeof entry.value === \"string\"", self.html)
+
     def test_no_app_is_loaded_over_the_network(self):
         for bad in ('src="http', "<script src", "fetch(\"http"):
             self.assertNotIn(bad, self.html)
@@ -84,7 +94,7 @@ window.addEventListener("load", function () {
     setTimeout(function () {
       out.push("status=" + /Backed up \\d+ of/.test(document.querySelector("#status").textContent));
       document.title = "DBG|" + out.join("|");
-    }, 250);
+    }, 900);
   }, 350);
 });
 </script>"""
@@ -100,6 +110,63 @@ window.addEventListener("load", function () {
         self.assertIn("apps=37", got)
         self.assertIn("picked=true", got)
         self.assertIn("status=true", got)
+
+
+class TestBackup(unittest.TestCase):
+    """The backup is the only way data leaves an app, so it is driven, not inspected."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.html = fleetmod.build(cat.load())["index.html"]
+
+    def setUp(self):
+        if not shutil.which("chromium"):
+            self.skipTest("chromium is not on PATH")
+
+    def test_the_salt_survives_a_backup_and_a_restore(self):
+        probe = """
+<script>
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    var out = [];
+    localStorage.setItem("kiln:sealed-log", '{"v":1,"enc":"AES-GCM","data":"AAAA"}');
+    localStorage.setItem("kiln:sealed-log:salt", "c2FsdA==");
+    localStorage.setItem("kiln:journal", '{"v":1,"rows":[]}');
+    var captured = null;
+    window.Blob = function (parts) { captured = parts.join(""); };
+    window.URL.createObjectURL = function () { return "blob:x"; };
+    window.URL.revokeObjectURL = function () {};
+    var origCreate = document.createElement.bind(document);
+    document.createElement = function (t) {
+      var el = origCreate(t);
+      if (t === "a") el.click = function () {};
+      return el;
+    };
+    document.querySelector("#backup").click();
+    out.push("saltInBackup=" + ((captured || "").indexOf("\\"kiln:sealed-log:salt\\"") >= 0));
+    localStorage.clear();
+    restore(new File([captured], "b.json", {type: "application/json"}));
+    out.push("restoreCalled=true");
+    setTimeout(function () {
+      out.push("blobBack=" + (localStorage.getItem("kiln:sealed-log") !== null));
+      out.push("saltBack=" + (localStorage.getItem("kiln:sealed-log:salt") === "c2FsdA=="));
+      out.push("plainBack=" + (localStorage.getItem("kiln:journal") !== null));
+      document.title = "DBG|" + out.join("|");
+    }, 900);
+  }, 350);
+});
+</script>"""
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "index.html"
+            p.write_text(self.html.replace("</body>", probe + "</body>"), encoding="utf-8")
+            r = subprocess.run(["chromium", "--headless=new", "--disable-gpu", "--no-sandbox",
+                                "--allow-file-access-from-files", "--virtual-time-budget=15000",
+                                "--dump-dom", p.as_uri()], capture_output=True, text=True)
+        title = re.search(r"<title>([^<]*)</title>", r.stdout)
+        self.assertIsNotNone(title, r.stderr[:200])
+        got = title.group(1)
+        for want in ("saltInBackup=true", "blobBack=true", "saltBack=true", "plainBack=true"):
+            self.assertIn(want, got, got)
 
 
 class TestGuard(unittest.TestCase):

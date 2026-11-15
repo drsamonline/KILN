@@ -1,6 +1,6 @@
 # Handover
 
-Written 2026-11-15 at v1.3.0. This file is for whoever picks the repository up next,
+Written 2026-11-15 at v1.3.1. This file is for whoever picks the repository up next,
 human or model. It says where things are, what is true, and what is deliberately not done.
 
 ---
@@ -11,7 +11,7 @@ human or model. It says where things are, what is true, and what is deliberately
 |---|---|
 | `kiln audit` | **465 guards, 0 failed**, 1 skipped (shellcheck, when the machine lacks it) |
 | `kiln verify --all` | **37 specs, 0 failing** |
-| `python3 -m unittest discover -s tests` | **593 tests, OK** |
+| `python3 -m unittest discover -s tests` | **596 tests, OK** |
 | CI | **10 jobs, all green** |
 | Releases and tags | **zero**, by policy in [`RELEASE.md`](RELEASE.md) |
 | Largest generated app | 57 KB, against a 100 KB ceiling |

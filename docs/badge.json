@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "gates",
-  "message": "463/465 guards, 0 spec failures",
-  "color": "red"
+  "message": "464/465 guards, 0 spec failures",
+  "color": "brightgreen"
 }

@@ -1,5 +1,5 @@
 /* the fleet index is one file, so the cache is one entry plus the shell */
-const CACHE = "kiln-fleet-1.3.0";
+const CACHE = "kiln-fleet-1.3.1";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {

@@ -4,6 +4,19 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.3.1 — 2026-11-15
+
+The fleet backup now carries an encrypted app's salt, so a restored locked app can
+actually be opened.
+
+| Area | Change |
+|---|---|
+| **Fixed** | the backup copied one key per app, `kiln:<namespace>`. An encrypted app keeps its salt at `kiln:<namespace>:salt`, so a backup restored on another machine had the blob and not the salt, and the app refused to open: "the salt is missing from this device" |
+| Backup | copies **every key an app owns**, not just its data key, and reports how many |
+| Restore | puts every key back, and still accepts a backup written before this fix |
+| Tests | 2 that drive the whole round trip in a browser: seed a sealed blob and its salt, back up, wipe, restore, and check all three keys return |
+| Counts | 596 tests, 465 guards |
+
 ## v1.3.0 — 2026-11-15
 
 Every app in one installable page, with one backup for all of them.
