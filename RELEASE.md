@@ -1,6 +1,6 @@
 # Releases
 
-**Releases are published on the owner's instruction.** The latest is `v1.2.0`, on
+**Releases are published on the owner's instruction.** The latest is `v1.3.0`, on
 2026-11-15.
 
 ---
@@ -41,14 +41,16 @@ all green. The owner released `v1.0.14` on 2026-11-14.
 |---|---|---|---|
 | v1.0.14 | 2026-11-14 | source zip, 33 built apps, studio, printable changelog | the 24-archetype catalogue complete, the handover written, every gate green |
 | v1.1.0 | 2026-11-15 | source zip, 34 built apps, studio, printable changelog | encryption at rest as one capability, and two template bugs fixed |
-| v1.2.0 | 2026-11-15 | source zip, **37 built apps**, studio, printable changelog | three fleet apps rebuilt as specs, so the absorption claim builds in CI |
+| v1.2.0 | 2026-11-15 | source zip, 37 built apps, studio, printable changelog | three fleet apps rebuilt as specs, so the absorption claim builds in CI |
+| v1.3.0 | 2026-11-15 | source zip, 37 built apps, studio, printable changelog, **the fleet page as one file** | every app in one installable page, with one backup for all of them |
 
 ### What each asset is for
 
 | Asset | Who it is for | What to do with it |
 |---|---|---|
 | `KILN-1.0.14.zip` | anyone building their own | unzip, `python3 -m kiln build spec.md` |
-| `KILN-apps-1.0.14.zip` | anyone who just wants the apps | unzip, open `index.html`, click an app. No Python, no server |
+| `KILN-apps-1.3.0.zip` | anyone who just wants the apps | unzip, open `index.html`, click an app. No Python, no server |
+| `fleet-1.3.0.html` | anyone who wants all of them in one page | open it, pick an app, back up every app's data at once |
 | `studio-1.0.14.html` | anyone who wants to build without a terminal | open it in a browser, pick capabilities, download the app. Works on a phone, offline |
 | `KILN-changelog.pdf` | anyone checking the history | 22 A4 pages, every version |
 
