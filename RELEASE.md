@@ -1,6 +1,6 @@
 # Releases
 
-**Releases are published on the owner's instruction.** The latest is `v1.1.0`, on
+**Releases are published on the owner's instruction.** The latest is `v1.2.0`, on
 2026-11-15.
 
 ---
@@ -40,7 +40,8 @@ all green. The owner released `v1.0.14` on 2026-11-14.
 | Version | Date | Assets | What it was |
 |---|---|---|---|
 | v1.0.14 | 2026-11-14 | source zip, 33 built apps, studio, printable changelog | the 24-archetype catalogue complete, the handover written, every gate green |
-| v1.1.0 | 2026-11-15 | source zip, **34 built apps**, studio, printable changelog | encryption at rest as one capability, and two template bugs fixed |
+| v1.1.0 | 2026-11-15 | source zip, 34 built apps, studio, printable changelog | encryption at rest as one capability, and two template bugs fixed |
+| v1.2.0 | 2026-11-15 | source zip, **37 built apps**, studio, printable changelog | three fleet apps rebuilt as specs, so the absorption claim builds in CI |
 
 ### What each asset is for
 
