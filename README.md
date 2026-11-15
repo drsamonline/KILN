@@ -8,7 +8,7 @@ A deterministic compiler that turns a small specification into a complete, worki
 offline application: one HTML file. No model in the loop, no network, nothing to install.
 
 [![CI](https://github.com/drsamonline/KILN/actions/workflows/kiln.yml/badge.svg)](https://github.com/drsamonline/KILN/actions/workflows/kiln.yml)
-[![tests](https://img.shields.io/badge/tests-583%20passing-brightgreen)](#verification)
+[![tests](https://img.shields.io/badge/tests-593%20passing-brightgreen)](#verification)
 [![gates](https://img.shields.io/endpoint?url=https%3A%2F%2Fdrsamonline.github.io%2FKILN%2Fdocs%2Fbadge.json)](#verification)
 [![status json](https://img.shields.io/badge/status-machine%20readable-informational)](#verification)
 [![dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)](#self-contained)
@@ -20,6 +20,7 @@ offline application: one HTML file. No model in the loop, no network, nothing to
 [Landing page](https://drsamonline.github.io/KILN/) ·
 [Live demo](demo.html): a gallery of every spec ·
 [Studio](studio.html) ·
+[The fleet](fleet/index.html) ·
 [User guide](USAGE.md) ·
 [All docs](docs/README.md) ·
 [Handover](HANDOVER.md) ·
@@ -132,6 +133,7 @@ then a passing verification.
 | `kiln sizes` / `--write` | measure the real sizes and rewrite every doc that states one | no |
 | `kiln changelog` / `--write` | render `CHANGELOG.md` as a printable page | no |
 | `kiln report` / `--write` | run every gate and write one status page | no |
+| `kiln fleet` / `--write` | every app in one installable page, with one backup | no |
 | `kiln demo` | rebuild `demo.html` | no |
 | `kiln catalog` | features, kits, assertions | no |
 | `kiln audit` | 452 guards over this repository | no |
@@ -190,7 +192,7 @@ Nothing here is claimed without a command and its output.
 
 | Check | What it proves |
 |---|---|
-| `python3 -m unittest discover -s tests` | 583 tests, Python 3.9 → 3.13 |
+| `python3 -m unittest discover -s tests` | 593 tests, Python 3.9 → 3.13 |
 | `python3 -m kiln verify --all` | every spec builds; 700+ checks across thirteen specs |
 | `python3 -m kiln audit` | 85 guards: wiring, drift, licences, workflows, studio, prompt, site, links, support |
 | `kiln verify --at <sha>` | the artifact is read at the commit, not the working tree |
@@ -266,7 +268,7 @@ the usual shapes are below, and the first one costs nothing.
 | `kiln/` | the compiler, including `guide.py`, which writes two of the guides |
 | `templates/` | the runtime, the studio, the demo |
 | `specs/` | one spec per app; `specs/gallery/` holds one per archetype |
-| `tests/` | 583 tests: the Ed25519 RFC vector, determinism, the registry, the archetypes, and the tracker maths run under node |
+| `tests/` | 593 tests: the Ed25519 RFC vector, determinism, the registry, the archetypes, and the tracker maths run under node |
 | `docs/` | architecture, portability, workflow, self-containment, spec reference, FAQ, [patterns](docs/PATTERNS.md) — start at [`docs/README.md`](docs/README.md) |
 | `INDEX.md` | generated list of every spec |
 | `CITATION.cff` | how to cite it |

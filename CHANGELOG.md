@@ -4,6 +4,20 @@ Every entry is a change a user can see. Dates are ISO. Versions are `MAJOR.MINOR
 
 ---
 
+## v1.3.0 — 2026-11-15
+
+Every app in one installable page, with one backup for all of them.
+
+| Area | Change |
+|---|---|
+| Command | `kiln fleet --write` generates `fleet/`: an index carrying all 37 apps, a web manifest and a service worker |
+| Installable | served over http it installs as an app, and the worker caches the shell, so it opens offline |
+| One file | the apps are inlined, not linked, so the index also works from a USB stick |
+| **One backup** | "Back up all data" reads every app's storage at once and writes one JSON file; "Restore" puts it back. Same-origin srcdoc frames are what make that possible without a server |
+| Guard | **C27** fails the audit when `fleet/` is stale, when it does not list every spec, or when the backup is gone |
+| CI | the fleet page joins studio and demo in the "generated pages must match their sources" step |
+| Counts | 465 guards, 593 tests |
+
 ## v1.2.0 — 2026-11-15
 
 Three fleet apps became specs, so the absorption claim is now a build.

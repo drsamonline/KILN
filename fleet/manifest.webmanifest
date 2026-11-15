@@ -1,0 +1,18 @@
+{
+  "name": "KILN fleet",
+  "short_name": "KILN",
+  "description": "Every KILN app in one file. Offline, installable, one backup for all.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f1116",
+  "theme_color": "#0f1116",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9Ijk2IiBmaWxsPSIjMGYxMTE2Ii8+PHBhdGggZD0iTTEzMCAxMjBoNzB2MTIybDEwMi0xMjJoODZMjc4IDI0MGw5MiAxNTJoLTg2bC02MC0xMDQtMzAgMzR2NzBoLTcwVjEyMHoiIGZpbGw9IiM3YzljZmYiLz48L3N2Zz4=",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

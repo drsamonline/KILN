@@ -593,6 +593,29 @@ def check_status_page(catalog) -> list[Row]:
     return [Row("C23 the status page is current", True, f"v{__version__}")]
 
 
+def check_fleet(catalog) -> list[Row]:
+    """The fleet index is generated, so it can be checked like any other page."""
+    from . import fleet as fleetmod
+    if not fleetmod.OUT.exists():
+        return [Row("C27 the fleet index exists", False,
+                    "run: python3 -m kiln fleet --write")]
+    fresh = fleetmod.build(catalog)
+    rows = []
+    for name, text in fresh.items():
+        p = fleetmod.OUT / name
+        ok = p.exists() and p.read_text(encoding="utf-8") == text
+        rows.append(Row(f"C27 fleet/{name} matches its sources", ok,
+                        "" if ok else "stale, run: python3 -m kiln fleet --write"))
+    html = fresh["index.html"]
+    rows.append(Row("C27 the fleet index lists every spec",
+                    html.count('class="app"') == len(__import__("kiln.spec", fromlist=["x"])
+                                                     .spec_paths(ROOT)),
+                    f'{html.count(chr(34) + "app" + chr(34))} cards'))
+    rows.append(Row("C27 the fleet index can back up every app",
+                    "Back up all data" in html and "kiln:" in html))
+    return rows
+
+
 def check_changelog_report(catalog) -> list[Row]:
     """The printable changelog must be the changelog, not a stale copy of it."""
     from . import changelog as chlogmod
@@ -866,6 +889,7 @@ def audit(catalog, write=False) -> list[Row]:
     rows += check_row_loop_is_linear(catalog)
     rows += check_sizes(catalog)
     rows += check_changelog_report(catalog)
+    rows += check_fleet(catalog)
     rows += check_status_page(catalog)
     # check_badge() is deliberately not here: the badge's colour is decided by
     # the page's verdict, and the page's verdict would include this guard, so

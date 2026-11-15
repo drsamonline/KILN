@@ -12,6 +12,7 @@ from pathlib import Path
 from . import adopt as adoptmod
 from . import catalog as cat
 from . import changelog as chlogmod
+from . import fleet as fleetmod
 from . import report as reportmod
 from . import completions as compmod
 from . import sizes as sizesmod
@@ -242,6 +243,27 @@ def cmd_completions(args, catalog=None) -> int:
     except ValueError as e:
         print(str(e))
         return 2
+    return 0
+
+
+def cmd_fleet(args, catalog) -> int:
+    """Every app in one installable page, with one backup for all of them."""
+    if args.write:
+        written = fleetmod.write(catalog)
+        for p in written:
+            print(f"wrote {p}  ({p.stat().st_size / 1024:.0f} KB)")
+        print("serve it over http to install it as an app; file:// works for reading")
+        return 0
+    fresh = fleetmod.build(catalog)
+    stale = []
+    for name, text in fresh.items():
+        p = fleetmod.OUT / name
+        if not p.exists() or p.read_text(encoding="utf-8") != text:
+            stale.append(name)
+    if stale:
+        print("stale: " + ", ".join(stale) + " — run: python3 -m kiln fleet --write")
+        return 1
+    print(f"fleet/ is current ({len(fresh)} files)")
     return 0
 
 
@@ -615,6 +637,10 @@ def main(argv=None) -> int:
     p = sub.add_parser("completions", help="shell completions for bash, zsh or fish")
     p.add_argument("shell", choices=sorted(compmod.SHELLS))
     p.set_defaults(fn=cmd_completions)
+
+    p = sub.add_parser("fleet", help="every app in one installable page")
+    p.add_argument("--write", action="store_true")
+    p.set_defaults(fn=cmd_fleet)
 
     p = sub.add_parser("report", help="run every gate and write one status page")
     p.add_argument("--write", action="store_true")
