@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-15",
+  "failures": [],
+  "generated_at": "2026-11-28T13:13:57Z",
+  "guards": {
+    "failed": 0,
+    "passed": 465,
+    "skipped": 0,
+    "total": 465
+  },
+  "ok": true,
+  "sizes_kb": {
+    "app": 50,
+    "ceiling": 100,
+    "demo": 358,
+    "largest": 58,
+    "smallest": 49,
+    "studio": 216
+  },
+  "skips": [],
+  "specs": {
+    "checks": 2040,
+    "failed": 0,
+    "total": 37
+  },
+  "version": "1.3.2",
+  "versions": 48
+}
